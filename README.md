@@ -1,16 +1,44 @@
-# React + Vite
+# AGST Plataforma - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este projeto é o frontend da plataforma AGST, desenvolvido utilizando React e Vite.
 
-Currently, two official plugins are available:
+## Como Começar
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Para rodar este projeto localmente, siga os passos abaixo.
 
-## React Compiler
+### Pré-requisitos
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js (versão 20.x ou superior)
+- npm (geralmente vem com o Node.js)
 
-## Expanding the ESLint configuration
+### Instalação
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1.  Clone o repositório (se aplicável).
+2.  Navegue até o diretório do projeto.
+3.  Instale as dependências:
+    ```sh
+    npm install
+    ```
+
+### Rodando em Desenvolvimento
+
+Para iniciar o servidor de desenvolvimento com Hot-Module-Replacement (HMR), execute:
+
+```sh
+npm run dev
+```
+
+### Build para Produção
+
+Para criar uma build otimizada para produção, execute:
+
+```sh
+npm run build
+```
+
+## Tecnologias Utilizadas
+
+-   **React 19**: Biblioteca para construção de interfaces de usuário.
+-   **Vite**: Ferramenta de build moderna e rápida para desenvolvimento web.
+-   **React Router DOM**: Para gerenciamento de rotas na aplicação.
+-   **ESLint**: Para garantir a qualidade e a padronização do código.
