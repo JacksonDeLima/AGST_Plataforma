@@ -1,0 +1,65 @@
+.automacao-container {
+  max-width: 650px;
+  margin: 40px auto;
+  background: #fff;
+  padding: 28px;
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.08);
+}
+
+.titulo {
+  font-size: 1.9rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.subtitulo {
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.form-automacao {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.input {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 1rem;
+}
+
+.secao {
+  font-size: 1.3rem;
+  margin-top: 25px;
+  font-weight: bold;
+}
+
+.btn-salvar {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 12px;
+  margin-top: 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-salvar:hover {
+  background: #1d4ed8;
+}
+
+.json-preview {
+  background: #111;
+  color: #0f0;
+  padding: 15px;
+  margin-top: 30px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  overflow-x: auto;
+}
