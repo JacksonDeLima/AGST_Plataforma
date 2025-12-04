@@ -2,7 +2,9 @@ import { Routes, Route } from "react-router-dom";
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Equipamentos from "../pages/Equipamentos/Equipamentos";
-// import Automacoes from "../pages/Automacoes/Automacoes";
+import EsqueciSenha from "../pages/EsqueciSenha/EsqueciSenha";
+import CriarConta from "../pages/CriarConta/CriarConta";
+import Activation from "../pages/Activation/activation";
 // import Relatorios from "../pages/Relatorios/Relatorios";
 // import GerirUsuarios from "../pages/GerirUsuarios/GerirUsuarios";
 // import Alarmes from "../pages/Alarmes/Alarmes";
@@ -14,6 +16,9 @@ export default function AppRoutes() {
       <Route path="/" element={<Login />} />
       <Route path="/dashboard" element={<Dashboard />} /> 
       <Route path="/equipamentos" element={<Equipamentos />} />
+      <Route path="/esqueciSenha" element={<EsqueciSenha />} />
+      <Route path="/criarConta" element={<CriarConta />} />
+      <Route path="/activation" element={<Activation />} />
       {/* <Route path="/automacoes" element={<Automacoes />} />
       <Route path="/relatorios" element={<Relatorios />} />
       <Route path="/gerir-usuarios" element={<GerirUsuarios />} />

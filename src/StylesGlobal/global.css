@@ -1,0 +1,513 @@
+/* ===========================
+   Design Tokens / Variáveis
+   =========================== */
+
+:root {
+  --bg-body: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-brand: linear-gradient(135deg, #e0f2fe, #eff6ff);
+
+  --border-subtle: rgba(148, 163, 184, 0.4);
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #dc2626;
+
+  --text-main: #0f172a;
+  --text-soft: #6b7280;
+  --text-muted: #9ca3af;
+  --text-on-primary: #ffffff;
+
+  --radius-lg: 18px;
+  --radius-xl: 20px;
+
+  --shadow-soft: 0 14px 35px rgba(15, 23, 42, 0.12);
+  --shadow-focus: 0 0 0 1px rgba(37, 99, 235, 0.75),
+    0 0 0 4px rgba(37, 99, 235, 0.18);
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* Reset básico */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.08) 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.08) 0, transparent 55%),
+    var(--bg-body);
+  color: var(--text-main);
+}
+
+/* ===========================
+   Layout principal (Auth)
+   =========================== */
+
+.auth-container,
+.register-container {
+  min-height: 100vh;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-card,
+.register-card {
+  width: 100%;
+  max-width: 880px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+/* Lado esquerdo - brand / informações */
+
+.auth-brand,
+.register-brand {
+  padding: 24px 26px;
+  background: var(--bg-brand);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Logo/ícone genérico */
+
+.login-logo {
+  margin-bottom: 14px;
+}
+
+.login-logo img {
+  height: 30px;
+}
+
+/* Caso queira um "ping" redondo com iniciais (opcional) */
+.auth-logo,
+.register-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(from 140deg, #2563eb, #22c55e, #06b6d4, #2563eb);
+  color: #0b1120;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+.auth-brand-title,
+.register-brand-title {
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0 0 4px;
+  color: #0f172a;
+}
+
+.auth-brand-subtitle,
+.register-brand-subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 13px;
+  max-width: 280px;
+}
+
+.auth-brand-list,
+.register-brand-list {
+  margin: 14px 0 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+/* Lado direito - box de conteúdo (forms, mensagens, etc.) */
+
+.auth-box,
+.register-box {
+  padding: 22px 26px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+/* Cabeçalho do conteúdo */
+
+.auth-header,
+.register-header {
+  margin-bottom: 12px;
+}
+
+.auth-header h1,
+.register-header h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: #0f172a;
+}
+
+.auth-header p,
+.register-header p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+/* Mensagens de erro/sucesso globais */
+
+.auth-error-banner,
+.register-error-banner {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.auth-success-banner {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  background: #ecfdf3;
+  color: #166534;
+  font-size: 12px;
+}
+
+/* ===========================
+   Formulário / Inputs
+   =========================== */
+
+.auth-form,
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;           /* antes era 1px */
+  margin-bottom: 4px; /* pequeno respiro entre grupos */
+}
+
+.input-group label {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 2px; 
+}
+
+.input-group input {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  color: #0f172a;
+  font-size: 13px;
+  outline: none;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    transform 0.08s ease;
+}
+
+.input-group input::placeholder {
+  color: #9ca3af;
+}
+
+.input-group input:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-focus);
+  transform: translateY(-0.5px);
+}
+
+.input-group input.error {
+  border-color: var(--danger);
+}
+
+.input-hint {
+  font-size: 10px;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+/* Campo de senha com toggle de visibilidade */
+
+.password-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  padding-right: 2px;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    transform 0.08s ease;
+}
+
+.password-input input {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding-right: 0;
+}
+
+.password-input:focus-within {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-focus);
+  transform: translateY(-0.5px);
+}
+
+.toggle-password {
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-password:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* hCaptcha container */
+
+.captcha-container {
+  margin-top: 2px;
+}
+
+/* Mensagem de erro de campo */
+
+.error-message {
+  font-size: 11px;
+  color: var(--danger);
+}
+
+/* Checkbox / termos de uso */
+
+.checkbox-group {
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 20px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-top: 1px;
+}
+
+.checkbox-label a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.checkbox-label a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Botões
+   =========================== */
+
+/* Botão principal genérico */
+.btn-primary,
+.register-button {
+  margin-top: 4px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: var(--text-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease,
+    background 0.12s ease;
+}
+
+.btn-primary:hover,
+.register-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary:active,
+.register-button:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary:disabled,
+.register-button:disabled {
+  opacity: 0.7;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* Botão de link (secundário) */
+
+.link-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.link-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Divider "ou" */
+
+.auth-divider,
+.register-divider {
+  margin: 14px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.auth-divider::before,
+.auth-divider::after,
+.register-divider::before,
+.register-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(209, 213, 219, 0.9);
+}
+
+/* ===========================
+   Links / rodapé / textos auxiliares
+   =========================== */
+
+.auth-login-link,
+.register-login-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 15px;
+}
+
+.auth-footer,
+.register-footer {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ===========================
+   Estados e variações específicas
+   =========================== */
+
+/* Exemplo para textos auxiliares em páginas como "esqueci senha" */
+.forgot-instructions {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+
+/* ===========================
+   Responsividade
+   =========================== */
+
+@media (max-width: 880px) {
+  .auth-card,
+  .register-card {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 460px;
+  }
+
+  .auth-brand,
+  .register-brand {
+    display: none;
+  }
+
+  .auth-box,
+  .register-box {
+    padding: 20px 18px;
+  }
+}
+
+@media (max-width: 520px) {
+  .auth-container,
+  .register-container {
+    padding: 8px;
+  }
+
+  .auth-box,
+  .register-box {
+    padding: 18px 14px;
+  }
+}
