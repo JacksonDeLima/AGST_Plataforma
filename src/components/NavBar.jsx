@@ -25,7 +25,7 @@ const NavBar = () => {
           <span className="icon">📊</span>
           Relatórios
         </a>
-        <a href="/usuarios" className="nav-item">
+        <a href="/gerir-usuarios" className="nav-item">
           <span className="icon">👤</span>
           Gerir usuários
         </a>

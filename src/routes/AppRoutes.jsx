@@ -5,8 +5,9 @@ import Equipamentos from "../pages/Equipamentos/Equipamentos";
 import EsqueciSenha from "../pages/EsqueciSenha/EsqueciSenha";
 import CriarConta from "../pages/CriarConta/CriarConta";
 import Activation from "../pages/Activation/activation";
+import Automacoes from "../pages/Automacoes/Automacoes";
 // import Relatorios from "../pages/Relatorios/Relatorios";
-// import GerirUsuarios from "../pages/GerirUsuarios/GerirUsuarios";
+import GerirUsuarios from "../pages/GerirUsuarios/GerirUsuarios";
 // import Alarmes from "../pages/Alarmes/Alarmes";
 // import Configuracoes from "../pages/Configuracoes/Configuracoes";
 
@@ -19,12 +20,12 @@ export default function AppRoutes() {
       <Route path="/esqueciSenha" element={<EsqueciSenha />} />
       <Route path="/criarConta" element={<CriarConta />} />
       <Route path="/activation" element={<Activation />} />
-      {/* <Route path="/automacoes" element={<Automacoes />} />
-      <Route path="/relatorios" element={<Relatorios />} />
+      <Route path="/automacoes" element={<Automacoes />} />
       <Route path="/gerir-usuarios" element={<GerirUsuarios />} />
-      <Route path="/alarmes" element={<Alarmes />} />
-      <Route path="/configuracoes" element={<Configuracoes />} /> */}
-      <Route path="*" element={<h1>404 - Página não encontrada</h1>} />
+      {/* // <Route path="/relatorios" element={<Relatorios />} />
+      // <Route path="/alarmes" element={<Alarmes />} />
+      // <Route path="/configuracoes" element={<Configuracoes />} /> */}
+      <Route path="*" element={<h1>404 - Página não encontrada</h1>} /> 
     </Routes>
   );
 }
