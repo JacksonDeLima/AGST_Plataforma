@@ -1,0 +1,298 @@
+/* ========== PÁGINA DE GERIR USUÁRIOS ========== */
+.main-content .gerir-usuarios-page {
+  padding: 32px;
+  background-color: #f5f7fa;
+  width: 100%;
+}
+
+
+/* ========== HEADER ========== */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ativos-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.status-dot.ativo {
+  background-color: #10b981;
+}
+
+/* Botões do header */
+.btn-primary {
+  padding: 10px 20px;
+  background-color: #0ea5e9;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #0284c7;
+}
+
+.btn-filtros {
+  padding: 10px 20px;
+  background-color: white;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-filtros:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.filtros-icon {
+  font-size: 16px;
+}
+
+/* ========== BARRA DE BUSCA ========== */
+.search-bar {
+  margin-bottom: 24px;
+}
+
+.search-input-wrapper {
+  position: relative;
+  max-width: 400px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #9ca3af;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+/* ========== TABELA ========== */
+.table-container {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.gerir-usuarios-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gerir-usuarios-table thead {
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.gerir-usuarios-table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gerir-usuarios-table tbody tr {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.2s;
+}
+
+.gerir-usuarios-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.gerir-usuarios-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.gerir-usuarios-table td {
+  padding: 20px;
+  font-size: 14px;
+  color: #111827;
+}
+
+/* Célula de usuário */
+.usuario-cell {
+  font-weight: 500;
+  color: #0ea5e9;
+}
+
+.email-cell {
+  color: #0ea5e9;
+}
+
+/* ========== BADGE DE PERFIL ========== */
+.perfil-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+/* ========== BOTÃO DE EDITAR ========== */
+.btn-editar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background-color: transparent;
+  color: #6b7280;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-editar:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.editar-icon {
+  font-size: 14px;
+}
+
+/* ========== RESPONSIVIDADE ========== */
+@media (max-width: 1024px) {
+  .page-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .header-right {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .gerir-usuarios-table {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .gerir-usuarios-page {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .header-right {
+    flex-wrap: wrap;
+  }
+
+  .btn-primary,
+  .btn-filtros,
+  .ativos-count {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .search-input-wrapper {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .gerir-usuarios-table th,
+  .gerir-usuarios-table td {
+    padding: 12px;
+    font-size: 12px;
+  }
+
+  .perfil-badge {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .btn-editar {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}

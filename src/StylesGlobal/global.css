@@ -511,3 +511,141 @@ body {
     padding: 18px 14px;
   }
 }
+
+/* ===========================
+   Layout geral do sistema (Dashboard + Páginas Internas)
+   =========================== */
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-body);
+}
+
+/* Espaço reservado para a sidebar fixa */
+.sidebar-space {
+  width: 250px; /* mesmo tamanho da sua sidebar */
+  flex-shrink: 0;
+  background: #0f172a; /* mesma cor da sidebar (evita buraco branco) */
+  min-height: 100vh;
+}
+
+/* Área principal das páginas */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  min-height: 100vh;
+  background: var(--bg-body);
+  overflow-y: auto;
+}
+
+/* ===========================
+   Página Gerir Usuários
+   =========================== */
+
+.gerir-usuarios-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 24px;
+  background: var(--bg-body);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+/* Barra de busca */
+.search-bar {
+  margin-bottom: 18px;
+}
+
+.search-input-wrapper {
+  background: white;
+  border: 1px solid var(--border-subtle);
+  padding: 8px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 280px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  flex: 1;
+  background: none;
+  font-size: 14px;
+}
+
+/* Cards de usuário (caso ainda use) */
+.usuario-card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Tabela */
+.table-container {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+}
+
+.gerir-usuarios-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gerir-usuarios-table th,
+.gerir-usuarios-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.gerir-usuarios-table th {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+.perfil-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+.btn-editar {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-editar:hover {
+  background: var(--primary-hover);
+}
