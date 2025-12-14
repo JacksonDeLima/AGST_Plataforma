@@ -18,4 +18,10 @@ export const endpoints = {
   applications: {
     create: "/applications",
   },
+  devices: {
+    variables: (id) => `/device/${id}/variables`,
+    configs: (id) => `/device/${id}/configs`,
+    parameters: (id) => `/device/${id}/parameters`,
+    list: "/user/devices",
+  },
 };
