@@ -27,24 +27,62 @@ export default function Register() {
   const [captchaReady, setCaptchaReady] = useState(false);
 
   useEffect(() => {
-    function tryRenderCaptcha() {
-      if (window.hcaptcha && captchaContainerRef.current && !captchaReady) {
-        const widgetId = window.hcaptcha.render(captchaContainerRef.current, {
-          sitekey: HCAPTCHA_SITEKEY,
-          callback: (token) => {
-            console.log("✅ hCaptcha token recebido:", token);
-            setCaptchaToken(token);
-            setErrors((prev) => ({ ...prev, captcha: "" }));
-          },
-        });
-        setCaptchaWidgetId(widgetId);
-        setCaptchaReady(true);
-        console.log("hCaptcha widget renderizado. ID:", widgetId);
-      }
+    let intervalId = null;
+    let widgetId = null;
+
+    function ensureScript() {
+      if (document.querySelector('script[src*="js.hcaptcha.com/1/api.js"]')) return;
+      const s = document.createElement("script");
+      // explicit ajuda quando você usa window.hcaptcha.render manualmente
+      s.src = "https://js.hcaptcha.com/1/api.js?render=explicit";
+      s.async = true;
+      s.defer = true;
+      document.body.appendChild(s);
     }
 
-    const interval = setInterval(tryRenderCaptcha, 500);
-    return () => clearInterval(interval);
+    function tryRenderCaptcha() {
+      if (!captchaContainerRef.current) return;
+      if (!window.hcaptcha) return;
+      if (captchaReady) return;
+
+      widgetId = window.hcaptcha.render(captchaContainerRef.current, {
+        sitekey: HCAPTCHA_SITEKEY,
+        callback: (token) => {
+          console.log("✅ hCaptcha token recebido:", token);
+          setCaptchaToken(token);
+          setErrors((prev) => ({ ...prev, captcha: "" }));
+        },
+        "expired-callback": () => {
+          setCaptchaToken("");
+          setErrors((prev) => ({
+            ...prev,
+            captcha: "Captcha expirou, resolva novamente.",
+          }));
+        },
+        "error-callback": () => {
+          setCaptchaToken("");
+          setErrors((prev) => ({
+            ...prev,
+            captcha: "Falha ao carregar o captcha. Recarregue a página.",
+          }));
+        },
+      });
+
+      setCaptchaWidgetId(widgetId);
+      setCaptchaReady(true);
+      console.log("hCaptcha widget renderizado. ID:", widgetId);
+    }
+
+    ensureScript();
+    intervalId = setInterval(tryRenderCaptcha, 300);
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+      // isso evita bug do StrictMode (setup/cleanup/setup)
+      try {
+        if (window.hcaptcha && widgetId !== null) window.hcaptcha.remove(widgetId);
+      } catch { }
+    };
   }, [captchaReady]);
 
   function handleChange(e) {
@@ -61,32 +99,32 @@ export default function Register() {
   function validateForm() {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Nome é obrigatório";
-    }
+    if (!formData.name.trim()) newErrors.name = "Nome é obrigatório";
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email é obrigatório";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email inválido";
-    }
+    if (!formData.email.trim()) newErrors.email = "Email é obrigatório";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email inválido";
+
+    const strongPass =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
     if (!formData.password) {
       newErrors.password = "Senha é obrigatória";
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Senha deve ter no mínimo 8 caracteres";
+    } else if (!strongPass.test(formData.password)) {
+      newErrors.password =
+        "Senha fraca. Use 8+ caracteres com maiúscula, minúscula, número e especial.";
     }
 
-    if (formData.password !== formData.confirmPassword) {
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Confirme sua senha";
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "As senhas não coincidem";
     }
 
-    if (!acceptTerms) {
-      newErrors.terms = "Você deve aceitar os termos";
-    }
+    if (!acceptTerms) newErrors.terms = "Você deve aceitar os termos";
 
     return newErrors;
   }
+
 
   // Função para criar usuário (usando serviço + captcha)
   async function handleSubmit(e) {
@@ -123,7 +161,7 @@ export default function Register() {
         console.log("🎉 Usuário criado com sucesso:", result.data);
         alert(
           `Conta criada com sucesso! Enviamos um e-mail com um link de ativação para ${formData.email}. ` +
-            "Clique no link recebido para confirmar seu cadastro."
+          "Clique no link recebido para confirmar seu cadastro."
         );
 
         navigate("/activation", {

@@ -1,42 +1,33 @@
 // src/services/httpClient.js
-import { API_BASE_URL } from "../config/apiconfig";
+import { API_BASE_URL } from "../config/apiConfig";
 
-async function httpRequest(path, options = {}) {
-  const url = `${API_BASE_URL}${path}`;
+function buildApiUrl(path) {
+  const base = API_BASE_URL.replace(/\/+$/, "");
+  const rel = String(path || "").startsWith("/") ? String(path) : `/${path}`;
+  return `${base}${rel}`;
+}
 
-  const defaultHeaders = {
+export async function httpRequest(endpoint, options = {}) {
+  const url = buildApiUrl(endpoint);
+
+  const headers = {
     "Content-Type": "application/json",
+    ...(options.headers || {}),
   };
 
-  // Se tiver token salvo, manda junto
-  const accessToken = localStorage.getItem("access_token");
-  if (accessToken) {
-    defaultHeaders["Authorization"] = `Bearer ${accessToken}`;
-  }
+  const res = await fetch(url, { ...options, headers });
 
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...defaultHeaders,
-      ...(options.headers || {}),
-    },
-  });
+  const ct = res.headers.get("content-type") || "";
+  const data = ct.includes("application/json")
+    ? await res.json().catch(() => null)
+    : await res.text().catch(() => null);
 
-  let data = {};
-  try {
-    data = await response.json();
-  } catch (e) {
-    // resposta vazia ou não JSON
-  }
-
-  if (!response.ok) {
-    const apiError = data.error || data.message;
-    const error = new Error(apiError || "Erro na requisição");
-    error.status = response.status;
-    throw error;
+  if (!res.ok) {
+    const err = new Error("HTTP_ERROR");
+    err.status = res.status;
+    err.data = data;
+    throw err;
   }
 
   return data;
 }
-
-export { httpRequest };
