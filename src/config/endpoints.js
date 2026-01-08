@@ -6,19 +6,24 @@ export const endpoints = {
     resendActivation: "/users/resend-activation",
     login: "/users/login",
     validateToken: "/users/validate-token",
+
+    // ✅ Password flows
+    forgotPassword: "/users/forgot-password",
+    resetPassword: "/users/reset-password",
+    changePassword: "/users/me/change-password",
   },
 
-  // ✅ OAuth (conforme doc)
   oauth: {
     authorize: "/oauth/authorize",
-    token: "/oauth/token", // GET (refresh) e também pode existir POST no backend, mas no SPA usamos GET redirect
+    token: "/oauth/token",
   },
 
-  corporations: {
+   corporations: {
     list: "/corporations",
     create: "/corporations",
     details: (id) => `/corporations/${id}`,
     members: (id) => `/corporations/${id}/members`,
+    addMember: (id) => `/corporations/${id}/members`,
   },
 
   applications: {

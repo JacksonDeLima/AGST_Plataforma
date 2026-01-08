@@ -1,3 +1,4 @@
+// src/pages/auth/Login.jsx
 import "../../StylesGlobal/global.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
@@ -12,7 +13,6 @@ import {
   getStoredTokens,
   validateToken,
 } from "../../services/authService";
-
 
 const DEBUG_AUTH =
   String(import.meta.env.VITE_DEBUG_AUTH || "").toLowerCase() === "true";
@@ -30,10 +30,10 @@ export default function Login() {
   const [errorMsg, setErrorMsg] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
 
-  // ✅ OAuth bootstrap (só quando o modo resolver para oauth)
   useEffect(() => {
     let alive = true;
     if (DEBUG_AUTH) logAuthSnapshot("Login.jsx - carregou a tela");
+
     (async () => {
       if (mode !== "oauth") return;
 
@@ -79,21 +79,7 @@ export default function Login() {
     setIsLoading(true);
     setFieldErrors({});
 
-    if (DEBUG_AUTH) {
-      logAuthSnapshot("Login.jsx - pós login password");
-
-      const { accessToken } = getStoredTokens();
-      if (accessToken) {
-        const v = await validateToken(accessToken);
-        console.group("👤 validate-token (pós-login)");
-        console.log("valid:", v.valid);
-        console.log("data:", v.data);
-        console.groupEnd();
-      }
-    }
-
-
-    // ✅ Opção B: password no localhost
+    // ✅ Login via password (modo local)
     const result = await loginUser({ email, password });
 
     setIsLoading(false);
@@ -103,11 +89,8 @@ export default function Login() {
       return;
     }
 
-    // ✅ Logs provisórios pós-login
     if (DEBUG_AUTH) {
       logAuthSnapshot("Login.jsx (pós-login password)");
-
-      // opcional: validar token e logar retorno do backend (dados do usuário se houver)
       const { accessToken } = getStoredTokens();
       if (accessToken) {
         const v = await validateToken(accessToken);
@@ -126,6 +109,7 @@ export default function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        {/* Lado esquerdo - branding */}
         <div className="auth-brand">
           <div className="login-logo">
             <img src={Logo} alt="Logo Brise Cloud" />
@@ -140,7 +124,9 @@ export default function Login() {
           </p>
 
           <ul className="auth-brand-list">
-            <li>• Modo atual: <b>{mode}</b></li>
+            <li>
+              • Modo atual: <b>{mode}</b>
+            </li>
             <li>• Tokens no localStorage</li>
             <li>• Authorization: Bearer access_token</li>
           </ul>
@@ -152,6 +138,7 @@ export default function Login() {
           )}
         </div>
 
+        {/* Lado direito - formulário */}
         <div className="auth-box">
           <div className="auth-header">
             <h1>Entrar</h1>
@@ -202,7 +189,13 @@ export default function Login() {
                 </div>
 
                 <div className="input-group">
-                  <label htmlFor="password">Senha</label>
+                  {/* ✅ label + link alinhados (mais profissional) */}
+                  <div className="auth-label-row">
+                    <label htmlFor="password">Senha</label>
+
+
+                  </div>
+
                   <input
                     id="password"
                     type="password"
@@ -217,6 +210,7 @@ export default function Login() {
                     disabled={disabled}
                     className={fieldErrors.password ? "error" : ""}
                   />
+
                   {fieldErrors.password && (
                     <span className="error-message">{fieldErrors.password}</span>
                   )}
@@ -234,8 +228,7 @@ export default function Login() {
                 </button>
               </form>
 
-              {/* OAuth pronto para testes (mas não persiste no localhost por origem) */}
-              <div style={{ marginTop: 12 }}>
+              {/* <div style={{ marginTop: 12 }}>
                 <button
                   type="button"
                   className="btn-secondary"
@@ -249,7 +242,7 @@ export default function Login() {
                 >
                   Testar OAuth (requer same-origin)
                 </button>
-              </div>
+              </div> */}
             </>
           )}
 
@@ -262,6 +255,18 @@ export default function Login() {
               disabled={disabled}
             >
               Criar conta
+            </button>
+          </div>
+
+          <div className="auth-login-link">
+            <span>Esqueceu a senha?</span>
+            <button
+              type="button"
+              className="link-button"
+              onClick={() => navigate("/EsqueciSenha")}
+              disabled={disabled}
+            >
+              Esqueci minha senha
             </button>
           </div>
         </div>

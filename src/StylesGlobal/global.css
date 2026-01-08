@@ -649,3 +649,31 @@ body {
 .btn-editar:hover {
   background: var(--primary-hover);
 }
+/* Linha do label + link "Esqueci minha senha?" */
+.auth-label-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Deixa o link mais “discreto” e alinhado */
+.auth-forgot-link{
+  font-size: 0.9rem;
+  padding: 0;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+.auth-forgot-link:hover{
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Quando desabilitado, não parece clicável */
+.auth-forgot-link:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}

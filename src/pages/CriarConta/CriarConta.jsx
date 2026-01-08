@@ -9,43 +9,34 @@ const HCAPTCHA_SITEKEY = "ddda0de4-7a3a-4124-a9b8-a81a47321aa2"; // troque se te
 
 export default function Register() {
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // hCaptcha
+  // hCaptcha (estável, sem sumir por re-render/StrictMode)
   const captchaContainerRef = useRef(null);
+  const captchaWidgetIdRef = useRef(null);
+  const renderedRef = useRef(false);
   const [captchaToken, setCaptchaToken] = useState("");
-  const [captchaWidgetId, setCaptchaWidgetId] = useState(null);
-  const [captchaReady, setCaptchaReady] = useState(false);
 
   useEffect(() => {
-    let intervalId = null;
-    let widgetId = null;
+    const container = captchaContainerRef.current;
+    if (!container) return;
 
-    function ensureScript() {
-      if (document.querySelector('script[src*="js.hcaptcha.com/1/api.js"]')) return;
-      const s = document.createElement("script");
-      // explicit ajuda quando você usa window.hcaptcha.render manualmente
-      s.src = "https://js.hcaptcha.com/1/api.js?render=explicit";
-      s.async = true;
-      s.defer = true;
-      document.body.appendChild(s);
-    }
-
-    function tryRenderCaptcha() {
-      if (!captchaContainerRef.current) return;
+    function renderCaptcha() {
       if (!window.hcaptcha) return;
-      if (captchaReady) return;
+      if (renderedRef.current) return;
 
-      widgetId = window.hcaptcha.render(captchaContainerRef.current, {
+      captchaWidgetIdRef.current = window.hcaptcha.render(container, {
         sitekey: HCAPTCHA_SITEKEY,
         callback: (token) => {
           console.log("✅ hCaptcha token recebido:", token);
@@ -68,32 +59,45 @@ export default function Register() {
         },
       });
 
-      setCaptchaWidgetId(widgetId);
-      setCaptchaReady(true);
-      console.log("hCaptcha widget renderizado. ID:", widgetId);
+      renderedRef.current = true;
+      console.log("hCaptcha widget renderizado. ID:", captchaWidgetIdRef.current);
     }
 
-    ensureScript();
-    intervalId = setInterval(tryRenderCaptcha, 300);
+    // 1) Garante script (apenas 1x na página)
+    const existing = document.querySelector(
+      'script[src^="https://js.hcaptcha.com/1/api.js"]'
+    );
+
+    if (!existing) {
+      const s = document.createElement("script");
+      s.src = "https://js.hcaptcha.com/1/api.js?render=explicit";
+      s.async = true;
+      s.defer = true;
+      s.onload = renderCaptcha;
+      document.body.appendChild(s);
+    } else {
+      renderCaptcha();
+    }
+
+    // 2) Fallback: tenta por um tempo caso window.hcaptcha demore
+    const intervalId = setInterval(renderCaptcha, 200);
 
     return () => {
-      if (intervalId) clearInterval(intervalId);
-      // isso evita bug do StrictMode (setup/cleanup/setup)
+      clearInterval(intervalId);
       try {
-        if (window.hcaptcha && widgetId !== null) window.hcaptcha.remove(widgetId);
-      } catch { }
+        if (window.hcaptcha && captchaWidgetIdRef.current != null) {
+          window.hcaptcha.remove(captchaWidgetIdRef.current);
+        }
+      } catch {}
+      captchaWidgetIdRef.current = null;
+      renderedRef.current = false;
     };
-  }, [captchaReady]);
+  }, []);
 
   function handleChange(e) {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
   }
 
   function validateForm() {
@@ -102,7 +106,8 @@ export default function Register() {
     if (!formData.name.trim()) newErrors.name = "Nome é obrigatório";
 
     if (!formData.email.trim()) newErrors.email = "Email é obrigatório";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Email inválido";
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      newErrors.email = "Email inválido";
 
     const strongPass =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
@@ -125,10 +130,9 @@ export default function Register() {
     return newErrors;
   }
 
-
-  // Função para criar usuário (usando serviço + captcha)
   async function handleSubmit(e) {
     e.preventDefault();
+
     const newErrors = validateForm();
 
     if (!captchaToken) {
@@ -159,22 +163,18 @@ export default function Register() {
 
       if (result.success) {
         console.log("🎉 Usuário criado com sucesso:", result.data);
+
         alert(
           `Conta criada com sucesso! Enviamos um e-mail com um link de ativação para ${formData.email}. ` +
-          "Clique no link recebido para confirmar seu cadastro."
+            "Clique no link recebido para confirmar seu cadastro."
         );
 
         navigate("/activation", {
-          state: {
-            email: formData.email,
-            userId: result.data.id,
-          },
+          state: { email: formData.email, userId: result.data.id },
         });
       } else {
         console.warn("⚠️ Erro ao criar usuário:", result.error);
-        setErrors({
-          submit: result.error,
-        });
+        setErrors({ submit: result.error });
       }
     } catch (error) {
       console.error("⚠️ Erro inesperado ao criar usuário:", error);
@@ -183,13 +183,14 @@ export default function Register() {
       });
     } finally {
       setIsLoading(false);
-      if (window.hcaptcha && captchaWidgetId !== null) {
+
+      if (window.hcaptcha && captchaWidgetIdRef.current != null) {
         try {
-          window.hcaptcha.reset(captchaWidgetId);
+          window.hcaptcha.reset(captchaWidgetIdRef.current);
           setCaptchaToken("");
           console.log("hCaptcha resetado.");
-        } catch (e) {
-          console.warn("Falha ao resetar hCaptcha", e);
+        } catch (err) {
+          console.warn("Falha ao resetar hCaptcha", err);
         }
       }
     }
@@ -207,7 +208,9 @@ export default function Register() {
           <div className="login-logo">
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
+
           <h2 className="register-brand-title">Crie sua conta Brise Cloud</h2>
+
           <p className="register-brand-subtitle">
             Centralize o acesso às integrações e dispositivos com segurança e
             controle.
@@ -323,9 +326,7 @@ export default function Register() {
                 disabled={isLoading}
               />
               {errors.confirmPassword && (
-                <span className="error-message">
-                  {errors.confirmPassword}
-                </span>
+                <span className="error-message">{errors.confirmPassword}</span>
               )}
             </div>
 

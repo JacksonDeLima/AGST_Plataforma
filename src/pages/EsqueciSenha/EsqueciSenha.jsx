@@ -3,6 +3,8 @@ import "../../StylesGlobal/global.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo.svg";
+import { forgotPassword } from "../../services/authService";
+
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
@@ -29,7 +31,8 @@ export default function ForgotPassword() {
 
     try {
       // TODO: chamada real para API de recuperação de senha
-      // await fetch(`${API_BASE_URL}/auth/forgot-password`, { ... })
+      await forgotPassword({ email });
+
 
       setEmailSent(true);
     } catch (error) {
@@ -50,6 +53,8 @@ export default function ForgotPassword() {
     setEmailSent(false);
     setErrors({});
   }
+
+
 
   return (
     <div className="register-container">
@@ -84,7 +89,7 @@ export default function ForgotPassword() {
                   <strong>{email}</strong>.
                 </p>
                 <p className="forgot-instructions">
-                  Verifique sua caixa de entrada e também a pasta de spam.  
+                  Verifique sua caixa de entrada e também a pasta de spam.
                   O link é válido por tempo limitado.
                 </p>
               </div>

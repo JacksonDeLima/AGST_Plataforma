@@ -395,3 +395,62 @@ export async function activateUser({ email, token }) {
 export async function resendActivation({ email }) {
   return resendActivationLink({ email });
 }
+
+
+function safeMessage(err) {
+  try {
+    if (typeof err === "string") return err;
+    if (err?.message) return err.message;
+    if (err?.error) return err.error;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function forgotPassword({ email }) {
+  try {
+    await httpRequest(endpoints.users.forgotPassword, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return { success: true };
+  } catch (err) {
+    console.error("❌ [AuthService] forgotPassword:", err);
+    return { success: false, error: safeMessage(err) || "Erro ao solicitar redefinição." };
+  }
+}
+
+export async function resetPassword({ email, recoveryToken, password }) {
+  try {
+    const qs = new URLSearchParams({
+      email: String(email || ""),
+      recoveryToken: String(recoveryToken || ""),
+    }).toString();
+
+    const url = `${endpoints.users.resetPassword}?${qs}`;
+
+    await httpRequest(url, {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    });
+
+    return { success: true };
+  } catch (err) {
+    console.error("❌ [AuthService] resetPassword:", err);
+    return { success: false, error: safeMessage(err) || "Erro ao redefinir senha." };
+  }
+}
+
+export async function changePassword({ password, new_password }) {
+  try {
+    await httpRequest(endpoints.users.changePassword, {
+      method: "POST",
+      body: JSON.stringify({ password, new_password }),
+    });
+    return { success: true };
+  } catch (err) {
+    console.error("❌ [AuthService] changePassword:", err);
+    return { success: false, error: safeMessage(err) || "Erro ao alterar senha." };
+  }
+}
