@@ -1,6 +1,6 @@
 /* ========== SIDEBAR ========== */
 .navbar {
-  width: 250px;
+  width: 450px;
   background-color: #ffffff;
   border-right: 1px solid #e5e7eb;
   padding: 24px;
@@ -436,7 +436,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .ws-error {
@@ -446,4 +448,14 @@
   background: rgba(220, 38, 38, 0.06);
   color: #b91c1c;
   font-size: 12px;
+}
+
+.ws-success {
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  background: rgba(34, 197, 94, 0.08);
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
 }

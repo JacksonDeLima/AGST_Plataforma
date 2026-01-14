@@ -1,5 +1,5 @@
 // src/services/httpClient.js
-import { API_BASE_URL } from "../config/apiConfig";
+import { API_BASE_URL } from "../config/apiconfig";
 
 function buildApiUrl(path) {
   const base = API_BASE_URL.replace(/\/+$/, "");

@@ -1,4 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
+// src/components/NavBar.jsx (ou onde estiver seu NavBar)
+// ✅ Comportamento:
+// - clicar no workspace-btn: abre/fecha lista de corporações
+// - clicar em uma corporação no dropdown: seta ativa + navega para /corporations/:id
+
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ChevronDown,
@@ -14,7 +19,7 @@ import {
 } from "lucide-react";
 import "./NavBar.css";
 
-import { listCorporations, createCorporation } from "../../services/corporationsService";
+import { listCorporations, createCorporation } from "../services/corporationsService";
 
 const LS_ACTIVE_CORP = "agst_active_corporation_id";
 
@@ -39,27 +44,6 @@ function formatCNPJ(value = "") {
   return out;
 }
 
-// Validação CNPJ (dígitos verificadores)
-function isValidCNPJ(cnpj) {
-  const s = onlyDigits(cnpj);
-  if (s.length !== 14) return false;
-  if (/^(\d)\1+$/.test(s)) return false;
-
-  const calc = (base, weights) => {
-    let sum = 0;
-    for (let i = 0; i < weights.length; i++) sum += Number(base[i]) * weights[i];
-    const mod = sum % 11;
-    return mod < 2 ? 0 : 11 - mod;
-  };
-
-  const base12 = s.slice(0, 12);
-  const d1 = calc(base12, [5,4,3,2,9,8,7,6,5,4,3,2]);
-  const base13 = base12 + String(d1);
-  const d2 = calc(base13, [6,5,4,3,2,9,8,7,6,5,4,3,2]);
-
-  return s === base12 + String(d1) + String(d2);
-}
-
 function initials(name = "") {
   const parts = String(name).trim().split(/\s+/).filter(Boolean);
   const a = parts[0]?.[0] || "C";
@@ -69,6 +53,7 @@ function initials(name = "") {
 
 const NavBar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const [wsOpen, setWsOpen] = useState(false);
   const [showAddCorp, setShowAddCorp] = useState(false);
@@ -77,15 +62,26 @@ const NavBar = () => {
   const [corpError, setCorpError] = useState("");
 
   const [corporations, setCorporations] = useState([]);
-  const [activeCorpId, setActiveCorpId] = useState(() => localStorage.getItem(LS_ACTIVE_CORP) || "");
+  const [activeCorpId, setActiveCorpId] = useState(
+    () => localStorage.getItem(LS_ACTIVE_CORP) || ""
+  );
 
-  const [createState, setCreateState] = useState({ loading: false, error: "" });
+  const [createState, setCreateState] = useState({
+    loading: false,
+    error: "",
+    success: "",
+  });
+
   const [newCorp, setNewCorp] = useState({ name: "", tax_id: "" });
 
   const wsRef = useRef(null);
 
   const activeCorp = useMemo(() => {
-    return corporations.find((c) => String(c.id) === String(activeCorpId)) || corporations[0] || null;
+    return (
+      corporations.find((c) => String(c.id) === String(activeCorpId)) ||
+      corporations[0] ||
+      null
+    );
   }, [corporations, activeCorpId]);
 
   // Carregar corporações do usuário
@@ -107,7 +103,12 @@ const NavBar = () => {
       // Ajusta corporação ativa
       const stored = localStorage.getItem(LS_ACTIVE_CORP);
       const exists = res.data.some((c) => String(c.id) === String(stored));
-      const nextActive = exists ? stored : (res.data[0]?.id ? String(res.data[0].id) : "");
+      const nextActive = exists
+        ? stored
+        : res.data[0]?.id
+          ? String(res.data[0].id)
+          : "";
+
       setActiveCorpId(nextActive);
       if (nextActive) localStorage.setItem(LS_ACTIVE_CORP, nextActive);
 
@@ -134,16 +135,20 @@ const NavBar = () => {
     return location.pathname === path;
   }
 
+  // ✅ Seleciona corp + navega para a página da corp
   const handleSelectCorp = (id) => {
-    setActiveCorpId(String(id));
+    const nextId = String(id);
+    setActiveCorpId(nextId);
+    localStorage.setItem(LS_ACTIVE_CORP, nextId);
     setWsOpen(false);
-    // ✅ aqui você pode disparar um reload de dados do app (ambientes, etc.) baseado na corp ativa
-    // window.dispatchEvent(new CustomEvent("corp:changed", { detail: { id } }));
+
+    // ✅ vai para a página de detalhes
+    navigate(`/corporations/${nextId}`);
   };
 
   const handleOpenAdd = () => {
     setWsOpen(false);
-    setCreateState({ loading: false, error: "" });
+    setCreateState({ loading: false, error: "", success: "" });
     setNewCorp({ name: "", tax_id: "" });
     setShowAddCorp(true);
   };
@@ -151,49 +156,51 @@ const NavBar = () => {
   const handleCloseAdd = () => {
     if (createState.loading) return;
     setShowAddCorp(false);
-    setCreateState({ loading: false, error: "" });
+    setCreateState({ loading: false, error: "", success: "" });
     setNewCorp({ name: "", tax_id: "" });
   };
 
   const handleCreateCorp = async () => {
     const name = newCorp.name.trim();
-    const tax_id = formatCNPJ(newCorp.tax_id);
+    const taxDigits = onlyDigits(newCorp.tax_id); // enviar só dígitos
 
     if (!name) {
-      setCreateState({ loading: false, error: "Informe o nome fantasia." });
+      setCreateState({ loading: false, error: "Informe o nome fantasia.", success: "" });
       return;
     }
-    if (!isValidCNPJ(tax_id)) {
-      setCreateState({ loading: false, error: "CNPJ inválido." });
+    if (taxDigits.length !== 14) {
+      setCreateState({ loading: false, error: "CNPJ deve conter 14 dígitos.", success: "" });
       return;
     }
 
-    setCreateState({ loading: true, error: "" });
+    setCreateState({ loading: true, error: "", success: "" });
 
-    const res = await createCorporation({ name, tax_id });
+    const res = await createCorporation({ name, tax_id: taxDigits });
     if (!res.ok) {
-      setCreateState({ loading: false, error: res.message || "Erro ao criar corporação." });
+      setCreateState({
+        loading: false,
+        error: res.message || "Erro ao criar corporação.",
+        success: "",
+      });
       return;
     }
 
-    // Recarrega lista após criar
+    // Recarrega lista
     const listRes = await listCorporations();
-    if (listRes.ok) {
-      setCorporations(listRes.data);
-      // Seleciona a recém criada (ID vem no res.data.id)
-      const createdId = String(res.data?.id || "");
-      if (createdId) {
-        setActiveCorpId(createdId);
-        localStorage.setItem(LS_ACTIVE_CORP, createdId);
-      }
+    if (listRes.ok) setCorporations(listRes.data);
+
+    const createdId = String(res.data?.id || "");
+    if (createdId) {
+      setActiveCorpId(createdId);
+      localStorage.setItem(LS_ACTIVE_CORP, createdId);
     }
 
-    setCreateState({ loading: false, error: "" });
+    setCreateState({ loading: false, error: "", success: "✅ Corporação criada com sucesso!" });
     setShowAddCorp(false);
-    setNewCorp({ name: "", tax_id: "" });
-  };
 
-  const canCreate = Boolean(newCorp.name.trim() && onlyDigits(newCorp.tax_id).length === 14 && isValidCNPJ(newCorp.tax_id));
+    // ✅ vai direto para a corp recém criada
+    if (createdId) navigate(`/corporations/${createdId}`);
+  };
 
   return (
     <aside className="navbar">
@@ -204,6 +211,7 @@ const NavBar = () => {
       <div className="workspace" ref={wsRef}>
         <div className="workspace-label">Workspace</div>
 
+        {/* ✅ CLICAR AQUI SÓ ABRE/FECHA A LISTA */}
         <button
           type="button"
           className="workspace-btn"
@@ -252,6 +260,7 @@ const NavBar = () => {
                       type="button"
                       role="menuitem"
                       className={`workspace-item ${selected ? "selected" : ""}`}
+                      // ✅ CLICAR NA CORPORAÇÃO → VAI PARA A PÁGINA
                       onClick={() => handleSelectCorp(c.id)}
                     >
                       <span className="workspace-item-avatar">{initials(c.name)}</span>
@@ -270,37 +279,51 @@ const NavBar = () => {
 
       <nav className="nav">
         <Link to="/dashboard" className={`nav-item ${isActive("/dashboard") ? "active" : ""}`}>
-          <span className="nav-ico"><MapPin size={18} /></span>
+          <span className="nav-ico">
+            <MapPin size={18} />
+          </span>
           Ambientes
         </Link>
 
         <Link to="/equipamentos" className={`nav-item ${isActive("/equipamentos") ? "active" : ""}`}>
-          <span className="nav-ico"><Package size={18} /></span>
+          <span className="nav-ico">
+            <Package size={18} />
+          </span>
           Equipamentos
         </Link>
 
         <Link to="/automacoes" className={`nav-item ${isActive("/automacoes") ? "active" : ""}`}>
-          <span className="nav-ico"><Snowflake size={18} /></span>
+          <span className="nav-ico">
+            <Snowflake size={18} />
+          </span>
           Automações
         </Link>
 
         <Link to="/relatorios" className={`nav-item ${isActive("/relatorios") ? "active" : ""}`}>
-          <span className="nav-ico"><BarChart3 size={18} /></span>
+          <span className="nav-ico">
+            <BarChart3 size={18} />
+          </span>
           Relatórios
         </Link>
 
         <Link to="/gerir-usuarios" className={`nav-item ${isActive("/gerir-usuarios") ? "active" : ""}`}>
-          <span className="nav-ico"><Users size={18} /></span>
+          <span className="nav-ico">
+            <Users size={18} />
+          </span>
           Gerir usuários
         </Link>
 
         <Link to="/alarmes" className={`nav-item ${isActive("/alarmes") ? "active" : ""}`}>
-          <span className="nav-ico"><Siren size={18} /></span>
+          <span className="nav-ico">
+            <Siren size={18} />
+          </span>
           Alarmes
         </Link>
 
         <Link to="/configuracoes" className={`nav-item ${isActive("/configuracoes") ? "active" : ""}`}>
-          <span className="nav-ico"><Settings size={18} /></span>
+          <span className="nav-ico">
+            <Settings size={18} />
+          </span>
           Configurações
         </Link>
       </nav>
@@ -321,7 +344,12 @@ const NavBar = () => {
                 <h3>Criar corporação</h3>
                 <p>Ao criar, você vira owner automaticamente (API define owner_id).</p>
               </div>
-              <button type="button" className="ws-modal-close" onClick={handleCloseAdd} aria-label="Fechar">
+              <button
+                type="button"
+                className="ws-modal-close"
+                onClick={handleCloseAdd}
+                aria-label="Fechar"
+              >
                 ✕
               </button>
             </div>
@@ -347,23 +375,22 @@ const NavBar = () => {
                 />
               </div>
 
-              {createState.error ? (
-                <div className="ws-error">{createState.error}</div>
-              ) : null}
+              {createState.error ? <div className="ws-error">{createState.error}</div> : null}
+              {createState.success ? <div className="ws-success">{createState.success}</div> : null}
             </div>
 
             <div className="ws-modal-footer">
-              <button type="button" className="btn-secondary" onClick={handleCloseAdd} disabled={createState.loading}>
-                Cancelar
-              </button>
-              <button type="button" className="btn-primary" onClick={handleCreateCorp} disabled={!canCreate || createState.loading}>
-                {createState.loading ? (
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                    <Loader2 size={16} className="spin" /> Criando...
-                  </span>
-                ) : (
-                  "Criar"
-                )}
+              <button
+                type="button"
+                className="btn-primary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleCreateCorp();
+                }}
+                disabled={createState.loading}
+              >
+                {createState.loading ? "Criando..." : "Criar"}
               </button>
             </div>
           </div>

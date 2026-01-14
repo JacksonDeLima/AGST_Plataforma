@@ -677,3 +677,140 @@ body {
   cursor: not-allowed;
   text-decoration: none;
 }
+/* ===========================
+   Corporações (Lista + Detalhe)
+   =========================== */
+
+.corporations-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 24px;
+  background: var(--bg-body);
+}
+
+.corp-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.corp-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.corp-info b {
+  color: var(--text-main);
+}
+
+/* Botão danger (Excluir) */
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-danger:hover {
+  filter: brightness(0.95);
+}
+
+.btn-danger:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+/* ===========================
+   Modal genérico (páginas internas)
+   =========================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  z-index: 9999;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 560px;
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+  padding: 18px;
+}
+
+.modal-card h3 {
+  margin: 0 0 10px;
+}
+
+.modal-help {
+  margin: 0 0 10px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.modal-card input,
+.modal-card select {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  color: #0f172a;
+  font-size: 13px;
+  outline: none;
+}
+
+.modal-card input:focus,
+.modal-card select:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-focus);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* Dentro do modal, o btn-primary não fica 100% */
+.modal-actions .btn-primary {
+  width: auto;
+  min-width: 160px;
+}
+
+/* Link-button “vira” botão discreto no modal */
+.modal-actions .link-button {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.modal-actions .link-button:hover {
+  text-decoration: none;
+  background: rgba(148, 163, 184, 0.22);
+}
+
+@media (max-width: 760px) {
+  .corporations-page {
+    padding: 16px;
+  }
+  .corp-info {
+    grid-template-columns: 1fr;
+  }
+}

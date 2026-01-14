@@ -18,12 +18,14 @@ export const endpoints = {
     token: "/oauth/token",
   },
 
-   corporations: {
+  corporations: {
     list: "/corporations",
     create: "/corporations",
-    details: (id) => `/corporations/${id}`,
+    get: (id) => `/corporations/${id}`,
     members: (id) => `/corporations/${id}/members`,
     addMember: (id) => `/corporations/${id}/members`,
+    transfer: (id) => `/corporations/${id}`, // PATCH
+    remove: (id) => `/corporations/${id}`,   // DELETE
   },
 
   applications: {
