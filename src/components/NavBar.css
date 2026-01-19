@@ -1,6 +1,6 @@
 /* ========== SIDEBAR ========== */
 .navbar {
-  width: 450px;
+  width: 350px;
   background-color: #ffffff;
   border-right: 1px solid #e5e7eb;
   padding: 24px;
@@ -10,6 +10,11 @@
   position: sticky;
   top: 0;
   left: 0;
+  height: 100vh;
+  /* ✅ fixa na altura da tela */
+  overflow: auto;
+  /* ✅ se tiver muito conteúdo, scroll no sidebar */
+  flex-shrink: 0;
 }
 
 .logo {

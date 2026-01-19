@@ -311,6 +311,13 @@ export async function transferCorporationOwnership(corporationId, payload) {
   }
 }
 
+// export async function listCorporationMembers(corporationId) {
+//   const id = String(corporationId);
+//   return await httpRequest(`/corporations/${id}/members`, {
+//     method: "GET",
+//   });
+// }
+
 export async function deleteCorporation(corporationId) {
   const token = getAccessToken();
   const t = `DELETE /corporations/${corporationId} #${Date.now()}`;

@@ -1,0 +1,14 @@
+/* src/layouts/AppLayout.css */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;       /* MUITO importante p/ não estourar layout */
+  overflow: auto;
+  padding: 24px;
+  background: #f1f5f9;
+}

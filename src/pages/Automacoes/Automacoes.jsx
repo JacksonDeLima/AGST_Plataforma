@@ -14,7 +14,7 @@ const Automacoes = () => {
 
   return (
     <div className="app">
-      <NavBar />
+      {/* <NavBar /> */}
 
       <div className="automacoes-page">
       {/* Header */}

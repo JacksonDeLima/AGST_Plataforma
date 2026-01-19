@@ -1,8 +1,4 @@
-// src/components/NavBar.jsx (ou onde estiver seu NavBar)
-// ✅ Comportamento:
-// - clicar no workspace-btn: abre/fecha lista de corporações
-// - clicar em uma corporação no dropdown: seta ativa + navega para /corporations/:id
-
+// src/components/NavBar.jsx
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -19,9 +15,8 @@ import {
 } from "lucide-react";
 import "./NavBar.css";
 
-import { listCorporations, createCorporation } from "../services/corporationsService";
-
-const LS_ACTIVE_CORP = "agst_active_corporation_id";
+import { useAuth } from "../context/AuthContext.jsx";
+import { createCorporation, listCorporationMembers } from "../services/corporationsService";
 
 /** ===== Helpers CNPJ ===== */
 function onlyDigits(s = "") {
@@ -30,7 +25,6 @@ function onlyDigits(s = "") {
 
 function formatCNPJ(value = "") {
   const v = onlyDigits(value).slice(0, 14);
-  // 12.345.678/0001-90
   const p1 = v.slice(0, 2);
   const p2 = v.slice(2, 5);
   const p3 = v.slice(5, 8);
@@ -51,20 +45,32 @@ function initials(name = "") {
   return (a + b).toUpperCase();
 }
 
+/** ===== Helpers Role ===== */
+function getUserId(user) {
+  return String(user?.id ?? user?.user_id ?? user?.uid ?? "");
+}
+
+function isAdminRole(role) {
+  const r = String(role || "").toLowerCase();
+  return r === "admin" || r === "owner" || r === "super_admin";
+}
+
 const NavBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const {
+    status,
+    user,
+    corporations,
+    corporationId,
+    setActiveCorporation,
+    bootstrap,
+  } = useAuth();
+
+  const loadingCorps = status === "loading";
   const [wsOpen, setWsOpen] = useState(false);
   const [showAddCorp, setShowAddCorp] = useState(false);
-
-  const [loadingCorps, setLoadingCorps] = useState(true);
-  const [corpError, setCorpError] = useState("");
-
-  const [corporations, setCorporations] = useState([]);
-  const [activeCorpId, setActiveCorpId] = useState(
-    () => localStorage.getItem(LS_ACTIVE_CORP) || ""
-  );
 
   const [createState, setCreateState] = useState({
     loading: false,
@@ -76,50 +82,71 @@ const NavBar = () => {
 
   const wsRef = useRef(null);
 
+  // ✅ corp ativa (vem do /corporations, sem role)
   const activeCorp = useMemo(() => {
+    const cid = String(corporationId ?? "");
     return (
-      corporations.find((c) => String(c.id) === String(activeCorpId)) ||
-      corporations[0] ||
+      corporations?.find((c) => String(c.id) === cid) ||
+      corporations?.[0] ||
       null
     );
-  }, [corporations, activeCorpId]);
+  }, [corporations, corporationId]);
 
-  // Carregar corporações do usuário
+  // ✅ cache de roles por corp: { [corpId]: "admin" | "user" | ... }
+  const [corpRoles, setCorpRoles] = useState({});
+  const [roleLoading, setRoleLoading] = useState(false);
+
+  // ✅ resolve role do usuário na corp ativa
   useEffect(() => {
+    const cid = String(corporationId ?? "");
+    const uid = getUserId(user);
+
+    if (!cid || !uid) return;
+
+    // 1) cache já tem role
+    if (corpRoles[cid] !== undefined) return;
+
+    // 2) se é owner_id da corp ativa, já libera sem bater em /members
+    if (String(activeCorp?.owner_id) === uid) {
+      setCorpRoles((prev) => ({ ...prev, [cid]: "owner" }));
+      return;
+    }
+
+    // 3) buscar role via /members
     (async () => {
-      setLoadingCorps(true);
-      setCorpError("");
+      setRoleLoading(true);
+      try {
+        const res = await listCorporationMembers(cid);
 
-      const res = await listCorporations();
-      if (!res.ok) {
-        setCorpError(res.message || "Erro ao carregar corporações.");
-        setCorporations([]);
-        setLoadingCorps(false);
-        return;
+        if (!res?.ok) {
+          // cacheia como null pra não ficar chamando infinito
+          setCorpRoles((prev) => ({ ...prev, [cid]: null }));
+          return;
+        }
+
+        const members = Array.isArray(res.data) ? res.data : [];
+        const me = members.find((m) => String(m.user_id) === uid);
+
+        const role = me?.role ?? null;
+        setCorpRoles((prev) => ({ ...prev, [cid]: role }));
+      } catch (e) {
+        setCorpRoles((prev) => ({ ...prev, [cid]: null }));
+      } finally {
+        setRoleLoading(false);
       }
-
-      setCorporations(res.data);
-
-      // Ajusta corporação ativa
-      const stored = localStorage.getItem(LS_ACTIVE_CORP);
-      const exists = res.data.some((c) => String(c.id) === String(stored));
-      const nextActive = exists
-        ? stored
-        : res.data[0]?.id
-          ? String(res.data[0].id)
-          : "";
-
-      setActiveCorpId(nextActive);
-      if (nextActive) localStorage.setItem(LS_ACTIVE_CORP, nextActive);
-
-      setLoadingCorps(false);
     })();
-  }, []);
+  }, [corporationId, user, activeCorp?.owner_id, corpRoles]);
 
-  // Persist active corp
-  useEffect(() => {
-    if (activeCorpId) localStorage.setItem(LS_ACTIVE_CORP, String(activeCorpId));
-  }, [activeCorpId]);
+  const activeRole = corpRoles[String(corporationId ?? "")];
+
+  // ✅ Pode gerir usuários se:
+  // - role == admin/owner/super_admin (vem do /members)
+  // - OU é owner_id (vem do /corporations)
+  const canManageUsers = useMemo(() => {
+    const uid = getUserId(user);
+    const isOwner = uid && String(activeCorp?.owner_id) === uid;
+    return isOwner || isAdminRole(activeRole);
+  }, [user, activeCorp?.owner_id, activeRole]);
 
   // Fechar dropdown clicando fora
   useEffect(() => {
@@ -135,16 +162,28 @@ const NavBar = () => {
     return location.pathname === path;
   }
 
-  // ✅ Seleciona corp + navega para a página da corp
-  const handleSelectCorp = (id) => {
+  // ✅ Seleciona corp (sem navegar)
+  const handleSelectCorp = async (id) => {
     const nextId = String(id);
-    setActiveCorpId(nextId);
-    localStorage.setItem(LS_ACTIVE_CORP, nextId);
     setWsOpen(false);
 
-    // ✅ vai para a página de detalhes
-    navigate(`/corporations/${nextId}`);
+    // se já está na mesma, só fecha e navega (opcional)
+    if (String(corporationId) === nextId) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+
+    // troca a corporação (persiste + atualiza contexto)
+    await setActiveCorporation(nextId);
+
+    // ✅ vai para dashboard
+    navigate("/dashboard", {
+      replace: true,
+      state: { fromWorkspaceSwitch: true, corporationId: nextId },
+    });
   };
+
+
 
   const handleOpenAdd = () => {
     setWsOpen(false);
@@ -162,7 +201,7 @@ const NavBar = () => {
 
   const handleCreateCorp = async () => {
     const name = newCorp.name.trim();
-    const taxDigits = onlyDigits(newCorp.tax_id); // enviar só dígitos
+    const taxDigits = onlyDigits(newCorp.tax_id);
 
     if (!name) {
       setCreateState({ loading: false, error: "Informe o nome fantasia.", success: "" });
@@ -177,30 +216,27 @@ const NavBar = () => {
 
     const res = await createCorporation({ name, tax_id: taxDigits });
     if (!res.ok) {
-      setCreateState({
-        loading: false,
-        error: res.message || "Erro ao criar corporação.",
-        success: "",
-      });
+      setCreateState({ loading: false, error: res.message || "Erro ao criar corporação.", success: "" });
       return;
     }
 
-    // Recarrega lista
-    const listRes = await listCorporations();
-    if (listRes.ok) setCorporations(listRes.data);
-
     const createdId = String(res.data?.id || "");
     if (createdId) {
-      setActiveCorpId(createdId);
-      localStorage.setItem(LS_ACTIVE_CORP, createdId);
+      await setActiveCorporation(createdId);
+      await bootstrap();
+
+      setCreateState({ loading: false, error: "", success: "✅ Corporação criada com sucesso!" });
+      setShowAddCorp(false);
+
+      navigate(location.pathname, { replace: true });
+      return;
     }
 
     setCreateState({ loading: false, error: "", success: "✅ Corporação criada com sucesso!" });
     setShowAddCorp(false);
-
-    // ✅ vai direto para a corp recém criada
-    if (createdId) navigate(`/corporations/${createdId}`);
   };
+
+  const userName = user?.full_name || user?.name || user?.email || "Usuário";
 
   return (
     <aside className="navbar">
@@ -211,7 +247,6 @@ const NavBar = () => {
       <div className="workspace" ref={wsRef}>
         <div className="workspace-label">Workspace</div>
 
-        {/* ✅ CLICAR AQUI SÓ ABRE/FECHA A LISTA */}
         <button
           type="button"
           className="workspace-btn"
@@ -219,10 +254,13 @@ const NavBar = () => {
           aria-haspopup="menu"
           aria-expanded={wsOpen}
           disabled={loadingCorps}
-          title={corpError ? corpError : ""}
         >
           <span className="workspace-avatar">
-            {loadingCorps ? <Loader2 size={16} className="spin" /> : initials(activeCorp?.name)}
+            {loadingCorps ? (
+              <Loader2 size={16} className="spin" />
+            ) : (
+              initials(activeCorp?.name)
+            )}
           </span>
 
           <span className="workspace-meta">
@@ -230,7 +268,11 @@ const NavBar = () => {
               {loadingCorps ? "Carregando..." : activeCorp?.name || "Sem corporação"}
             </span>
             <span className="workspace-hint">
-              {corpError ? "Falha ao carregar" : "Trocar corporação"}
+              {loadingCorps
+                ? "Aguarde..."
+                : roleLoading
+                  ? "Carregando permissões..."
+                  : "Trocar corporação"}
             </span>
           </span>
 
@@ -247,20 +289,19 @@ const NavBar = () => {
             </div>
 
             <div className="workspace-list">
-              {corporations.length === 0 ? (
+              {!corporations || corporations.length === 0 ? (
                 <div className="muted small" style={{ padding: 8 }}>
                   Nenhuma corporação vinculada.
                 </div>
               ) : (
                 corporations.map((c) => {
-                  const selected = String(c.id) === String(activeCorpId);
+                  const selected = String(c.id) === String(corporationId);
                   return (
                     <button
                       key={c.id}
                       type="button"
                       role="menuitem"
                       className={`workspace-item ${selected ? "selected" : ""}`}
-                      // ✅ CLICAR NA CORPORAÇÃO → VAI PARA A PÁGINA
                       onClick={() => handleSelectCorp(c.id)}
                     >
                       <span className="workspace-item-avatar">{initials(c.name)}</span>
@@ -279,63 +320,49 @@ const NavBar = () => {
 
       <nav className="nav">
         <Link to="/dashboard" className={`nav-item ${isActive("/dashboard") ? "active" : ""}`}>
-          <span className="nav-ico">
-            <MapPin size={18} />
-          </span>
+          <span className="nav-ico"><MapPin size={18} /></span>
           Ambientes
         </Link>
 
         <Link to="/equipamentos" className={`nav-item ${isActive("/equipamentos") ? "active" : ""}`}>
-          <span className="nav-ico">
-            <Package size={18} />
-          </span>
+          <span className="nav-ico"><Package size={18} /></span>
           Equipamentos
         </Link>
 
         <Link to="/automacoes" className={`nav-item ${isActive("/automacoes") ? "active" : ""}`}>
-          <span className="nav-ico">
-            <Snowflake size={18} />
-          </span>
+          <span className="nav-ico"><Snowflake size={18} /></span>
           Automações
         </Link>
 
         <Link to="/relatorios" className={`nav-item ${isActive("/relatorios") ? "active" : ""}`}>
-          <span className="nav-ico">
-            <BarChart3 size={18} />
-          </span>
+          <span className="nav-ico"><BarChart3 size={18} /></span>
           Relatórios
         </Link>
 
-        <Link to="/gerir-usuarios" className={`nav-item ${isActive("/gerir-usuarios") ? "active" : ""}`}>
-          <span className="nav-ico">
-            <Users size={18} />
-          </span>
-          Gerir usuários
-        </Link>
+        {/* ✅ Agora funciona: owner_id OU role admin vindo do /members */}
+        {canManageUsers && (
+          <Link to="/gerir-usuarios" className={`nav-item ${isActive("/gerir-usuarios") ? "active" : ""}`}>
+            <span className="nav-ico"><Users size={18} /></span>
+            Gerir usuários
+          </Link>
+        )}
 
         <Link to="/alarmes" className={`nav-item ${isActive("/alarmes") ? "active" : ""}`}>
-          <span className="nav-ico">
-            <Siren size={18} />
-          </span>
+          <span className="nav-ico"><Siren size={18} /></span>
           Alarmes
         </Link>
 
         <Link to="/configuracoes" className={`nav-item ${isActive("/configuracoes") ? "active" : ""}`}>
-          <span className="nav-ico">
-            <Settings size={18} />
-          </span>
+          <span className="nav-ico"><Settings size={18} /></span>
           Configurações
         </Link>
       </nav>
 
-      <div className="user-section">
-        <div className="user-avatar">
-          <UserCircle2 size={22} />
-        </div>
-        <span className="user-name">Nome</span>
+      <div className="user-section" title={user?.email || ""}>
+        <div className="user-avatar"><UserCircle2 size={22} /></div>
+        <span className="user-name">{userName}</span>
       </div>
 
-      {/* Modal criar corporação */}
       {showAddCorp && (
         <div className="ws-modal-overlay" onClick={handleCloseAdd} role="dialog" aria-modal="true">
           <div className="ws-modal" onClick={(e) => e.stopPropagation()}>

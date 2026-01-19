@@ -814,3 +814,201 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===========================
+   Modal - Adicionar Membro
+   =========================== */
+
+.gu-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55); /* igual ao seu modal genérico */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  z-index: 9999;
+}
+
+.gu-modal-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+/* Cabeçalho */
+.gu-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--bg-brand);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.gu-modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.gu-modal-subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.gu-modal-close {
+  border: none;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  transition: 0.15s ease;
+}
+
+.gu-modal-close:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.gu-modal-close:active {
+  transform: translateY(0);
+}
+
+/* Corpo */
+.gu-modal-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gu-modal-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 560px) {
+  .gu-modal-grid.two {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.gu-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gu-field label {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 2px;
+}
+
+.gu-field input,
+.gu-field select {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  color: var(--text-main);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.16s ease, box-shadow 0.18s ease, background 0.18s ease,
+    transform 0.08s ease;
+}
+
+.gu-field input::placeholder {
+  color: var(--text-muted);
+}
+
+.gu-field input:focus,
+.gu-field select:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-focus);
+  transform: translateY(-0.5px);
+}
+
+.gu-field input:disabled,
+.gu-field select:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+/* Alertas */
+.gu-modal-alert {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--text-main);
+}
+
+.gu-modal-alert.error {
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.gu-modal-alert.success {
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  background: #ecfdf3;
+  color: #166534;
+}
+
+/* Rodapé */
+.gu-modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 18px 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.gu-btn-ghost {
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(148, 163, 184, 0.10);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.gu-btn-ghost:hover {
+  background: rgba(148, 163, 184, 0.16);
+  transform: translateY(-1px);
+}
+
+.gu-btn-ghost:active {
+  transform: translateY(0);
+}
+
+.gu-btn-ghost:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* No modal, btn-primary não precisa ser 100% */
+.gu-modal-footer .btn-primary {
+  width: auto;
+  min-width: 160px;
+}

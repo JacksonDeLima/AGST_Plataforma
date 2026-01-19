@@ -150,7 +150,7 @@ const Equipamentos = () => {
 
   return (
     <div className="app">
-         <NavBar />
+         {/* <NavBar /> */}
     <div className="equipamentos-page">
       {/* Header */}
       <div className="page-header">

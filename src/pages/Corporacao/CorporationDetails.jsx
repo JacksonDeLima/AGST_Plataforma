@@ -151,7 +151,7 @@ export default function CorporationDetails() {
 
   return (
     <div className="app">
-      <NavBar />
+      {/* <NavBar /> */}
       {/* <div className="sidebar-space" /> */}
 
       <main className="main-content">

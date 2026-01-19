@@ -3,6 +3,7 @@ import "../../StylesGlobal/global.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import Logo from "../../assets/logo.svg";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 import {
   resolveAuthMode,
@@ -20,6 +21,7 @@ const DEBUG_AUTH =
 export default function Login() {
   const navigate = useNavigate();
   const mode = useMemo(() => resolveAuthMode(), []);
+  const { loginWithPassword, bootstrap: authBootstrap } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -79,30 +81,19 @@ export default function Login() {
     setIsLoading(true);
     setFieldErrors({});
 
-    // ✅ Login via password (modo local)
-    const result = await loginUser({ email, password });
+    // ✅ Agora autentica pelo AuthContext (não pelo authService)
+    const result = await loginWithPassword(email, password);
 
     setIsLoading(false);
 
-    if (!result.success) {
-      setErrorMsg(result.error || "Erro ao autenticar.");
+    if (!result.ok) {
+      setErrorMsg(result.error?.data?.error || result.error?.message || "Erro ao autenticar.");
       return;
     }
 
-    if (DEBUG_AUTH) {
-      logAuthSnapshot("Login.jsx (pós-login password)");
-      const { accessToken } = getStoredTokens();
-      if (accessToken) {
-        const v = await validateToken(accessToken);
-        console.group("👤 [Auth Debug] validate-token (pós-login)");
-        console.log("valid:", v.valid);
-        console.log("data:", v.data);
-        console.groupEnd();
-      }
-    }
-
-    navigate("/dashboard");
+    navigate("/dashboard", { replace: true });
   }
+
 
   const disabled = booting || isLoading;
 

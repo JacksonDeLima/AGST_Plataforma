@@ -314,7 +314,7 @@ const Dashboard = () => {
 
   return (
     <div className="app">
-      <NavBar />
+      {/* <NavBar /> */}
     <main className="main-content">
       {/* Header */}
       <header className="header">
