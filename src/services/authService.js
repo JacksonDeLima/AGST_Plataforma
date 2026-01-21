@@ -1,6 +1,6 @@
 import { httpRequest } from "./httpClient";
 import { endpoints } from "../config/endpoints";
-import { API_BASE_URL } from "../config/apiConfig";
+import { API_BASE_URL } from "../config/apiconfig";
 
 export const AUTH_MODE = import.meta.env.VITE_AUTH_MODE || "auto"; // auto | oauth | password
 const DEBUG_AUTH = String(import.meta.env.VITE_DEBUG_AUTH || "").toLowerCase() === "true";
