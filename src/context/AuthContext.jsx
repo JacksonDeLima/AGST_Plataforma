@@ -39,6 +39,213 @@ function maskToken(t = "") {
   return `${s.slice(0, 10)}…${s.slice(-6)}`;
 }
 
+function now() {
+  return new Date().toISOString();
+}
+
+function urlSnap() {
+  return {
+    href: window.location.href,
+    origin: window.location.origin,
+    pathname: window.location.pathname,
+    search: window.location.search,
+    hash: window.location.hash,
+  };
+}
+
+function storageSnap() {
+  const at = localStorage.getItem(LS_ACCESS) || "";
+  const rt = localStorage.getItem(LS_REFRESH) || "";
+  const corp = localStorage.getItem(LS_CORP_ID) || "";
+
+  return {
+    access_token: at ? maskToken(at) : "(vazio)",
+    refresh_token: rt ? maskToken(rt) : "(vazio)",
+    corporation_id: corp || "(vazio)",
+    ss_state: sessionStorage.getItem(SS_OAUTH_STATE) ? "OK" : "(vazio)",
+    ss_verifier: sessionStorage.getItem(SS_PKCE_VERIFIER) ? "OK" : "(vazio)",
+    ss_post_redirect: sessionStorage.getItem(SS_POST_AUTH_REDIRECT) || "(vazio)",
+  };
+}
+
+function logEnvSnap() {
+  return {
+    AUTH_MODE,
+    resolved_mode: resolveAuthMode(),
+    API_BASE_URL,
+    OAUTH_CLIENT_ID,
+    OAUTH_AUTHORIZE_PATH,
+    OAUTH_TOKEN_PATH,
+    ENV_REDIRECT_URI: ENV_REDIRECT_URI || "(vazio)",
+    computed_redirect_uri: getRedirectUri(),
+  };
+}
+
+function groupCollapsed(title, fn) {
+  if (!DEBUG_AUTH) return fn();
+  console.groupCollapsed(title);
+  try {
+    return fn();
+  } finally {
+    console.groupEnd();
+  }
+}
+
+/* ============================
+   OAuth2 + PKCE (SPA)
+============================ */
+export const AUTH_MODE = import.meta.env.VITE_AUTH_MODE || "auto"; // auto | oauth | password
+
+function resolveAuthMode() {
+  if (AUTH_MODE !== "auto") return AUTH_MODE;
+  const host = window.location.hostname;
+  const isLocal = host === "localhost" || host === "127.0.0.1" || host.endsWith(".local");
+  return isLocal ? "password" : "oauth";
+}
+
+const OAUTH_CLIENT_ID = import.meta.env.VITE_OAUTH_CLIENT_ID || "Brise2Web";
+
+// defaults do seu doc: /oauth/authorize e /oauth/token
+const OAUTH_AUTHORIZE_PATH = import.meta.env.VITE_OAUTH_AUTHORIZE_PATH || "/oauth/authorize";
+const OAUTH_TOKEN_PATH = import.meta.env.VITE_OAUTH_TOKEN_PATH || "/oauth/token";
+
+// se não setar no .env, usamos runtime: window.location.origin + "/oauth/callback"
+const ENV_REDIRECT_URI = import.meta.env.VITE_OAUTH_REDIRECT_URI || "";
+
+const SS_OAUTH_REDIRECT_AT = "oauth_redirect_at";
+const SS_POST_AUTH_REDIRECT = "post_auth_redirect";
+const SS_PKCE_VERIFIER = "pkce_code_verifier";
+const SS_OAUTH_STATE = "oauth_state";
+
+function buildApiUrl(path) {
+  const base = String(API_BASE_URL).replace(/\/+$/, "");
+  const rel = String(path || "").startsWith("/") ? String(path) : `/${path}`;
+  return `${base}${rel}`;
+}
+
+function safeRedirect(url) {
+  // evita loop no StrictMode / render duplo
+  const last = Number(sessionStorage.getItem(SS_OAUTH_REDIRECT_AT) || "0");
+  if (last && Date.now() - last < 1500) return;
+  sessionStorage.setItem(SS_OAUTH_REDIRECT_AT, String(Date.now()));
+  window.location.replace(url);
+}
+
+function base64UrlEncode(bytes) {
+  let str = "";
+  bytes.forEach((b) => (str += String.fromCharCode(b)));
+  const base64 = btoa(str);
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function randomBytes(len = 32) {
+  const arr = new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  return arr;
+}
+
+function generateState() {
+  const st = base64UrlEncode(randomBytes(16));
+  sessionStorage.setItem(SS_OAUTH_STATE, st);
+  return st;
+}
+
+function generateVerifier() {
+  const v = base64UrlEncode(randomBytes(32));
+  sessionStorage.setItem(SS_PKCE_VERIFIER, v);
+  return v;
+}
+
+async function sha256Base64Url(input) {
+  const enc = new TextEncoder().encode(input);
+  const hash = await crypto.subtle.digest("SHA-256", enc);
+  return base64UrlEncode(new Uint8Array(hash));
+}
+
+function getRedirectUri() {
+  return ENV_REDIRECT_URI || `${window.location.origin}/oauth/callback`;
+}
+
+async function startOAuthRedirect({ redirectAfterLogin } = {}) {
+  groupCollapsed("➡️ [OAuth PKCE] startOAuthRedirect()", () => {
+    console.log("time:", now());
+    console.log("url(before):", urlSnap());
+    console.log("storage(before):", storageSnap());
+    console.log("redirectAfterLogin:", redirectAfterLogin || "(não informado)");
+    console.log("redirect_uri:", getRedirectUri());
+  });
+
+  const redirect_uri = getRedirectUri();
+
+  // guarda a rota que o usuário queria abrir
+  if (redirectAfterLogin) {
+    sessionStorage.setItem(SS_POST_AUTH_REDIRECT, String(redirectAfterLogin));
+  } else if (!sessionStorage.getItem(SS_POST_AUTH_REDIRECT)) {
+    sessionStorage.setItem(SS_POST_AUTH_REDIRECT, "/dashboard");
+  }
+
+  const state = generateState();
+  const verifier = generateVerifier();
+  const challenge = await sha256Base64Url(verifier);
+
+  groupCollapsed("🔐 [OAuth PKCE] generated values", () => {
+    console.log("state:", state);
+    console.log("verifier_prefix:", verifier.slice(0, 10) + "…");
+    console.log("challenge_prefix:", String(challenge).slice(0, 10) + "…");
+    console.log("storage(after_gen):", storageSnap());
+  });
+
+  const qs = new URLSearchParams({
+    response_type: "code",
+    client_id: OAUTH_CLIENT_ID,
+    redirect_uri,
+    state,
+    code_challenge: challenge,
+    code_challenge_method: "S256",
+  });
+
+  const url = `${buildApiUrl(OAUTH_AUTHORIZE_PATH)}?${qs.toString()}`;
+  authLog("➡️ [OAuth PKCE] authorize URL:", url);
+
+  safeRedirect(url);
+}
+
+
+// token endpoint: geralmente x-www-form-urlencoded
+async function oauthTokenRequest(form) {
+  const url = buildApiUrl(OAUTH_TOKEN_PATH);
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded", Accept: "application/json" },
+    body: new URLSearchParams(form).toString(),
+  });
+
+  const raw = await res.text();
+  let data = null;
+  try {
+    data = raw ? JSON.parse(raw) : null;
+  } catch {
+    data = raw || null;
+  }
+
+  if (!res.ok) {
+    const err = new Error(
+      typeof data === "object"
+        ? (data?.error || data?.message || `HTTP ${res.status}`)
+        : (data || `HTTP ${res.status}`)
+    );
+    err.status = res.status;
+    err.data = data;
+    throw err;
+  }
+
+  return data;
+}
+
+/* ============================
+   Storage helpers
+============================ */
 function getStoredTokens() {
   return {
     accessToken: localStorage.getItem(LS_ACCESS) || "",
@@ -64,13 +271,36 @@ function storeCorpId(id) {
   else localStorage.removeItem(LS_CORP_ID);
 }
 
+/* ============================
+   API request (Bearer)
+============================ */
+function sanitizeBodyForLog(body) {
+  try {
+    if (!body || typeof body !== "object") return body;
+    const b = { ...body };
+    if ("password" in b) b.password = "******";
+    if ("new_password" in b) b.new_password = "******";
+    if ("h-captcha-response" in b) b["h-captcha-response"] = b["h-captcha-response"] ? "OK" : "";
+    return b;
+  } catch {
+    return body;
+  }
+}
+
 async function apiRequest(path, { method = "GET", body, accessToken } = {}) {
   const url = `${API_BASE_URL}${path}`;
   const headers = { "Content-Type": "application/json", Accept: "application/json" };
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
 
   const t0 = performance.now();
-  console.log("📡 [apiRequest] ->", { method, url, hasAuth: !!accessToken, body });
+  if (DEBUG_AUTH) {
+    console.log("📡 [apiRequest] ->", {
+      method,
+      url,
+      hasAuth: !!accessToken,
+      body: sanitizeBodyForLog(body),
+    });
+  }
 
   const res = await fetch(url, {
     method,
@@ -88,7 +318,7 @@ async function apiRequest(path, { method = "GET", body, accessToken } = {}) {
     data = rawText || null;
   }
 
-  console.log(`📥 [apiRequest] <- ${res.status} (${ms}ms)`, data);
+  if (DEBUG_AUTH) console.log(`📥 [apiRequest] <- ${res.status} (${ms}ms)`, data);
 
   if (!res.ok) {
     const err = new Error(
@@ -104,9 +334,14 @@ async function apiRequest(path, { method = "GET", body, accessToken } = {}) {
   return data;
 }
 
+/* ============================
+   Context
+============================ */
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
+  const mode = useMemo(() => resolveAuthMode(), []);
+
   const [status, setStatus] = useState("loading"); // loading | authed | unauthed
   const [error, setError] = useState("");
 
@@ -120,23 +355,33 @@ export function AuthProvider({ children }) {
 
   const isAuthenticated = status === "authed" && !!accessToken;
 
-  // 🔎 log de mudanças (ajuda MUITO)
   useEffect(() => {
     if (!DEBUG_AUTH) return;
-    authLog("🧭 [Auth] state snapshot:", {
+
+    groupCollapsed("🧪 [Auth DEBUG] ENV + URL + STORAGE (mount)", () => {
+      console.log("time:", now());
+      console.log("env:", logEnvSnap());
+      console.log("url:", urlSnap());
+      console.log("storage:", storageSnap());
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!DEBUG_AUTH) return;
+    authLog("🧭 [Auth] snapshot:", {
+      mode,
       status,
       isAuthenticated,
       accessToken: maskToken(accessToken),
       refreshToken: maskToken(refreshToken),
-      user: user
-        ? { ...user, access_token: undefined, refresh_token: undefined }
-        : null,
+      user: user ? { ...user, access_token: undefined, refresh_token: undefined } : null,
       corporationsCount: corporations?.length || 0,
       corporationId,
       corporation: corporation ? { id: corporation.id, name: corporation.name } : null,
       error,
     });
   }, [
+    mode,
     status,
     isAuthenticated,
     accessToken,
@@ -150,9 +395,11 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     authGroup("🚪 [Auth] logout()", () => {
-      authLog("🧹 Clearing tokens + state");
       clearTokens();
       storeCorpId("");
+      sessionStorage.removeItem(SS_POST_AUTH_REDIRECT);
+      sessionStorage.removeItem(SS_PKCE_VERIFIER);
+      sessionStorage.removeItem(SS_OAUTH_STATE);
 
       setAccessToken("");
       setRefreshToken("");
@@ -168,49 +415,30 @@ export function AuthProvider({ children }) {
   }, []);
 
   const loadMe = useCallback(async (token) => {
-    console.group("👤 [Auth] loadMe");
-    console.log("token:", token ? token.slice(0, 20) + "..." : "MISSING");
-
     const me = await apiRequest("/users/me", { method: "GET", accessToken: token });
-
-    console.log("✅ /users/me =>", me);
-    console.groupEnd();
-
     setUser(me);
     return me;
   }, []);
 
-  // ✅ Carrega corporações e garante corporationId válido sem depender de /corporations/:id
   const loadCorporations = useCallback(async (token) => {
-    console.group("🏢 [Auth] loadCorporations");
-    console.log("token:", token ? token.slice(0, 20) + "..." : "MISSING");
-
     const list = await apiRequest("/corporations", { method: "GET", accessToken: token });
-    console.log("✅ /corporations raw =>", list);
-
     const normalized = Array.isArray(list) ? list : Array.isArray(list?.data) ? list.data : [];
-    console.log("normalized length:", normalized.length);
-
     setCorporations(normalized);
 
-    // ✅ corp ativa: usa storage se existir na lista, senão usa primeira
     const stored = getStoredCorpId();
     const hasStored = stored && normalized.some((c) => String(c.id) === String(stored));
     const nextId = hasStored
       ? String(stored)
       : normalized?.[0]?.id
-      ? String(normalized[0].id)
-      : "";
+        ? String(normalized[0].id)
+        : "";
 
     setCorporationId(nextId);
     storeCorpId(nextId);
 
-    console.groupEnd();
     return { ok: true, data: normalized, activeId: nextId };
   }, []);
 
-  // ✅ Mantém `corporation` sempre preenchida pelo menos com o item do /corporations
-  // (isso evita “não carregou as informações” quando /corporations/:id dá 404/403)
   useEffect(() => {
     const cid = String(corporationId || "");
     if (!cid) {
@@ -222,7 +450,6 @@ export function AuthProvider({ children }) {
     const fromList = list.find((c) => String(c.id) === cid) || null;
 
     if (fromList) {
-      // Se já temos detalhes (de /corporations/:id), mantemos e só “mesclamos”
       setCorporation((prev) => {
         if (prev && String(prev.id) === cid) return { ...fromList, ...prev };
         return fromList;
@@ -230,20 +457,15 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    // fallback mínimo (não deixa null)
     setCorporation((prev) => {
       if (prev && String(prev.id) === cid) return prev;
       return { id: isNaN(Number(cid)) ? cid : Number(cid) };
     });
   }, [corporations, corporationId]);
 
-  // ✅ Trocar corp: nunca pode falhar por causa de /corporations/:id
   const setActiveCorporation = useCallback(async (id) => {
     return authGroup("🔁 [Auth] setActiveCorporation()", async () => {
       const cid = String(id || "");
-      authLog("selected:", cid);
-
-      // ✅ 1) troca corp SEMPRE (estado + storage)
       setCorporationId(cid);
       storeCorpId(cid);
 
@@ -252,19 +474,14 @@ export function AuthProvider({ children }) {
         return { ok: true, data: null };
       }
 
-      // ✅ 2) best-effort: tenta detalhes, mas se der 403/404 não bloqueia
       const { accessToken: at } = getStoredTokens();
-      authLog("stored accessToken:", maskToken(at));
       if (!at) return { ok: true, limited: true };
 
       try {
         const corp = await apiRequest(`/corporations/${cid}`, { method: "GET", accessToken: at });
-
-        // evita race: só aplica se ainda estiver nessa corp
         if (String(getStoredCorpId()) === cid) {
           setCorporation((prev) => ({ ...(prev || {}), ...corp }));
         }
-
         return { ok: true, data: corp };
       } catch (e) {
         if (e?.status === 403 || e?.status === 404) {
@@ -273,7 +490,6 @@ export function AuthProvider({ children }) {
           );
           return { ok: true, limited: true };
         }
-
         console.error("[Auth] Falha ao buscar detalhes da corp ativa:", e);
         return { ok: true, limited: true, warning: e?.message };
       }
@@ -282,13 +498,6 @@ export function AuthProvider({ children }) {
 
   const loginWithPassword = useCallback(
     async (email, password, captchaToken) => {
-      console.group("🔐 [Auth] loginWithPassword");
-      console.log("payload:", {
-        email,
-        password: "******",
-        captcha: captchaToken ? "OK" : "MISSING",
-      });
-
       setError("");
       setStatus("loading");
 
@@ -298,12 +507,6 @@ export function AuthProvider({ children }) {
           : { email, password };
 
         const data = await apiRequest("/users/login", { method: "POST", body });
-
-        console.log("✅ login response:", {
-          ...data,
-          access_token: "******",
-          refresh_token: "******",
-        });
 
         const at = data?.access_token || "";
         const rt = data?.refresh_token || "";
@@ -316,72 +519,167 @@ export function AuthProvider({ children }) {
 
         await loadMe(at);
         const corpsRes = await loadCorporations(at);
-
-        // ✅ tenta buscar detalhes da corp ativa, sem quebrar se der 404/403
-        if (corpsRes?.activeId) {
-          await setActiveCorporation(corpsRes.activeId);
-        }
+        if (corpsRes?.activeId) await setActiveCorporation(corpsRes.activeId);
 
         setStatus("authed");
-        console.log("✅ AuthContext: user/corporations carregados");
-        console.groupEnd();
         return { ok: true };
       } catch (e) {
-        console.error("❌ login error:", e?.status, e?.data || e?.message);
         setError(e?.data?.error || e?.data?.message || e.message || "Falha no login");
         setStatus("unauthed");
-        console.groupEnd();
         return { ok: false, error: e };
       }
     },
     [loadMe, loadCorporations, setActiveCorporation]
   );
 
+  // ✅ troca code -> token (PKCE)
+  const exchangeCodeForTokens = useCallback(async ({ code, state }) => {
+    return authGroup("🧩 [OAuth] exchangeCodeForTokens()", async () => {
+      const redirect_uri = getRedirectUri();
+      const expectedState = sessionStorage.getItem(SS_OAUTH_STATE) || "";
+      const verifier = sessionStorage.getItem(SS_PKCE_VERIFIER) || "";
+
+      authLog("state(expected):", expectedState);
+      authLog("state(received):", state);
+      authLog("has verifier:", !!verifier);
+
+      if (!code) throw new Error("Missing authorization code.");
+      if (!state || state !== expectedState) throw new Error("Invalid state (CSRF).");
+      if (!verifier) throw new Error("Missing code_verifier (PKCE).");
+
+      // POST /oauth/token
+      const token = await oauthTokenRequest({
+        grant_type: "authorization_code",
+        client_id: OAUTH_CLIENT_ID,
+        redirect_uri,
+        code,
+        code_verifier: verifier,
+      });
+
+      const at = token?.access_token || "";
+      const rt = token?.refresh_token || "";
+
+      if (!at) throw new Error("Token endpoint retornou sem access_token.");
+
+      storeTokens({ accessToken: at, refreshToken: rt });
+      setAccessToken(at);
+      setRefreshToken(rt);
+
+      // limpa temporários
+      sessionStorage.removeItem(SS_PKCE_VERIFIER);
+      sessionStorage.removeItem(SS_OAUTH_STATE);
+
+      authLog("✅ tokens recebidos:", { access: maskToken(at), refresh: maskToken(rt) });
+      return { ok: true, token };
+    });
+  }, []);
+
+  // ✅ refresh token (sem redirect)
+  const refreshSession = useCallback(async () => {
+    return authGroup("🔁 [OAuth] refreshSession()", async () => {
+      const { refreshToken: rt } = getStoredTokens();
+      if (!rt) return { ok: false, reason: "NO_REFRESH_TOKEN" };
+
+      const token = await oauthTokenRequest({
+        grant_type: "refresh_token",
+        client_id: OAUTH_CLIENT_ID,
+        refresh_token: rt,
+      });
+
+      const at = token?.access_token || "";
+      const newRt = token?.refresh_token || rt;
+
+      if (!at) throw new Error("Refresh retornou sem access_token.");
+
+      storeTokens({ accessToken: at, refreshToken: newRt });
+      setAccessToken(at);
+      setRefreshToken(newRt);
+
+      authLog("✅ refresh ok:", { access: maskToken(at), refresh: maskToken(newRt) });
+      return { ok: true };
+    });
+  }, []);
+
+  // ✅ BOOTSTRAP: valida token, carrega user e corp, se falhar tenta refresh (oauth)
   const bootstrap = useCallback(async () => {
     return authGroup("♻️ [Auth] bootstrap()", async () => {
       setError("");
 
       const { accessToken: at, refreshToken: rt } = getStoredTokens();
-
-      authLog("stored tokens:", { access: maskToken(at), refresh: maskToken(rt) });
-      authLog("stored corpId:", getStoredCorpId());
+      authLog("mode:", mode);
+      authLog("stored:", { access: maskToken(at), refresh: maskToken(rt) });
 
       if (!at) {
-        authLog("➡️ no access token -> status=unauthed");
         setStatus("unauthed");
-        return;
+        return { ok: false, reason: "NO_ACCESS_TOKEN" };
       }
 
       try {
         await apiRequest("/users/validate-token", { method: "GET", accessToken: at });
-        authLog("✅ validate-token ok");
 
         setAccessToken(at);
         setRefreshToken(rt);
 
         await loadMe(at);
         const corpsRes = await loadCorporations(at);
-
-        // ✅ best-effort: detalhe da corp ativa (não quebra se 404/403)
-        if (corpsRes?.activeId) {
-          await setActiveCorporation(corpsRes.activeId);
-        }
+        if (corpsRes?.activeId) await setActiveCorporation(corpsRes.activeId);
 
         setStatus("authed");
-        authLog("✅ bootstrap success");
+        return { ok: true };
       } catch (e) {
-        authLog("❌ bootstrap failed -> logout", e);
-        logout();
+        authLog("❌ validate-token falhou:", e?.status, e?.data || e?.message);
+
+        // no oauth, tenta refresh antes de derrubar
+        if (mode === "oauth" && rt) {
+          try {
+            const r = await refreshSession();
+            if (r.ok) {
+              const { accessToken: at2, refreshToken: rt2 } = getStoredTokens();
+
+              await apiRequest("/users/validate-token", { method: "GET", accessToken: at2 });
+
+              setAccessToken(at2);
+              setRefreshToken(rt2);
+
+              await loadMe(at2);
+              const corpsRes2 = await loadCorporations(at2);
+              if (corpsRes2?.activeId) await setActiveCorporation(corpsRes2.activeId);
+
+              setStatus("authed");
+              return { ok: true, refreshed: true };
+            }
+          } catch (refreshErr) {
+            authLog("❌ refresh falhou:", refreshErr?.status, refreshErr?.data || refreshErr?.message);
+          }
+        }
+
+        // se não deu, derruba sessão
+        clearTokens();
+        setAccessToken("");
+        setRefreshToken("");
+        setUser(null);
+        setCorporations([]);
+        setCorporationId("");
+        setCorporation(null);
+
+        setStatus("unauthed");
+        return { ok: false, reason: "INVALID_SESSION" };
       }
     });
-  }, [loadMe, loadCorporations, logout, setActiveCorporation]);
+  }, [mode, loadMe, loadCorporations, refreshSession, setActiveCorporation]);
 
   useEffect(() => {
     bootstrap();
   }, [bootstrap]);
 
+  // ✅ disparo automático do OAuth quando necessário (usado pelos guards)
+  const beginOAuth = useCallback(async ({ redirectAfterLogin } = {}) => {
+    await startOAuthRedirect({ redirectAfterLogin });
+  }, []);
+
   const value = useMemo(
     () => ({
+      mode,
       status,
       error,
       isAuthenticated,
@@ -397,10 +695,14 @@ export function AuthProvider({ children }) {
       logout,
       bootstrap,
       setActiveCorporation,
+
+      beginOAuth,
+      exchangeCodeForTokens,
 
       getAuthHeader: () => (accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
     }),
     [
+      mode,
       status,
       error,
       isAuthenticated,
@@ -414,6 +716,8 @@ export function AuthProvider({ children }) {
       logout,
       bootstrap,
       setActiveCorporation,
+      beginOAuth,
+      exchangeCodeForTokens,
     ]
   );
 

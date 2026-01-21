@@ -15,11 +15,36 @@ import CorporationDetails from "../pages/Corporacao/CorporationDetails";
 
 import AppLayout from "../pages/Layouts/AppLayout";
 
+import ProtectedRoute from "./ProtectedRoute";
+import PublicRoute from "./PublicRoute";
+
+import OAuthCallback from "../pages/OAuthCallback/OAuthCallback";
+
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* ===== Callback OAuth (pública) ===== */}
+      <Route path="/oauth/callback" element={<OAuthCallback />} />
+
       {/* ===== Rotas públicas ===== */}
-      <Route path="/" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+
+      <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+
       <Route path="/criarConta" element={<CriarConta />} />
       <Route path="/activation" element={<Activation />} />
       <Route path="/esqueciSenha" element={<EsqueciSenha />} />
@@ -28,20 +53,23 @@ export default function AppRoutes() {
       <Route path="/redefinirSenha" element={<RedefinirSenha />} />
       <Route path="/users/reset-password" element={<RedefinirSenha />} />
 
-      {/* Troca de senha (se for logado e você quiser manter com layout, mova pra dentro) */}
-      <Route path="/alterarSenha" element={<AlterarSenha />} />
-
-      {/* ===== Rotas internas (com NavBar/AppLayout) ===== */}
-      <Route element={<AppLayout />}>
+      {/* ===== Rotas internas (privadas) ===== */}
+      <Route
+        element={
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/equipamentos" element={<Equipamentos />} />
         <Route path="/automacoes" element={<Automacoes />} />
         <Route path="/gerir-usuarios" element={<GerirUsuarios />} />
         <Route path="/corporations" element={<CorporationsPage />} />
         <Route path="/corporations/:corporationId" element={<CorporationDetails />} />
+        <Route path="/alterarSenha" element={<AlterarSenha />} />
       </Route>
 
-      {/* ===== 404 ===== */}
       <Route path="*" element={<h1>404 - Página não encontrada</h1>} />
     </Routes>
   );
