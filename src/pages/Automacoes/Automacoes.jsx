@@ -1,76 +1,62 @@
-import React, { useState } from 'react';
-import './Automacoes.css';
-import NavBar from '../../components/NavBar';
+import React from "react";
+import "./automacoes.css";
 
-const Automacoes = () => {
-  const [automacoes] = useState([
-    {
-      id: 1,
-      nome: 'Rotina',
-      descricao: 'Ar-condicionado liga automaticamente',
-      status: 'ativo'
-    }
-  ]);
-
+export default function Automacoes() {
   return (
-    <div className="app">
-      {/* <NavBar /> */}
+    <div className="automacoes-container">
+      <div className="automacoes-header">
+        <div>
+          <h1>Automações</h1>
+          <p>Crie e gerencie automações inteligentes para seus equipamentos</p>
+        </div>
 
-      <div className="automacoes-page">
-      {/* Header */}
-      <div className="page-header">
-        <div className="header-left">
-          <h1 className="page-title">Automações</h1>
-          <p className="page-subtitle">Crie e gerencie automações para seus equipamentos</p>
+        <div className="automacoes-actions">
+          <button className="btn-primary">
+            Nova Automação por Ocupação
+          </button>
+          <button className="btn-secondary">
+            Nova Rotina por Horário
+          </button>
         </div>
       </div>
 
-      {/* Estado Vazio */}
-      {automacoes.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-state-icon">
-            <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-              <circle cx="60" cy="60" r="50" fill="#E0F2FE" opacity="0.5"/>
-              <path d="M60 35V85M35 60H85" stroke="#0EA5E9" strokeWidth="6" strokeLinecap="round"/>
-              <circle cx="60" cy="60" r="35" stroke="#0EA5E9" strokeWidth="3" strokeDasharray="5 5"/>
-            </svg>
+      {/* AUTOMAÇÕES POR OCUPAÇÃO */}
+      <div className="automacoes-card">
+        <div className="automacoes-card-header">
+          <div className="title">
+            <span>👥</span>
+            <h2>Automações por Ocupação</h2>
           </div>
-          <h2 className="empty-state-title">Nenhuma automação criada</h2>
-          <p className="empty-state-text">
-            Crie automações para controlar seus equipamentos automaticamente
-          </p>
-          <button className="btn-criar-automacao">
-            + Criar Automação
-          </button>
-        </div>
-      ) : (
-        <div className="automacoes-container">
-          {/* Card de Rotina */}
-          <div className="automacao-card">
-            <div className="automacao-header">
-              <div className="automacao-info">
-                <div className="automacao-icon">⏰</div>
-                <div>
-                  <h3 className="automacao-nome">Rotina</h3>
-                  <p className="automacao-descricao">
-                    Ar-condicionado liga automaticamente
-                  </p>
-                </div>
-              </div>
-              <div className="automacao-status">
-                <span className="status-badge ativo">Ativo</span>
-              </div>
-            </div>
 
-            <button className="btn-criar-rotina">
-              Criar
-            </button>
+          <div className="status">
+            <span className="ativo">0 Ativas</span>
+            <span className="inativo">0 Inativas</span>
           </div>
         </div>
-      )}
+
+        <div className="automacoes-empty">
+          Nenhuma automação por ocupação configurada.
+        </div>
+      </div>
+
+      {/* ROTINAS POR HORÁRIO */}
+      <div className="automacoes-card">
+        <div className="automacoes-card-header">
+          <div className="title">
+            <span>🕒</span>
+            <h2>Rotinas por Horário</h2>
+          </div>
+
+          <div className="status">
+            <span className="ativo">0 Ativas</span>
+            <span className="inativo">0 Inativas</span>
+          </div>
+        </div>
+
+        <div className="automacoes-empty">
+          Nenhuma rotina por horário configurada.
+        </div>
+      </div>
     </div>
-q    </div>
   );
-};
-
-export default Automacoes;
+}
