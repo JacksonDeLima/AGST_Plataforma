@@ -2,6 +2,11 @@ import React from "react";
 import "./automacoesModal.css";
 
 export default function ModalRotinaHorario({ onClose }) {
+    function criarRotina() {
+  alert("Rotina criada com sucesso (simulação)");
+  onClose();
+}
+
   return (
     <div className="modal-overlay">
       <div className="modal-box">
@@ -41,7 +46,7 @@ export default function ModalRotinaHorario({ onClose }) {
 
         <div className="exceptions">
           <span>📅 Exceções (Feriados / Dias Fechados)</span>
-          <button>+ Adicionar</button>
+          <button className="btn-secondary">+ Adicionar</button>
         </div>
 
         <p className="hint">
@@ -52,7 +57,10 @@ export default function ModalRotinaHorario({ onClose }) {
           <button className="btn-cancel" onClick={onClose}>
             Cancelar
           </button>
-          <button className="btn-confirm">Criar Rotina</button>
+          <button className="btn-confirm" onClick={criarRotina}>
+            Criar Rotina
+          </button>
+
         </div>
       </div>
     </div>
