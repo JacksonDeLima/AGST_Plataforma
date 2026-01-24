@@ -1,7 +1,14 @@
+import { useState } from "react";
+import ModalRotinaHorario from "../../components/automacoes/ModalRotinaHorario";
+import ModalOcupacao from "../../components/automacoes/ModalOcupacao";
+
 import React from "react";
 import "./automacoes.css";
 
 export default function Automacoes() {
+  const [mostrarRotina, setMostrarRotina] = useState(false);
+  const [mostrarOcupacao, setMostrarOcupacao] = useState(false);
+
   return (
     <div className="automacoes-container">
       <div className="automacoes-header">
@@ -11,12 +18,20 @@ export default function Automacoes() {
         </div>
 
         <div className="automacoes-actions">
-          <button className="btn-primary">
-            Nova Automação por Ocupação
-          </button>
-          <button className="btn-secondary">
-            Nova Rotina por Horário
-          </button>
+            <button
+  className="btn-primary"
+  onClick={() => setMostrarOcupacao(true)}
+>
+  Nova Automação por Ocupação
+</button>
+
+<button
+  className="btn-secondary"
+  onClick={() => setMostrarRotina(true)}
+>
+  Nova Rotina por Horário
+</button>
+
         </div>
       </div>
 
@@ -57,6 +72,14 @@ export default function Automacoes() {
           Nenhuma rotina por horário configurada.
         </div>
       </div>
+        {mostrarRotina && (
+        <ModalRotinaHorario onClose={() => setMostrarRotina(false)} />
+        )}
+
+        {mostrarOcupacao && (
+        <ModalOcupacao onClose={() => setMostrarOcupacao(false)} />
+        )}
+
     </div>
   );
 }
