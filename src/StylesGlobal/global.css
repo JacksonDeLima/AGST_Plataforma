@@ -1,0 +1,1618 @@
+/* ===========================
+   Design Tokens / Variáveis
+   =========================== */
+
+:root {
+  --bg-body: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-brand: linear-gradient(135deg, #e0f2fe, #eff6ff);
+
+  --border-subtle: rgba(148, 163, 184, 0.4);
+
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #dc2626;
+
+  --text-main: #0f172a;
+  --text-soft: #6b7280;
+  --text-muted: #9ca3af;
+  --text-on-primary: #ffffff;
+
+  --radius-lg: 18px;
+  --radius-xl: 20px;
+
+  --shadow-soft: 0 14px 35px rgba(15, 23, 42, 0.12);
+  --shadow-focus: 0 0 0 1px rgba(37, 99, 235, 0.75),
+    0 0 0 4px rgba(37, 99, 235, 0.18);
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* ===========================
+   Dark Theme Variables
+   =========================== */
+
+[data-theme="dark"] {
+  --bg-body: #0f172a;
+  --bg-card: #1e293b;
+  --bg-brand: linear-gradient(135deg, #1e3a5f, #1e293b);
+
+  --border-subtle: rgba(100, 116, 139, 0.4);
+
+  --text-main: #f1f5f9;
+  --text-soft: #94a3b8;
+  --text-muted: #64748b;
+
+  --shadow-soft: 0 14px 35px rgba(0, 0, 0, 0.3);
+}
+
+/* HTML e Body dark mode */
+html[data-theme="dark"],
+html[data-theme="dark"] body {
+  background-color: #0f172a !important;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.08) 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.06) 0, transparent 55%),
+    #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+/* Main containers dark mode */
+html[data-theme="dark"] .app-main,
+html[data-theme="dark"] .main-content,
+html[data-theme="dark"] .equipamentos-page,
+html[data-theme="dark"] .automacoes-container,
+html[data-theme="dark"] .relatorios-page,
+html[data-theme="dark"] .gerir-usuarios-page,
+html[data-theme="dark"] .configuracoes-page {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+/* Page headers dark mode */
+html[data-theme="dark"] .page-header,
+html[data-theme="dark"] .page-title,
+html[data-theme="dark"] .page-subtitle {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .page-subtitle {
+  color: #94a3b8 !important;
+}
+
+/* Cards and containers dark mode */
+html[data-theme="dark"] .stat-card,
+html[data-theme="dark"] .ambiente-card,
+html[data-theme="dark"] .settings-card,
+html[data-theme="dark"] .automacoes-card,
+html[data-theme="dark"] .relatorio-card,
+html[data-theme="dark"] .table-container {
+  background-color: #1e293b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+/* Text elements dark mode */
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] .stat-value,
+html[data-theme="dark"] .ambiente-nome {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .stat-label,
+html[data-theme="dark"] .breadcrumb,
+html[data-theme="dark"] p {
+  color: #94a3b8 !important;
+}
+
+/* Buttons dark mode */
+html[data-theme="dark"] .btn-secondary {
+  background-color: #1e293b !important;
+  color: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .btn-filtros {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+/* Tables dark mode */
+html[data-theme="dark"] table,
+html[data-theme="dark"] thead,
+html[data-theme="dark"] tbody,
+html[data-theme="dark"] tr,
+html[data-theme="dark"] th,
+html[data-theme="dark"] td {
+  background-color: transparent !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] thead {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+}
+
+html[data-theme="dark"] tbody tr:hover {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* Modals dark mode */
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .modal-overlay {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Form inputs dark mode */
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background-color: #334155 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] input::placeholder {
+  color: #64748b !important;
+}
+
+/* ========== ADDITIONAL DARK MODE FIXES ========== */
+
+/* All text elements - ensure visibility */
+html[data-theme="dark"] span,
+html[data-theme="dark"] label,
+html[data-theme="dark"] a,
+html[data-theme="dark"] li,
+html[data-theme="dark"] div {
+  color: inherit;
+}
+
+/* Specific text colors that might be invisible */
+html[data-theme="dark"] .ativos-count,
+html[data-theme="dark"] .status-dot,
+html[data-theme="dark"] .header-left,
+html[data-theme="dark"] .header-right {
+  color: #f1f5f9 !important;
+}
+
+/* Modal improvements */
+html[data-theme="dark"] .modal-overlay {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+html[data-theme="dark"] .modal-content {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(100, 116, 139, 0.4) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="dark"] .modal-header {
+  border-bottom-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .modal-header h2,
+html[data-theme="dark"] .modal-title {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-close {
+  color: #94a3b8 !important;
+  background-color: transparent !important;
+}
+
+html[data-theme="dark"] .modal-close:hover {
+  color: #f1f5f9 !important;
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+html[data-theme="dark"] .modal-body {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-footer {
+  border-top-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+/* Form groups in modals */
+html[data-theme="dark"] .form-group {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .form-group label {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .form-group input,
+html[data-theme="dark"] .form-group select,
+html[data-theme="dark"] .form-group textarea {
+  background-color: #334155 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+/* Buttons in dark mode */
+html[data-theme="dark"] .btn-criar,
+html[data-theme="dark"] .btn-criar-equipamento,
+html[data-theme="dark"] .btn-salvar-equipamento,
+html[data-theme="dark"] .btn-action {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .btn-action {
+  background-color: transparent !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .btn-action:hover {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+/* Status badges */
+html[data-theme="dark"] .status-badge {
+  color: inherit !important;
+}
+
+html[data-theme="dark"] .status-ativo {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+  color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .status-inativo {
+  background-color: rgba(234, 179, 8, 0.15) !important;
+  color: #facc15 !important;
+}
+
+html[data-theme="dark"] .status-offline {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+}
+
+/* Equipamentos page specific */
+html[data-theme="dark"] .equipamentos-table th,
+html[data-theme="dark"] .equipamentos-table td {
+  color: #f1f5f9 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .modelo-cell {
+  color: #f1f5f9 !important;
+}
+
+/* Automacoes page specific */
+html[data-theme="dark"] .automacoes-header h1,
+html[data-theme="dark"] .automacoes-header p {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .automacoes-header p {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .automacoes-card {
+  background-color: #1e293b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .automacoes-card-header .title h2 {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .automacoes-empty {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .automacoes-card-header .status span {
+  color: #94a3b8 !important;
+}
+
+/* Relatorios page specific */
+html[data-theme="dark"] .relatorio-card {
+  background-color: #1e293b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .relatorio-card h3 {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .relatorio-card p {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .relatorio-card:hover {
+  border-color: #0ea5e9 !important;
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+html[data-theme="dark"] .btn-back {
+  color: #38bdf8 !important;
+  background-color: transparent !important;
+}
+
+html[data-theme="dark"] .corp-title {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .btn-export {
+  background-color: #1e293b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+/* GerirUsuarios page specific */
+html[data-theme="dark"] .gerir-usuarios-table th,
+html[data-theme="dark"] .gerir-usuarios-table td {
+  color: #f1f5f9 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .usuario-cell,
+html[data-theme="dark"] .email-cell {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .perfil-badge {
+  background-color: rgba(14, 165, 233, 0.15) !important;
+  color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .btn-editar {
+  background-color: transparent !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .search-bar,
+html[data-theme="dark"] .search-input-wrapper {
+  background-color: #334155 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .search-input {
+  background-color: transparent !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .search-icon {
+  color: #64748b !important;
+}
+
+/* GU Modal specific */
+html[data-theme="dark"] .gu-modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+html[data-theme="dark"] .gu-modal-card {
+  background-color: #1e293b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .gu-modal-title {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .gu-modal-subtitle {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .gu-field label {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .gu-btn-ghost {
+  color: #94a3b8 !important;
+  background-color: transparent !important;
+}
+
+html[data-theme="dark"] .gu-btn-ghost:hover {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  color: #f1f5f9 !important;
+}
+
+/* User actions drawer */
+html[data-theme="dark"] .user-actions-drawer {
+  background-color: #1e293b !important;
+  border-left-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+/* Checkbox and equipamento list */
+html[data-theme="dark"] .equipamento-checkbox {
+  background-color: rgba(51, 65, 85, 0.3) !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .equipamento-checkbox:hover,
+html[data-theme="dark"] .equipamento-checkbox.selected {
+  border-color: #0ea5e9 !important;
+  background-color: rgba(14, 165, 233, 0.15) !important;
+}
+
+html[data-theme="dark"] .equipamentos-list {
+  background-color: #1e293b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+/* ========== DARK MODE FOR AUTH/LOGIN PAGES ========== */
+
+/* Auth container */
+html[data-theme="dark"] .auth-container {
+  background: #0f172a !important;
+}
+
+/* Auth card (two-column layout) */
+html[data-theme="dark"] .auth-card,
+html[data-theme="dark"] .register-card {
+  background-color: #1e293b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Left side - branding */
+html[data-theme="dark"] .auth-brand,
+html[data-theme="dark"] .register-brand {
+  background: linear-gradient(135deg, #1e3a5f, #2d4a6f) !important;
+}
+
+html[data-theme="dark"] .auth-brand-title {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .auth-brand-subtitle {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .auth-brand-list {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .auth-brand-list li {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .auth-brand-list b {
+  color: #38bdf8 !important;
+}
+
+/* Right side - form box */
+html[data-theme="dark"] .auth-box {
+  background-color: #1e293b !important;
+}
+
+html[data-theme="dark"] .auth-header h1 {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .auth-header p {
+  color: #94a3b8 !important;
+}
+
+/* Input groups */
+html[data-theme="dark"] .input-group label {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .input-group input {
+  background-color: #334155 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .input-group input::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .input-group input:focus {
+  border-color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .input-group input.error {
+  border-color: #f87171 !important;
+}
+
+html[data-theme="dark"] .error-message {
+  color: #f87171 !important;
+}
+
+/* Auth label row */
+html[data-theme="dark"] .auth-label-row label {
+  color: #f1f5f9 !important;
+}
+
+/* Info and error banners */
+html[data-theme="dark"] .auth-info-banner {
+  background-color: rgba(56, 189, 248, 0.1) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .auth-error-banner {
+  background-color: rgba(248, 113, 113, 0.1) !important;
+  border-color: #f87171 !important;
+  color: #f87171 !important;
+}
+
+/* Login links */
+html[data-theme="dark"] .auth-login-link span {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .link-button {
+  color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .link-button:hover {
+  color: #0ea5e9 !important;
+}
+
+/* Footer */
+html[data-theme="dark"] .auth-footer {
+  color: #64748b !important;
+}
+
+/* Auth form */
+html[data-theme="dark"] .auth-form label {
+  color: #f1f5f9 !important;
+}
+
+
+[data-theme="dark"] body {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.08) 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.06) 0, transparent 55%),
+    var(--bg-body);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .ambiente-card,
+[data-theme="dark"] .settings-card,
+[data-theme="dark"] .table-container,
+[data-theme="dark"] .usuario-card {
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .modal-card,
+[data-theme="dark"] .gu-modal-card {
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .input-group input,
+[data-theme="dark"] .gu-field input,
+[data-theme="dark"] .gu-field select,
+[data-theme="dark"] .form-group input[type="text"],
+[data-theme="dark"] .search-input-wrapper {
+  background: #334155;
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .language-btn,
+[data-theme="dark"] .theme-btn {
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .language-btn:hover,
+[data-theme="dark"] .theme-btn:hover {
+  background: #334155;
+  border-color: #0ea5e9;
+}
+
+[data-theme="dark"] .language-btn.active,
+[data-theme="dark"] .theme-btn.active {
+  background: linear-gradient(135deg, #1e3a5f, #2d4a6f);
+  border-color: #0ea5e9;
+}
+
+[data-theme="dark"] .settings-icon {
+  background: linear-gradient(135deg, #1e3a5f, #2d4a6f);
+}
+
+/* Reset básico */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.08) 0, transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(56, 189, 248, 0.08) 0, transparent 55%),
+    var(--bg-body);
+  color: var(--text-main);
+}
+
+/* ===========================
+   Layout principal (Auth)
+   =========================== */
+
+.auth-container,
+.register-container {
+  min-height: 100vh;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-card,
+.register-card {
+  width: 100%;
+  max-width: 880px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+/* Lado esquerdo - brand / informações */
+
+.auth-brand,
+.register-brand {
+  padding: 24px 26px;
+  background: var(--bg-brand);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* Logo/ícone genérico */
+
+.login-logo {
+  margin-bottom: 14px;
+}
+
+.login-logo img {
+  height: 30px;
+}
+
+/* Caso queira um "ping" redondo com iniciais (opcional) */
+.auth-logo,
+.register-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: conic-gradient(from 140deg, #2563eb, #22c55e, #06b6d4, #2563eb);
+  color: #0b1120;
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+}
+
+.auth-brand-title,
+.register-brand-title {
+  font-size: 20px;
+  line-height: 1.2;
+  margin: 0 0 4px;
+  color: #0f172a;
+}
+
+.auth-brand-subtitle,
+.register-brand-subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 13px;
+  max-width: 280px;
+}
+
+.auth-brand-list,
+.register-brand-list {
+  margin: 14px 0 0;
+  padding-left: 0;
+  list-style: none;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+/* Lado direito - box de conteúdo (forms, mensagens, etc.) */
+
+.auth-box,
+.register-box {
+  padding: 22px 26px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+/* Cabeçalho do conteúdo */
+
+.auth-header,
+.register-header {
+  margin-bottom: 12px;
+}
+
+.auth-header h1,
+.register-header h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  color: #0f172a;
+}
+
+.auth-header p,
+.register-header p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+/* Mensagens de erro/sucesso globais */
+
+.auth-error-banner,
+.register-error-banner {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 12px;
+}
+
+.auth-success-banner {
+  margin-bottom: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  background: #ecfdf3;
+  color: #166534;
+  font-size: 12px;
+}
+
+/* ===========================
+   Formulário / Inputs
+   =========================== */
+
+.auth-form,
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  /* antes era 1px */
+  margin-bottom: 4px;
+  /* pequeno respiro entre grupos */
+}
+
+.input-group label {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 2px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  color: #0f172a;
+  font-size: 13px;
+  outline: none;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    transform 0.08s ease;
+}
+
+.input-group input::placeholder {
+  color: #9ca3af;
+}
+
+.input-group input:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-focus);
+  transform: translateY(-0.5px);
+}
+
+.input-group input.error {
+  border-color: var(--danger);
+}
+
+.input-hint {
+  font-size: 10px;
+  line-height: 1.1;
+  margin-top: 4px;
+}
+
+/* Campo de senha com toggle de visibilidade */
+
+.password-input {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  padding-right: 2px;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease,
+    transform 0.08s ease;
+}
+
+.password-input input {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  padding-right: 0;
+}
+
+.password-input:focus-within {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-focus);
+  transform: translateY(-0.5px);
+}
+
+.toggle-password {
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.toggle-password svg {
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-password:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* hCaptcha container */
+
+.captcha-container {
+  margin-top: 2px;
+}
+
+/* Mensagem de erro de campo */
+
+.error-message {
+  font-size: 11px;
+  color: var(--danger);
+}
+
+/* Checkbox / termos de uso */
+
+.checkbox-group {
+  margin-top: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 20px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-top: 1px;
+}
+
+.checkbox-label a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.checkbox-label a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   Botões
+   =========================== */
+
+/* Botão principal genérico */
+.btn-primary,
+.register-button {
+  margin-top: 4px;
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: var(--text-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3);
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    filter 0.12s ease,
+    background 0.12s ease;
+}
+
+.btn-primary:hover,
+.register-button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary:active,
+.register-button:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.btn-primary:disabled,
+.register-button:disabled {
+  opacity: 0.7;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* Botão de link (secundário) */
+
+.link-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+.link-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Divider "ou" */
+
+.auth-divider,
+.register-divider {
+  margin: 14px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.auth-divider::before,
+.auth-divider::after,
+.register-divider::before,
+.register-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(209, 213, 219, 0.9);
+}
+
+/* ===========================
+   Links / rodapé / textos auxiliares
+   =========================== */
+
+.auth-login-link,
+.register-login-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 15px;
+}
+
+.auth-footer,
+.register-footer {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ===========================
+   Estados e variações específicas
+   =========================== */
+
+/* Exemplo para textos auxiliares em páginas como "esqueci senha" */
+.forgot-instructions {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+
+/* ===========================
+   Responsividade
+   =========================== */
+
+@media (max-width: 880px) {
+
+  .auth-card,
+  .register-card {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 460px;
+  }
+
+  .auth-brand,
+  .register-brand {
+    display: none;
+  }
+
+  .auth-box,
+  .register-box {
+    padding: 20px 18px;
+  }
+}
+
+@media (max-width: 520px) {
+
+  .auth-container,
+  .register-container {
+    padding: 8px;
+  }
+
+  .auth-box,
+  .register-box {
+    padding: 18px 14px;
+  }
+}
+
+/* ===========================
+   Layout geral do sistema (Dashboard + Páginas Internas)
+   =========================== */
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background: var(--bg-body);
+}
+
+/* Espaço reservado para a sidebar fixa */
+.sidebar-space {
+  width: 250px;
+  /* mesmo tamanho da sua sidebar */
+  flex-shrink: 0;
+  background: #0f172a;
+  /* mesma cor da sidebar (evita buraco branco) */
+  min-height: 100vh;
+}
+
+/* Área principal das páginas */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  min-height: 100vh;
+  background: var(--bg-body);
+  overflow-y: auto;
+}
+
+/* ===========================
+   Página Gerir Usuários
+   =========================== */
+
+.gerir-usuarios-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 24px;
+  background: var(--bg-body);
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+/* Barra de busca */
+.search-bar {
+  margin-bottom: 18px;
+}
+
+.search-input-wrapper {
+  background: white;
+  border: 1px solid var(--border-subtle);
+  padding: 8px 12px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 280px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  flex: 1;
+  background: none;
+  font-size: 14px;
+}
+
+/* Cards de usuário (caso ainda use) */
+.usuario-card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-soft);
+}
+
+/* Tabela */
+.table-container {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+}
+
+.gerir-usuarios-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gerir-usuarios-table th,
+.gerir-usuarios-table td {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.gerir-usuarios-table th {
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+.perfil-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  background: #dbeafe;
+  color: #1e40af;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+.btn-editar {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-editar:hover {
+  background: var(--primary-hover);
+}
+
+/* Linha do label + link "Esqueci minha senha?" */
+.auth-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Deixa o link mais “discreto” e alinhado */
+.auth-forgot-link {
+  font-size: 0.9rem;
+  padding: 0;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+
+.auth-forgot-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Quando desabilitado, não parece clicável */
+.auth-forgot-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* ===========================
+   Corporações (Lista + Detalhe)
+   =========================== */
+
+.corporations-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 24px;
+  background: var(--bg-body);
+}
+
+.corp-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.corp-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-soft);
+}
+
+.corp-info b {
+  color: var(--text-main);
+}
+
+/* Botão danger (Excluir) */
+.btn-danger {
+  background: var(--danger);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-danger:hover {
+  filter: brightness(0.95);
+}
+
+.btn-danger:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+/* ===========================
+   Modal genérico (páginas internas)
+   =========================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  z-index: 9999;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 560px;
+  background: #ffffff;
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+  padding: 18px;
+}
+
+.modal-card h3 {
+  margin: 0 0 10px;
+}
+
+.modal-help {
+  margin: 0 0 10px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.modal-card input,
+.modal-card select {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  color: #0f172a;
+  font-size: 13px;
+  outline: none;
+}
+
+.modal-card input:focus,
+.modal-card select:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-focus);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* Dentro do modal, o btn-primary não fica 100% */
+.modal-actions .btn-primary {
+  width: auto;
+  min-width: 160px;
+}
+
+/* Link-button “vira” botão discreto no modal */
+.modal-actions .link-button {
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.modal-actions .link-button:hover {
+  text-decoration: none;
+  background: rgba(148, 163, 184, 0.22);
+}
+
+@media (max-width: 760px) {
+  .corporations-page {
+    padding: 16px;
+  }
+
+  .corp-info {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===========================
+   Modal - Adicionar Membro
+   =========================== */
+
+.gu-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  /* igual ao seu modal genérico */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  z-index: 9999;
+}
+
+.gu-modal-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+}
+
+/* Cabeçalho */
+.gu-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px 18px;
+  background: var(--bg-brand);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.gu-modal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.gu-modal-subtitle {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.gu-modal-close {
+  border: none;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  transition: 0.15s ease;
+}
+
+.gu-modal-close:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: translateY(-1px);
+}
+
+.gu-modal-close:active {
+  transform: translateY(0);
+}
+
+/* Corpo */
+.gu-modal-body {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gu-modal-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 560px) {
+  .gu-modal-grid.two {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.gu-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gu-field label {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 2px;
+}
+
+.gu-field input,
+.gu-field select {
+  width: 100%;
+  padding: 9px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  color: var(--text-main);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.16s ease, box-shadow 0.18s ease, background 0.18s ease,
+    transform 0.08s ease;
+}
+
+.gu-field input::placeholder {
+  color: var(--text-muted);
+}
+
+.gu-field input:focus,
+.gu-field select:focus {
+  border-color: var(--primary);
+  background: #ffffff;
+  box-shadow: var(--shadow-focus);
+  transform: translateY(-0.5px);
+}
+
+.gu-field input:disabled,
+.gu-field select:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
+
+/* Alertas */
+.gu-modal-alert {
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(148, 163, 184, 0.12);
+  color: var(--text-main);
+}
+
+.gu-modal-alert.error {
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.gu-modal-alert.success {
+  border: 1px solid rgba(34, 197, 94, 0.45);
+  background: #ecfdf3;
+  color: #166534;
+}
+
+/* Rodapé */
+.gu-modal-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding: 14px 18px 18px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.gu-btn-ghost {
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  background: rgba(148, 163, 184, 0.10);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.gu-btn-ghost:hover {
+  background: rgba(148, 163, 184, 0.16);
+  transform: translateY(-1px);
+}
+
+.gu-btn-ghost:active {
+  transform: translateY(0);
+}
+
+.gu-btn-ghost:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* No modal, btn-primary não precisa ser 100% */
+.gu-modal-footer .btn-primary {
+  width: auto;
+  min-width: 160px;
+}

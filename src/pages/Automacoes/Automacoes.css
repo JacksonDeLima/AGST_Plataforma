@@ -1,0 +1,98 @@
+.automacoes-container {
+  padding: 24px;
+}
+
+.automacoes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.automacoes-header h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.automacoes-header p {
+  margin: 4px 0 0;
+  color: #6b7280;
+}
+
+.automacoes-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-primary {
+  background: #0ea5e9;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background: #0284c7;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.automacoes-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+.automacoes-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.automacoes-card-header .title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.automacoes-card-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.status {
+  display: flex;
+  gap: 8px;
+}
+
+.status span {
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.status .ativo {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.status .inativo {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.automacoes-empty {
+  margin-top: 16px;
+  padding: 24px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 10px;
+  text-align: center;
+  color: #64748b;
+}
