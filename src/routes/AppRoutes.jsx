@@ -1,5 +1,9 @@
 import { Routes, Route } from "react-router-dom";
 
+import DetalhesAutomacao from "../pages/Automacoes/DetalhesAutomacao";
+import HistoricoAutomacao from "../pages/Automacoes/HistoricoAutomacao";
+import CriarAutomacao from "../pages/Automacoes/CriarAutomacao";
+
 import Login from "../pages/Login/Login";
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Equipamentos from "../pages/Equipamentos/Equipamentos";
@@ -64,6 +68,9 @@ export default function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/equipamentos" element={<Equipamentos />} />
         <Route path="/automacoes" element={<Automacoes />} />
+        <Route path="/automacoes/:id" element={<DetalhesAutomacao />} />
+        <Route path="/automacoes/:id/historico" element={<HistoricoAutomacao />} />
+        <Route path="/automacoes/criar" element={<CriarAutomacao />} />
         <Route path="/gerir-usuarios" element={<GerirUsuarios />} />
         <Route path="/corporations" element={<CorporationsPage />} />
         <Route path="/corporations/:corporationId" element={<CorporationDetails />} />

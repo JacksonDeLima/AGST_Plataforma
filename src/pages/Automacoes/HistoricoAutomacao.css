@@ -1,0 +1,78 @@
+.historico-page {
+  padding: 32px;
+  background: #f4f7fb;
+  min-height: 100vh;
+}
+
+.historico-page h1 {
+  margin: 16px 0 24px;
+  color: #0f172a;
+}
+
+.historico-loading {
+  color: #64748b;
+}
+
+.historico-vazio {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 14px;
+  color: #64748b;
+  text-align: center;
+}
+
+/* ===== TIMELINE ===== */
+
+.timeline {
+  position: relative;
+  margin-top: 24px;
+  padding-left: 24px;
+  border-left: 2px solid #e2e8f0;
+}
+
+.timeline-item {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.timeline-icon {
+  position: absolute;
+  left: -14px;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.timeline-icon.sucesso {
+  background: #dcfce7;
+}
+
+.timeline-icon.erro {
+  background: #fee2e2;
+}
+
+.timeline-content {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  width: 100%;
+}
+
+.timeline-date {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.timeline-message {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #0f172a;
+}

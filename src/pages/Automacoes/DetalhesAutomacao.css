@@ -1,0 +1,404 @@
+/* ===============================
+   LAYOUT GERAL
+================================ */
+
+.automacao-detalhes-page {
+  padding: 32px;
+  background: #f4f7fb;
+  min-height: 100vh;
+}
+
+/* ===============================
+   HEADER
+================================ */
+
+.detalhes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0 24px;
+}
+
+.detalhes-header h1 {
+  font-size: 26px;
+  color: #0f172a;
+}
+
+/* ===============================
+   STATUS BADGE
+================================ */
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.status-ativa {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-pausada {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+/* ===============================
+   CARD PRINCIPAL
+================================ */
+
+.detalhes-box {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* ===============================
+   INFO ROWS
+================================ */
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+/* ===============================
+   SEÇÕES
+================================ */
+
+.section-title {
+  margin: 28px 0 12px;
+  font-size: 16px;
+  color: #0f172a;
+}
+
+/* ===============================
+   LISTA DE EQUIPAMENTOS
+================================ */
+
+.equipamentos-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.equipamentos-list li {
+  font-size: 14px;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+/* ===============================
+   AÇÕES
+================================ */
+
+.detalhes-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+/* ===============================
+   BOTÕES
+================================ */
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+}
+
+.btn-toggle {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-toggle.pausar {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.btn-toggle.ativar {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ===============================
+   MODAIS
+================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 420px;
+  max-width: 92%;
+  padding: 26px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  animation: modalFade 0.25s ease;
+}
+
+.modal-content h3 {
+  margin: 0 0 16px;
+  font-size: 20px;
+}
+
+@keyframes modalFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ===============================
+   FORM MODAL
+================================ */
+
+.modal-content label {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 14px;
+  display: block;
+}
+
+.modal-content input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.modal-content input:focus {
+  outline: none;
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+/* ===============================
+   MODAL ACTIONS
+================================ */
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 26px;
+}
+
+/* ===============================
+   TOAST
+================================ */
+
+.toast-success {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #0ea5e9;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 14px;
+  font-size: 14px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  animation: toastSlide 0.3s ease;
+  z-index: 2000;
+}
+
+@keyframes toastSlide {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================
+   DARK MODE (FUTURO)
+================================ */
+
+body.dark .automacao-detalhes-page {
+  background: #020617;
+}
+
+body.dark .detalhes-box,
+body.dark .modal-content {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+body.dark .info-label {
+  color: #94a3b8;
+}
+
+body.dark .info-value {
+  color: #e5e7eb;
+}
+
+body.dark input {
+  background: #020617;
+  color: #e5e7eb;
+  border-color: #334155;
+}
+/* ===== CHECKBOX PADRÃO (SaaS) ===== */
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #0ea5e9; /* azul Brise */
+  cursor: pointer;
+}
+/* ===== GRID DE DIAS ===== */
+
+.dias-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px 16px;
+  margin-top: 8px;
+}
+.modal-content.modal-lg {
+  max-width: 520px;
+}
+
+.modal-content label {
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 12px;
+  display: block;
+}
+/* ===== CHECKBOX + TEXTO (AJUSTE FINAL) ===== */
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 👈 AQUI está o espaço entre checkbox e texto */
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0; /* garante alinhamento */
+  accent-color: #0ea5e9;
+}
+.checkbox-row span {
+  color: #334155;
+}
+/* ===== CHECKBOX PADRÃO (DIAS + EQUIPAMENTOS) ===== */
+
+.checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 por linha */
+  gap: 12px 20px;
+  margin-top: 8px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* espaço entre checkbox e texto */
+  font-size: 14px;
+  color: #334155;
+  cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #0ea5e9;
+}
+/* ===== MODAL PREMIUM ===== */
+
+.modal-overlay {
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: slideUp 0.25s ease-out;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+}
+
+/* ===== ANIMAÇÕES ===== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+  opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
