@@ -7,8 +7,11 @@
 
 .app-main {
   flex: 1;
-  min-width: 0;       /* MUITO importante p/ não estourar layout */
+  min-width: 0;
+  /* MUITO importante p/ não estourar layout */
   overflow: auto;
   padding: 24px;
-  background: #f1f5f9;
+  background: var(--bg-body, #f1f5f9);
+  color: var(--text-main, #0f172a);
+  transition: background 0.2s ease, color 0.2s ease;
 }

@@ -1,14 +1,28 @@
+<<<<<<< HEAD
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Automacoes.css";
+=======
+import { useState } from "react";
+import ModalRotinaHorario from "../../components/automacoes/ModalRotinaHorario";
+import ModalOcupacao from "../../components/automacoes/ModalOcupacao";
+import { useLanguage } from "../../context/LanguageContext";
+>>>>>>> 66da59357fb6cc4a4876ddf07f797d039d9f417a
 
 import {
   listarAutomacoes,
   criarAutomacao,
 } from "../../services/automacoesService";
 
+<<<<<<< HEAD
 const Automacoes = () => {
   const navigate = useNavigate();
+=======
+export default function Automacoes() {
+  const { t } = useLanguage();
+  const [mostrarRotina, setMostrarRotina] = useState(false);
+  const [mostrarOcupacao, setMostrarOcupacao] = useState(false);
+>>>>>>> 66da59357fb6cc4a4876ddf07f797d039d9f417a
 
   // =========================
   // STATES GERAIS
@@ -102,6 +116,7 @@ const Automacoes = () => {
   // RENDER
   // =========================
   return (
+<<<<<<< HEAD
     <div className="app">
       <div className="automacoes-page">
         {/* HEADER */}
@@ -349,6 +364,78 @@ const Automacoes = () => {
           </div>
         )}
       </div>
+=======
+    <div className="automacoes-container">
+      <div className="automacoes-header">
+        <div>
+          <h1>{t('automacoes.title')}</h1>
+          <p>{t('automacoes.subtitle')}</p>
+        </div>
+
+        <div className="automacoes-actions">
+          <button
+            className="btn-primary"
+            onClick={() => setMostrarOcupacao(true)}
+          >
+            {t('automacoes.novaOcupacao')}
+          </button>
+
+          <button
+            className="btn-secondary"
+            onClick={() => setMostrarRotina(true)}
+          >
+            {t('automacoes.novaRotina')}
+          </button>
+
+        </div>
+      </div>
+
+      {/* AUTOMAÇÕES POR OCUPAÇÃO */}
+      <div className="automacoes-card">
+        <div className="automacoes-card-header">
+          <div className="title">
+            <span>👥</span>
+            <h2>{t('automacoes.porOcupacao')}</h2>
+          </div>
+
+          <div className="status">
+            <span className="ativo">0 {t('automacoes.ativas')}</span>
+            <span className="inativo">0 {t('automacoes.inativas')}</span>
+          </div>
+        </div>
+
+        <div className="automacoes-empty">
+          {t('automacoes.nenhumaOcupacao')}
+        </div>
+      </div>
+
+      {/* ROTINAS POR HORÁRIO */}
+      <div className="automacoes-card">
+        <div className="automacoes-card-header">
+          <div className="title">
+            <span>🕒</span>
+            <h2>{t('automacoes.porHorario')}</h2>
+          </div>
+
+          <div className="status">
+            <span className="ativo">0 {t('automacoes.ativas')}</span>
+            <span className="inativo">0 {t('automacoes.inativas')}</span>
+          </div>
+        </div>
+
+        <div className="automacoes-empty">
+          {t('automacoes.nenhumaRotina')}
+        </div>
+      </div>
+      {mostrarRotina && (
+        <ModalRotinaHorario onClose={() => setMostrarRotina(false)} />
+      )}
+
+      {mostrarOcupacao && (
+        <ModalOcupacao onClose={() => setMostrarOcupacao(false)} />
+      )}
+
+>>>>>>> 66da59357fb6cc4a4876ddf07f797d039d9f417a
     </div>
   );
 };

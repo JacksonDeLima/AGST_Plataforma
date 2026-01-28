@@ -16,6 +16,8 @@ import Automacoes from "../pages/Automacoes/Automacoes";
 import GerirUsuarios from "../pages/GerirUsuarios/GerirUsuarios";
 import CorporationsPage from "../pages/Corporacao/CorporationsPage";
 import CorporationDetails from "../pages/Corporacao/CorporationDetails";
+import Relatorios from "../pages/Relatorios/Relatorios";
+import Configuracoes from "../pages/Configuracoes/Configuracoes";
 
 import AppLayout from "../pages/Layouts/AppLayout";
 
@@ -74,7 +76,9 @@ export default function AppRoutes() {
         <Route path="/gerir-usuarios" element={<GerirUsuarios />} />
         <Route path="/corporations" element={<CorporationsPage />} />
         <Route path="/corporations/:corporationId" element={<CorporationDetails />} />
+        <Route path="relatorios" element={<Relatorios />} />
         <Route path="/alterarSenha" element={<AlterarSenha />} />
+        <Route path="/configuracoes" element={<Configuracoes />} />
       </Route>
 
       <Route path="*" element={<h1>404 - Página não encontrada</h1>} />

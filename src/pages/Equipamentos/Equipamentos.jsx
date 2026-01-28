@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import React, { useState } from "react";
 import "./Equipamentos.css";
+=======
+import React, { useState } from 'react';
+import NavBar from '../../components/NavBar';
+import { useLanguage } from '../../context/LanguageContext';
+import './Equipamentos.css';
+>>>>>>> 66da59357fb6cc4a4876ddf07f797d039d9f417a
 
 const Equipamentos = () => {
+  const { t } = useLanguage();
   const [equipamentos, setEquipamentos] = useState([
     {
       id: 1,
@@ -130,6 +138,7 @@ const Equipamentos = () => {
   };
 
   const getStatusClass = (status) => {
+<<<<<<< HEAD
     if (status === "Ativo") return "status-ativo";
     if (status === "Inativo") return "status-inativo";
     if (status === "Offline") return "status-offline";
@@ -139,10 +148,28 @@ const Equipamentos = () => {
   const limparFiltros = () => {
     setFiltroStatus("TODOS");
     setFiltroAmbiente("TODOS");
+=======
+    switch (status) {
+      case 'Ativo': return 'status-ativo';
+      case 'Inativo': return 'status-inativo';
+      case 'Offline': return 'status-offline';
+      default: return '';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'Ativo': return '●';
+      case 'Inativo': return '●';
+      case 'Offline': return '●';
+      default: return '';
+    }
+>>>>>>> 66da59357fb6cc4a4876ddf07f797d039d9f417a
   };
 
   return (
     <div className="app">
+<<<<<<< HEAD
       <div className="equipamentos-page">
         {/* HEADER */}
         <div className="page-header">
@@ -262,6 +289,196 @@ const Equipamentos = () => {
               <button className="btn-primary" onClick={criarEquipamento}>
                 Salvar
               </button>
+=======
+      {/* <NavBar /> */}
+      <div className="equipamentos-page">
+        {/* Header */}
+        <div className="page-header">
+          <div className="header-left">
+            <h1 className="page-title">{t('equipamentos.title')}</h1>
+            <p className="page-subtitle">{t('equipamentos.subtitle')}</p>
+          </div>
+          <div className="header-right">
+            <div className="ativos-count">
+              <span className="status-dot ativo"></span>
+              <span>Ativos: 6/8</span>
+            </div>
+            <button className="btn-primary" onClick={handleAdicionarEquipamento}>
+              {t('equipamentos.adicionarEquipamento')}
+            </button>
+            <button className="btn-filtros">
+              <span className="filtros-icon">☰</span>
+              {t('equipamentos.filtros')}
+            </button>
+          </div>
+        </div>
+
+        {/* Tabela */}
+        <div className="table-container">
+          <table className="equipamentos-table">
+            <thead>
+              <tr>
+                <th>{t('equipamentos.modelo')}</th>
+                <th>{t('equipamentos.status')}</th>
+                <th>{t('equipamentos.local')}</th>
+                <th>{t('equipamentos.capacidade')}</th>
+                <th>{t('equipamentos.temperaturaAtual')}</th>
+                <th>{t('equipamentos.consumoAtual')}</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {equipamentos.map((equipamento) => (
+                <tr key={equipamento.id}>
+                  <td className="modelo-cell">{equipamento.modelo}</td>
+                  <td>
+                    <span className={`status-badge ${getStatusClass(equipamento.status)}`}>
+                      <span className="status-icon">{getStatusIcon(equipamento.status)}</span>
+                      {equipamento.status}
+                    </span>
+                  </td>
+                  <td>{equipamento.local}</td>
+                  <td>{equipamento.capacidade}</td>
+                  <td>{equipamento.temperaturaAtual}</td>
+                  <td>{equipamento.consumoAtual}</td>
+                  <td>
+                    <button
+                      className="btn-action"
+                      onClick={() => handleEditarEquipamento(equipamento)}
+                    >
+                      <span className="action-icon">✏️</span>
+                      {t('equipamentos.editar')}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Modal Adicionar Equipamento */}
+        {showModal && (
+          <div className="modal-overlay" onClick={handleFecharModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2 className="modal-title">{t('equipamentos.novoEquipamento')}</h2>
+                <button className="modal-close" onClick={handleFecharModal}>✕</button>
+              </div>
+
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>{t('equipamentos.modelo')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('equipamentos.placeholderModelo')}
+                    value={novoEquipamento.modelo}
+                    onChange={(e) => setNovoEquipamento({ ...novoEquipamento, modelo: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>{t('equipamentos.local')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('equipamentos.placeholderLocal')}
+                    value={novoEquipamento.local}
+                    onChange={(e) => setNovoEquipamento({ ...novoEquipamento, local: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>{t('equipamentos.capacidade')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('equipamentos.placeholderCapacidade')}
+                    value={novoEquipamento.capacidade}
+                    onChange={(e) => setNovoEquipamento({ ...novoEquipamento, capacidade: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>{t('equipamentos.macAddress')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('equipamentos.placeholderMac')}
+                    value={novoEquipamento.mac}
+                    onChange={(e) => setNovoEquipamento({ ...novoEquipamento, mac: e.target.value })}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>{t('equipamentos.enderecoIP')}</label>
+                  <input
+                    type="text"
+                    placeholder={t('equipamentos.placeholderIp')}
+                    value={novoEquipamento.ip}
+                    onChange={(e) => setNovoEquipamento({ ...novoEquipamento, ip: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button className="btn-criar-equipamento" onClick={handleCriarEquipamento}>
+                  {t('equipamentos.adicionarEquipamentoBtn')}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal Editar Equipamento */}
+        {showEditModal && equipamentoSelecionado && (
+          <div className="modal-overlay" onClick={handleFecharEditModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h2 className="modal-title">{t('equipamentos.editarEquipamento')}</h2>
+                <button className="modal-close" onClick={handleFecharEditModal}>✕</button>
+              </div>
+
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Modelo</label>
+                  <input
+                    type="text"
+                    value={equipamentoSelecionado.modelo}
+                    readOnly
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Local</label>
+                  <input
+                    type="text"
+                    value={equipamentoSelecionado.local}
+                    readOnly
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Capacidade</label>
+                  <input
+                    type="text"
+                    value={equipamentoSelecionado.capacidade}
+                    readOnly
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Status</label>
+                  <select className="select-status">
+                    <option value="Ativo">Ativo</option>
+                    <option value="Inativo">Inativo</option>
+                    <option value="Offline">Offline</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button className="btn-salvar-equipamento" onClick={handleFecharEditModal}>
+                  {t('equipamentos.salvarAlteracoes')}
+                </button>
+              </div>
+>>>>>>> 66da59357fb6cc4a4876ddf07f797d039d9f417a
             </div>
           </div>
         )}

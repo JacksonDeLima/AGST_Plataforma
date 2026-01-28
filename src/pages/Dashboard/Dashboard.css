@@ -7,7 +7,9 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  background-color: #f5f7fa;
+  background-color: var(--bg-body, #f5f7fa);
+  color: var(--text-main, #0f172a);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Layout principal */
@@ -233,6 +235,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -254,6 +257,7 @@ body {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -466,6 +470,7 @@ body {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -477,11 +482,11 @@ body {
   .main-content {
     padding: 16px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .ambientes-grid {
     grid-template-columns: 1fr;
   }
@@ -493,4 +498,82 @@ body {
   .equipamentos-list {
     max-height: 200px;
   }
+}
+
+/* ========== DARK MODE ========== */
+[data-theme="dark"] .main-content {
+  background-color: var(--bg-body);
+}
+
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .ambiente-card {
+  background-color: var(--bg-card);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .breadcrumb {
+  color: var(--text-soft);
+}
+
+[data-theme="dark"] .stat-value,
+[data-theme="dark"] .ambiente-nome,
+[data-theme="dark"] .ambiente-temp {
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .btn-secondary {
+  background-color: var(--bg-card);
+  color: #38bdf8;
+  border-color: #38bdf8;
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background-color: rgba(56, 189, 248, 0.1);
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: var(--bg-card);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .modal-header h2,
+[data-theme="dark"] .form-group label {
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .modal-header p {
+  color: var(--text-soft);
+}
+
+[data-theme="dark"] .form-group input {
+  background-color: #334155;
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .equipamento-checkbox {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--border-subtle);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .equipamento-checkbox:hover,
+[data-theme="dark"] .equipamento-checkbox.selected {
+  border-color: #38bdf8;
+  background-color: rgba(56, 189, 248, 0.1);
+}
+
+[data-theme="dark"] .ambiente-potencia,
+[data-theme="dark"] .ambiente-consumo {
+  color: var(--text-soft);
+}
+
+[data-theme="dark"] .ambiente-header {
+  border-bottom-color: var(--border-subtle);
+}
+
+[data-theme="dark"] .equipamentos-selector {
+  background-color: var(--bg-card);
+  border-color: var(--border-subtle);
 }

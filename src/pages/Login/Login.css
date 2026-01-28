@@ -6,7 +6,7 @@
     background: #f5f6fa;
     font-family: Arial, sans-serif;
   }
-  
+
   .login-box {
     background: #fff;
     padding: 40px;
@@ -15,12 +15,12 @@
     text-align: center;
     width: 300px;
   }
-  
+
   .login-box h1 {
     margin-bottom: 20px;
     color: #333;
   }
-  
+
   .login-box input {
     width: 100%;
     padding: 12px;
@@ -29,12 +29,12 @@
     border-radius: 8px;
     font-size: 14px;
   }
-  
+
   .login-box input:focus {
     border-color: #007bff;
     outline: none;
   }
-  
+
   .login-box button {
     width: 100%;
     padding: 12px;
@@ -47,7 +47,48 @@
     cursor: pointer;
     transition: background 0.3s ease;
   }
-  
+
   .login-box button:hover {
     background: #0056b3;
+  }
+
+  /* ========== DARK MODE FOR LOGIN ========== */
+
+  html[data-theme="dark"] .login-container {
+    background: #0f172a !important;
+  }
+
+  html[data-theme="dark"] .login-box {
+    background: #1e293b !important;
+    border: 1px solid rgba(100, 116, 139, 0.4) !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  html[data-theme="dark"] .login-box h1 {
+    color: #f1f5f9 !important;
+  }
+
+  html[data-theme="dark"] .login-box input {
+    background-color: #334155 !important;
+    border-color: rgba(100, 116, 139, 0.4) !important;
+    color: #f1f5f9 !important;
+  }
+
+  html[data-theme="dark"] .login-box input::placeholder {
+    color: #64748b !important;
+  }
+
+  html[data-theme="dark"] .login-box input:focus {
+    border-color: #38bdf8 !important;
+  }
+
+  html[data-theme="dark"] .login-box p,
+  html[data-theme="dark"] .login-box span,
+  html[data-theme="dark"] .login-box label,
+  html[data-theme="dark"] .login-box a {
+    color: #94a3b8 !important;
+  }
+
+  html[data-theme="dark"] .login-box a:hover {
+    color: #38bdf8 !important;
   }

@@ -21,6 +21,7 @@ import {
 import "./NavBar.css";
 
 import { useAuth } from "../context/AuthContext.jsx";
+import { useLanguage } from "../context/LanguageContext.jsx";
 import {
   createCorporation,
   listCorporationMembers,
@@ -91,6 +92,8 @@ const NavBar = () => {
   const loadingCorps = status === "loading";
   const [wsOpen, setWsOpen] = useState(false);
   const [showAddCorp, setShowAddCorp] = useState(false);
+
+  const { t } = useLanguage();
 
   const [createState, setCreateState] = useState({
     loading: false,
@@ -478,7 +481,7 @@ const NavBar = () => {
         try {
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
-        } catch {}
+        } catch { }
       }
 
       navigate("/login", { replace: true });
@@ -496,7 +499,7 @@ const NavBar = () => {
       try {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-      } catch {}
+      } catch { }
     }
 
     navigate("/login", { replace: true });
@@ -507,12 +510,12 @@ const NavBar = () => {
       {/* ✅ Brand com logo */}
       <Link to="/dashboard" className="brand" aria-label="Ir para o Dashboard">
         <img src={AppLogo} alt="Logo" className="brand-logo" />
-      
+
       </Link>
 
       {/* Workspace / Corporação */}
       <div className="workspace" ref={wsRef}>
-        <div className="workspace-label">Workspace</div>
+        <div className="workspace-label">{t('nav.workspace')}</div>
 
         <button
           type="button"
@@ -533,15 +536,15 @@ const NavBar = () => {
           <span className="workspace-meta">
             <span className="workspace-name" title={activeCorp?.name}>
               {loadingCorps
-                ? "Carregando..."
+                ? t('nav.carregando')
                 : activeCorp?.name || "Sem corporação"}
             </span>
             <span className="workspace-hint">
               {loadingCorps
-                ? "Aguarde..."
+                ? t('nav.aguarde')
                 : roleLoading
-                ? "Carregando permissões..."
-                : "Trocar corporação"}
+                  ? t('nav.carregandoPermissoes')
+                  : t('nav.trocarCorporacao')}
             </span>
           </span>
 
@@ -558,20 +561,20 @@ const NavBar = () => {
             aria-label="Selecionar corporação"
           >
             <div className="workspace-menu-head">
-              <span>Minhas corporações</span>
+              <span>{t('nav.minhasCorporacoes')}</span>
               <button
                 type="button"
                 className="workspace-add"
                 onClick={handleOpenAdd}
               >
-                + Adicionar
+                {t('nav.adicionar')}
               </button>
             </div>
 
             <div className="workspace-list">
               {!corporations || corporations.length === 0 ? (
                 <div className="muted small" style={{ padding: 8 }}>
-                  Nenhuma corporação vinculada.
+                  {t('nav.nenhumaCorporacao')}
                 </div>
               ) : (
                 corporations.map((c) => {
@@ -581,9 +584,8 @@ const NavBar = () => {
                       key={c.id}
                       type="button"
                       role="menuitem"
-                      className={`workspace-item ${
-                        selected ? "selected" : ""
-                      }`}
+                      className={`workspace-item ${selected ? "selected" : ""
+                        }`}
                       onClick={() => handleSelectCorp(c.id)}
                     >
                       <span className="workspace-item-avatar">
@@ -612,7 +614,7 @@ const NavBar = () => {
           <span className="nav-ico">
             <MapPin size={18} />
           </span>
-          Ambientes
+          {t('nav.ambientes')}
         </Link>
 
         <Link
@@ -622,7 +624,7 @@ const NavBar = () => {
           <span className="nav-ico">
             <Package size={18} />
           </span>
-          Equipamentos
+          {t('nav.equipamentos')}
         </Link>
 
         <Link
@@ -632,7 +634,7 @@ const NavBar = () => {
           <span className="nav-ico">
             <Snowflake size={18} />
           </span>
-          Automações
+          {t('nav.automacoes')}
         </Link>
 
         <Link
@@ -642,21 +644,20 @@ const NavBar = () => {
           <span className="nav-ico">
             <BarChart3 size={18} />
           </span>
-          Relatórios
+          {t('nav.relatorios')}
         </Link>
 
         {/* ✅ Agora funciona: owner_id OU role admin vindo do /members */}
         {canManageUsers && (
           <Link
             to="/gerir-usuarios"
-            className={`nav-item ${
-              isActive("/gerir-usuarios") ? "active" : ""
-            }`}
+            className={`nav-item ${isActive("/gerir-usuarios") ? "active" : ""
+              }`}
           >
             <span className="nav-ico">
               <Users size={18} />
             </span>
-            Gerir usuários
+            {t('nav.usuarios')}
           </Link>
         )}
 
@@ -667,19 +668,18 @@ const NavBar = () => {
           <span className="nav-ico">
             <Siren size={18} />
           </span>
-          Alarmes
+          {t('nav.alarmes')}
         </Link>
 
         <Link
           to="/configuracoes"
-          className={`nav-item ${
-            isActive("/configuracoes") ? "active" : ""
-          }`}
+          className={`nav-item ${isActive("/configuracoes") ? "active" : ""
+            }`}
         >
           <span className="nav-ico">
             <Settings size={18} />
           </span>
-          Configurações
+          {t('nav.configuracoes')}
         </Link>
       </nav>
 
@@ -712,7 +712,7 @@ const NavBar = () => {
               role="menuitem"
               onClick={() => openModal("forgot")}
             >
-              <Mail size={16} /> Solicitar redefinição de senha
+              <Mail size={16} /> {t('userMenu.solicitarRedefinicao')}
             </button>
 
             <button
@@ -720,7 +720,7 @@ const NavBar = () => {
               role="menuitem"
               onClick={() => openModal("profile")}
             >
-              <UserCog size={16} /> Atualizar perfil
+              <UserCog size={16} /> {t('userMenu.atualizarPerfil')}
             </button>
 
             <button
@@ -728,7 +728,7 @@ const NavBar = () => {
               role="menuitem"
               onClick={() => openModal("changePass")}
             >
-              <KeyRound size={16} /> Alterar senha
+              <KeyRound size={16} /> {t('userMenu.alterarSenha')}
             </button>
 
             <button
@@ -736,7 +736,7 @@ const NavBar = () => {
               role="menuitem"
               onClick={() => openModal("delete")}
             >
-              <Trash2 size={16} /> Excluir usuário
+              <Trash2 size={16} /> {t('userMenu.excluirUsuario')}
             </button>
 
             <div className="user-menu-sep" />
@@ -746,7 +746,7 @@ const NavBar = () => {
               role="menuitem"
               onClick={handleLogout}
             >
-              <LogOut size={16} /> Sair
+              <LogOut size={16} /> {t('userMenu.sair')}
             </button>
           </div>
         )}

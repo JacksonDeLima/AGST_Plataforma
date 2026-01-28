@@ -110,3 +110,126 @@ select {
   padding: 8px 14px;
   border-radius: 8px;
 }
+
+/* ========== DARK MODE FOR AUTOMATION MODALS ========== */
+
+html[data-theme="dark"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.75) !important;
+}
+
+html[data-theme="dark"] .modal-box {
+  background: #1e293b !important;
+  border: 1px solid rgba(100, 116, 139, 0.4) !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="dark"] .modal-header h2 {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-header button {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .modal-header button:hover {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-subtitle {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .modal-box label {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-box h4 {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-box input,
+html[data-theme="dark"] .modal-box select {
+  background-color: #334155 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-box input::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .modal-box input[type="range"] {
+  background: transparent !important;
+}
+
+html[data-theme="dark"] .day-row {
+  border-bottom-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .day-row span {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .toggle {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .toggle span {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .range-labels {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .range-labels span {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .exceptions {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .exceptions span {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .hint {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .empty-box {
+  background-color: rgba(51, 65, 85, 0.3) !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .btn-cancel {
+  background-color: #334155 !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .btn-cancel:hover {
+  background-color: rgba(51, 65, 85, 0.8) !important;
+}
+
+html[data-theme="dark"] .btn-confirm {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .btn-confirm:hover {
+  background: linear-gradient(135deg, #0284c7, #0ea5e9) !important;
+}
+
+html[data-theme="dark"] .btn-secondary {
+  background-color: transparent !important;
+  border: 1px solid #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .btn-secondary:hover {
+  background-color: rgba(56, 189, 248, 0.1) !important;
+}
