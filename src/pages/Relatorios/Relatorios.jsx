@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import "./Relatorios.css";
 import { getUsersByCorporation } from "../../services/reportsService";
+import * as XLSX from "xlsx";
 
 export default function Relatorios() {
   const [activeReport, setActiveReport] = useState(null);
@@ -23,6 +24,31 @@ export default function Relatorios() {
     } finally {
       setLoading(false);
     }
+  }
+
+  /** EXPORTAÇÃO PARA EXCEL (POR CORPORAÇÃO) */
+  function exportCorporationToExcel(corp) {
+    const rows = corp.members.map((user) => ({
+      Nome: user.full_name,
+      Email: user.email,
+      Perfil: user.role,
+      Status: user.member_status,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(rows);
+    const workbook = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Usuários"
+    );
+
+    const fileName = `usuarios_${corp.corporationName
+      .toLowerCase()
+      .replace(/\s+/g, "_")}.xlsx`;
+
+    XLSX.writeFile(workbook, fileName);
   }
 
   return (
@@ -55,17 +81,34 @@ export default function Relatorios() {
           {loading && <p className="loading">Carregando relatório...</p>}
           {error && <p className="error">{error}</p>}
 
-          {!loading && !error && corporations.length === 0 && (
-            <p className="loading">
-              Nenhuma corporação com usuários disponível.
-            </p>
-          )}
-
           {!loading &&
             !error &&
             corporations.map((corp) => (
               <div key={corp.corporationId} className="corp-section">
-                <h2 className="corp-title">{corp.corporationName}</h2>
+                {/* HEADER DA CORPORAÇÃO */}
+                <div className="corp-header">
+                  <h2 className="corp-title">{corp.corporationName}</h2>
+
+                  <button
+                    className="btn-export"
+                    title="Exportar para Excel"
+                    onClick={() => exportCorporationToExcel(corp)}
+                    aria-label="Exportar para Excel"
+                  >
+                    <svg
+                      className="icon-excel"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      {/* Documento */}
+                      <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" />
+                      {/* Dobra */}
+                      <path d="M15 2v5h5" />
+                    </svg>
+                  </button>
+                </div>
+
+
 
                 <div className="stats">
                   <div className="stat-card">

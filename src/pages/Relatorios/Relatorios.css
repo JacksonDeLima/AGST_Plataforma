@@ -57,6 +57,40 @@
 }
 
 /* Corporação */
+/* Header da corporação */
+.corp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Botão de exportação */
+.btn-export {
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 6px;
+  cursor: pointer;
+  color: #374151;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-export:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.icon-excel {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.4;
+}
+
 .corp-section {
   background: #ffffff;
   border-radius: 16px;
