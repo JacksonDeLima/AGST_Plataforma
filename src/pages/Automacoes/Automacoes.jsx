@@ -304,6 +304,12 @@ const Automacoes = () => {
                 >
                   Detalhes
                 </button>
+                <button
+                  className="btn-secondary"
+                  onClick={() => abrirModalEditar(a)}
+                >
+                  Editar
+                </button>
 
                 <button
                   className="btn-secondary"

@@ -111,10 +111,20 @@
 /* BOTÕES */
 .btn-primary {
   background: #0ea5e9;
-  color: white;
+  color: #fff;
   border-radius: 999px;
-  padding: 10px 20px;
+  padding: 8px 14px;   /* 👈 reduz largura */
+  font-size: 14px;
+  font-weight: 600;
+  width: fit-content; /* 👈 chave */
+  min-width: unset;
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.25);
 }
+
+.btn-primary:hover {
+  background: #0284c7;
+}
+
 
 .btn-secondary {
   background: #e0f2fe;
