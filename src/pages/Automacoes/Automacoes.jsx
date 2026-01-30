@@ -132,17 +132,21 @@ const Automacoes = () => {
     if (
       !novaAutomacao.tipo ||
       !novaAutomacao.ambiente ||
-      !novaAutomacao.regra ||
+      !novaAutomacao.dias.length ||
+      !novaAutomacao.inicio ||
+      !novaAutomacao.fim ||
       !novaAutomacao.equipamentos.length
     ) {
       setErroForm("Preencha todos os campos obrigatórios.");
       return;
     }
 
+    setErroForm("");
     setLoadingSalvar(true);
 
     const criada = await criarAutomacao({
       ...novaAutomacao,
+      regra: gerarRegraAutomacao(novaAutomacao),
       nome: gerarNomeAutomacao(novaAutomacao),
       status: "ATIVA",
     });
@@ -330,14 +334,12 @@ const Automacoes = () => {
                               ? novaAutomacao.dias.filter((d) => d !== dia)
                               : [...novaAutomacao.dias, dia];
 
-                            setNovaAutomacao({
-                              ...novaAutomacao,
-                              dias,
-                              regra: gerarRegraAutomacao({
+                            setNovaAutomacao(
+                              atualizarRegra({
                                 ...novaAutomacao,
                                 dias,
                               }),
-                            });
+                            );
                           }}
                         />
                         <span>{dia}</span>
@@ -352,14 +354,12 @@ const Automacoes = () => {
                       type="time"
                       value={novaAutomacao.inicio}
                       onChange={(e) =>
-                        setNovaAutomacao({
-                          ...novaAutomacao,
-                          inicio: e.target.value,
-                          regra: gerarRegraAutomacao({
+                        setNovaAutomacao(
+                          atualizarRegra({
                             ...novaAutomacao,
                             inicio: e.target.value,
                           }),
-                        })
+                        )
                       }
                     />
 
@@ -369,14 +369,12 @@ const Automacoes = () => {
                       type="time"
                       value={novaAutomacao.fim}
                       onChange={(e) =>
-                        setNovaAutomacao({
-                          ...novaAutomacao,
-                          fim: e.target.value,
-                          regra: gerarRegraAutomacao({
+                        setNovaAutomacao(
+                          atualizarRegra({
                             ...novaAutomacao,
                             fim: e.target.value,
                           }),
-                        })
+                        )
                       }
                     />
                   </div>
