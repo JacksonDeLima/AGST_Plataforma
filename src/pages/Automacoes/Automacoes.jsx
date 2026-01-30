@@ -79,6 +79,9 @@ const Automacoes = () => {
 
   const [showCriarModal, setShowCriarModal] = useState(false);
   const [passo, setPasso] = useState(0);
+  const [modoModal, setModoModal] = useState("CRIAR"); // CRIAR | EDITAR
+  const [automacaoEditando, setAutomacaoEditando] = useState(null);
+
   const [loadingSalvar, setLoadingSalvar] = useState(false);
   const [erroForm, setErroForm] = useState("");
 
@@ -112,16 +115,54 @@ const Automacoes = () => {
      DUPLICAR
   ========================= */
   const duplicarAutomacao = (automacao) => {
+    setModoModal("CRIAR");
+    setAutomacaoEditando(null); //  NÃO é edição
+
     setNovaAutomacao({
-      ...estadoInicialAutomacao,
+      templateId: null, // não herda template
       tipo: automacao.tipo,
+      ambiente: "", //  LIMPA O AMBIENTE
       dias: automacao.dias || [],
       inicio: automacao.inicio || "",
       fim: automacao.fim || "",
       regra: automacao.regra || "",
       equipamentos: automacao.equipamentos || [],
     });
-    setPasso(1);
+
+    setPasso(1); // começa no Ambiente
+    setShowCriarModal(true);
+  };
+
+  /* =========================
+     ABRIR MODAL CRIAR
+  ========================= */
+  const abrirModalCriar = () => {
+    setModoModal("CRIAR");
+    setAutomacaoEditando(null);
+    setNovaAutomacao(estadoInicialAutomacao);
+    setPasso(0);
+    setShowCriarModal(true);
+  };
+
+  /* =========================
+     ABRIR MODAL EDITAR
+  ========================= */
+  const abrirModalEditar = (automacao) => {
+    setModoModal("EDITAR");
+    setAutomacaoEditando(automacao);
+
+    setNovaAutomacao({
+      templateId: automacao.templateId || null,
+      tipo: automacao.tipo,
+      ambiente: automacao.ambiente || "",
+      dias: automacao.dias || [],
+      inicio: automacao.inicio || "",
+      fim: automacao.fim || "",
+      regra: automacao.regra || "",
+      equipamentos: automacao.equipamentos || [],
+    });
+
+    setPasso(1); // pula escolha de template
     setShowCriarModal(true);
   };
 
@@ -157,6 +198,31 @@ const Automacoes = () => {
     setNovaAutomacao(estadoInicialAutomacao);
     setPasso(0);
   };
+  const salvarEdicaoAutomacao = async () => {
+    if (
+      !novaAutomacao.tipo ||
+      !novaAutomacao.ambiente ||
+      !novaAutomacao.regra ||
+      !novaAutomacao.equipamentos.length
+    ) {
+      setErroForm("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    setLoadingSalvar(true);
+
+    setAutomacoes((prev) =>
+      prev.map((a) =>
+        a.id === automacaoEditando.id ? { ...a, ...novaAutomacao } : a,
+      ),
+    );
+
+    setLoadingSalvar(false);
+    setShowCriarModal(false);
+    setAutomacaoEditando(null);
+    setNovaAutomacao(estadoInicialAutomacao);
+    setPasso(0);
+  };
 
   if (loading) {
     return <div className="automacoes-page">Carregando...</div>;
@@ -170,14 +236,7 @@ const Automacoes = () => {
           <p>Gerencie regras automáticas dos equipamentos</p>
         </div>
 
-        <button
-          className="btn-primary"
-          onClick={() => {
-            setNovaAutomacao(estadoInicialAutomacao);
-            setPasso(0);
-            setShowCriarModal(true);
-          }}
-        >
+        <button className="btn-primary" onClick={abrirModalCriar}>
           Criar Automação
         </button>
       </header>
@@ -455,9 +514,15 @@ const Automacoes = () => {
                 <button
                   className="btn-primary"
                   disabled={loadingSalvar}
-                  onClick={salvarNovaAutomacao}
+                  onClick={
+                    modoModal === "CRIAR"
+                      ? salvarNovaAutomacao
+                      : salvarEdicaoAutomacao
+                  }
                 >
-                  Criar Automação
+                  {modoModal === "CRIAR"
+                    ? "Criar Automação"
+                    : "Salvar Alterações"}
                 </button>
               )}
             </div>

@@ -18,7 +18,6 @@ const DetalhesAutomacao = () => {
   // STATES
   // =========================
   const [automacao, setAutomacao] = useState(null);
-  const [status, setStatus] = useState("ATIVA");
   const [loading, setLoading] = useState(true);
 
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
@@ -29,11 +28,13 @@ const DetalhesAutomacao = () => {
   // BUSCAR AUTOMAÇÃO
   // =========================
   useEffect(() => {
-    buscarAutomacaoPorId(id).then((dados) => {
+    async function carregar() {
+      const dados = await buscarAutomacaoPorId(id);
       setAutomacao(dados);
-      setStatus(dados.status || "ATIVA");
       setLoading(false);
-    });
+    }
+
+    carregar();
   }, [id]);
 
   // =========================
@@ -48,11 +49,16 @@ const DetalhesAutomacao = () => {
   // AÇÕES
   // =========================
   const confirmarAlteracaoStatus = async () => {
-    const novoStatus = status === "ATIVA" ? "PAUSADA" : "ATIVA";
+    const novoStatus =
+      automacao.status === "ATIVA" ? "PAUSADA" : "ATIVA";
 
     await alterarStatusAutomacao(id, novoStatus);
 
-    setStatus(novoStatus);
+    setAutomacao((prev) => ({
+      ...prev,
+      status: novoStatus,
+    }));
+
     setMostrarConfirmacao(false);
     mostrarToast("Status da automação atualizado");
   };
@@ -60,14 +66,15 @@ const DetalhesAutomacao = () => {
   const salvarEdicao = async (dadosForm) => {
     await editarAutomacao(id, dadosForm);
 
-    setAutomacao({
-      ...automacao,
+    setAutomacao((prev) => ({
+      ...prev,
       ambiente: dadosForm.ambiente,
       dias: dadosForm.dias,
-      horarioInicio: dadosForm.inicio,
-      horarioFim: dadosForm.fim,
+      inicio: dadosForm.inicio,
+      fim: dadosForm.fim,
       equipamentos: dadosForm.equipamentos,
-    });
+      regra: dadosForm.regra,
+    }));
 
     setMostrarEdicao(false);
     mostrarToast("Automação editada com sucesso");
@@ -78,6 +85,10 @@ const DetalhesAutomacao = () => {
   // =========================
   if (loading) {
     return <p style={{ padding: 32 }}>Carregando automação...</p>;
+  }
+
+  if (!automacao) {
+    return <p style={{ padding: 32 }}>Automação não encontrada</p>;
   }
 
   // =========================
@@ -95,10 +106,12 @@ const DetalhesAutomacao = () => {
 
         <span
           className={`status-badge ${
-            status === "ATIVA" ? "status-ativa" : "status-pausada"
+            automacao.status === "ATIVA"
+              ? "status-ativa"
+              : "status-pausada"
           }`}
         >
-          {status === "ATIVA" ? "🟢 Ativa" : "🟡 Pausada"}
+          {automacao.status === "ATIVA" ? "🟢 Ativa" : "🟡 Pausada"}
         </span>
       </div>
 
@@ -128,13 +141,13 @@ const DetalhesAutomacao = () => {
         <div className="info-row">
           <span className="info-label">Horário</span>
           <span className="info-value">
-            {automacao.horarioInicio} → {automacao.horarioFim}
+            {automacao.inicio} → {automacao.fim}
           </span>
         </div>
 
         <h3 className="section-title">Equipamentos afetados</h3>
         <ul className="equipamentos-list">
-          {automacao.equipamentos.map((e, i) => (
+          {(automacao.equipamentos || []).map((e, i) => (
             <li key={i}>✔ {e}</li>
           ))}
         </ul>
@@ -150,11 +163,11 @@ const DetalhesAutomacao = () => {
 
           <button
             className={`btn-toggle ${
-              status === "ATIVA" ? "pausar" : "ativar"
+              automacao.status === "ATIVA" ? "pausar" : "ativar"
             }`}
             onClick={() => setMostrarConfirmacao(true)}
           >
-            {status === "ATIVA" ? "⏸ Pausar" : "▶ Ativar"}
+            {automacao.status === "ATIVA" ? "⏸ Pausar" : "▶ Ativar"}
           </button>
 
           <button
@@ -174,8 +187,10 @@ const DetalhesAutomacao = () => {
 
             <p>
               Deseja{" "}
-              <strong>{status === "ATIVA" ? "pausar" : "ativar"}</strong> esta
-              automação?
+              <strong>
+                {automacao.status === "ATIVA" ? "pausar" : "ativar"}
+              </strong>{" "}
+              esta automação?
             </p>
 
             <div className="modal-actions">
@@ -197,7 +212,7 @@ const DetalhesAutomacao = () => {
         </div>
       )}
 
-      {/* MODAL EDITAR (USANDO FORM AVANÇADO) */}
+      {/* MODAL EDITAR */}
       {mostrarEdicao && (
         <div className="modal-overlay">
           <div className="modal-content modal-lg">
@@ -207,9 +222,10 @@ const DetalhesAutomacao = () => {
               initialData={{
                 ambiente: automacao.ambiente,
                 dias: automacao.dias,
-                inicio: automacao.horarioInicio,
-                fim: automacao.horarioFim,
+                inicio: automacao.inicio,
+                fim: automacao.fim,
                 equipamentos: automacao.equipamentos,
+                tipo: automacao.tipo,
               }}
               onCancel={() => setMostrarEdicao(false)}
               onSave={salvarEdicao}

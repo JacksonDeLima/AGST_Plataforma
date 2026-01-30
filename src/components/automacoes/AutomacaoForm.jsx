@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const DIAS_SEMANA = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"];
+const EQUIPAMENTOS_DISPONIVEIS = ["Ar 01", "Ar 02", "Ar 03"];
 
 const AutomacaoForm = ({ initialData, onCancel, onSave }) => {
   const [form, setForm] = useState({
@@ -13,14 +14,32 @@ const AutomacaoForm = ({ initialData, onCancel, onSave }) => {
 
   const [erro, setErro] = useState("");
 
+  /* =========================
+     INIT
+  ========================= */
   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      setForm({
+        ambiente: initialData.ambiente || "",
+        dias: initialData.dias || [],
+        inicio: initialData.inicio || initialData.horarioInicio || "22:00",
+        fim: initialData.fim || initialData.horarioFim || "06:00",
+        equipamentos: initialData.equipamentos || [],
+      });
     }
   }, [initialData]);
 
+  /* =========================
+     VALIDAR
+  ========================= */
   const validar = () => {
-    if (!form.ambiente || form.dias.length === 0 || !form.inicio || !form.fim) {
+    if (
+      !form.ambiente ||
+      form.dias.length === 0 ||
+      !form.inicio ||
+      !form.fim ||
+      form.equipamentos.length === 0
+    ) {
       setErro("Preencha todos os campos obrigatórios");
       return false;
     }
@@ -33,26 +52,33 @@ const AutomacaoForm = ({ initialData, onCancel, onSave }) => {
     onSave(form);
   };
 
+  /* =========================
+     RENDER
+  ========================= */
   return (
     <>
-      <label>🏢 Ambiente</label>
+      {/* AMBIENTE */}
+      <label className="form-label">🏢 Ambiente</label>
       <input
+        className="input"
+        placeholder="Ex: Escritório, Sala 01"
         value={form.ambiente}
         onChange={(e) => setForm({ ...form, ambiente: e.target.value })}
       />
 
-      <label>📅 Dias da semana</label>
+      {/* DIAS */}
+      <label className="form-label">📅 Dias da semana</label>
       <div className="dias-grid">
         {DIAS_SEMANA.map((dia) => (
-          <label key={dia} className="checkbox-row">
+          <label key={dia} className="checkbox-item">
             <input
               type="checkbox"
               checked={form.dias.includes(dia)}
               onChange={() => {
-                const novo = form.dias.includes(dia)
+                const dias = form.dias.includes(dia)
                   ? form.dias.filter((d) => d !== dia)
                   : [...form.dias, dia];
-                setForm({ ...form, dias: novo });
+                setForm({ ...form, dias });
               }}
             />
             <span>{dia}</span>
@@ -60,14 +86,15 @@ const AutomacaoForm = ({ initialData, onCancel, onSave }) => {
         ))}
       </div>
 
-      <label>⏰ Horário</label>
+      {/* HORÁRIO */}
+      <label className="form-label">⏰ Horário</label>
       <div className="horario-grid">
         <input
           type="time"
           value={form.inicio}
           onChange={(e) => setForm({ ...form, inicio: e.target.value })}
         />
-        <span>até</span>
+        <span className="horario-separador">até</span>
         <input
           type="time"
           value={form.fim}
@@ -75,18 +102,19 @@ const AutomacaoForm = ({ initialData, onCancel, onSave }) => {
         />
       </div>
 
-      <label>🔌 Equipamentos</label>
+      {/* EQUIPAMENTOS */}
+      <label className="form-label">🔌 Equipamentos</label>
       <div className="equipamentos-grid">
-        {["Ar 01", "Ar 02", "Ar 03"].map((eq) => (
-          <label key={eq} className="checkbox-row">
+        {EQUIPAMENTOS_DISPONIVEIS.map((eq) => (
+          <label key={eq} className="checkbox-item">
             <input
               type="checkbox"
               checked={form.equipamentos.includes(eq)}
               onChange={() => {
-                const novo = form.equipamentos.includes(eq)
+                const equipamentos = form.equipamentos.includes(eq)
                   ? form.equipamentos.filter((e) => e !== eq)
                   : [...form.equipamentos, eq];
-                setForm({ ...form, equipamentos: novo });
+                setForm({ ...form, equipamentos });
               }}
             />
             <span>{eq}</span>
@@ -105,6 +133,7 @@ const AutomacaoForm = ({ initialData, onCancel, onSave }) => {
 
       {erro && <p className="form-error">{erro}</p>}
 
+      {/* AÇÕES */}
       <div className="modal-actions">
         <button className="btn-secondary" onClick={onCancel}>
           Cancelar
