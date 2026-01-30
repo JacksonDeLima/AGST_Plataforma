@@ -390,13 +390,13 @@ button:disabled {
   margin: 4px 0 10px;
 }
 .automacao-economia {
-  margin-top: 8px;
+  margin-top: 12px;
+  margin-bottom: 16px; /* 🔹 ESTE É O PRINCIPAL */
   padding: 8px 12px;
   background: #ecfeff;
   border: 1px solid #67e8f9;
   border-radius: 8px;
   font-size: 13px;
-  color: #0f172a;
 }
 
 .automacao-economia strong {
@@ -502,4 +502,38 @@ button:disabled {
 
 .status-text.pausada {
   color: #b45309; /* laranja */
+}
+/* FILTROS */
+.filtros-container {
+  margin: 16px 0 24px;
+}
+
+.filtros-box {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filtros-box select {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  font-size: 14px;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.filtros-box select:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+.automacao-actions {
+  display: flex;
+  gap: 12px; /* 🔹 espaçamento entre Detalhes / Editar / Duplicar */
+  margin-top: 8px;
+}
+.automacao-actions .btn-secondary {
+  padding: 6px 14px;
+  font-size: 13px;
 }

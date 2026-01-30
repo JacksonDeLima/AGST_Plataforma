@@ -5,6 +5,7 @@ import "./Automacoes.css";
 import {
   listarAutomacoes,
   criarAutomacao,
+  editarAutomacao,
   identificarPerfilAutomacao,
   gerarNomeAutomacao,
   estimarEconomiaAutomacao,
@@ -86,6 +87,8 @@ const Automacoes = () => {
   const [erroForm, setErroForm] = useState("");
 
   const [novaAutomacao, setNovaAutomacao] = useState(estadoInicialAutomacao);
+  const [filtroStatus, setFiltroStatus] = useState("TODAS");
+  const [filtroPerfil, setFiltroPerfil] = useState("TODOS");
 
   /* =========================
      BUSCAR AUTOMAÇÕES
@@ -114,28 +117,6 @@ const Automacoes = () => {
   /* =========================
      DUPLICAR
   ========================= */
-  const duplicarAutomacao = (automacao) => {
-    setModoModal("CRIAR");
-    setAutomacaoEditando(null); //  NÃO é edição
-
-    setNovaAutomacao({
-      templateId: null, // não herda template
-      tipo: automacao.tipo,
-      ambiente: "", //  LIMPA O AMBIENTE
-      dias: automacao.dias || [],
-      inicio: automacao.inicio || "",
-      fim: automacao.fim || "",
-      regra: automacao.regra || "",
-      equipamentos: automacao.equipamentos || [],
-    });
-
-    setPasso(1); // começa no Ambiente
-    setShowCriarModal(true);
-  };
-
-  /* =========================
-     ABRIR MODAL CRIAR
-  ========================= */
   const abrirModalCriar = () => {
     setModoModal("CRIAR");
     setAutomacaoEditando(null);
@@ -144,9 +125,6 @@ const Automacoes = () => {
     setShowCriarModal(true);
   };
 
-  /* =========================
-     ABRIR MODAL EDITAR
-  ========================= */
   const abrirModalEditar = (automacao) => {
     setModoModal("EDITAR");
     setAutomacaoEditando(automacao);
@@ -162,43 +140,33 @@ const Automacoes = () => {
       equipamentos: automacao.equipamentos || [],
     });
 
-    setPasso(1); // pula escolha de template
+    setPasso(1); // pula template
+    setShowCriarModal(true);
+  };
+
+  const abrirModalDuplicar = (automacao) => {
+    setModoModal("DUPLICAR");
+    setAutomacaoEditando(null);
+
+    setNovaAutomacao({
+      templateId: automacao.templateId || null,
+      tipo: automacao.tipo,
+      ambiente: "", // Força o usuário a definir o novo ambiente
+      dias: automacao.dias || [],
+      inicio: automacao.inicio || "",
+      fim: automacao.fim || "",
+      regra: automacao.regra || "",
+      equipamentos: automacao.equipamentos || [],
+    });
+
+    setPasso(1);
     setShowCriarModal(true);
   };
 
   /* =========================
      SALVAR
   ========================= */
-  const salvarNovaAutomacao = async () => {
-    if (
-      !novaAutomacao.tipo ||
-      !novaAutomacao.ambiente ||
-      !novaAutomacao.dias.length ||
-      !novaAutomacao.inicio ||
-      !novaAutomacao.fim ||
-      !novaAutomacao.equipamentos.length
-    ) {
-      setErroForm("Preencha todos os campos obrigatórios.");
-      return;
-    }
-
-    setErroForm("");
-    setLoadingSalvar(true);
-
-    const criada = await criarAutomacao({
-      ...novaAutomacao,
-      regra: gerarRegraAutomacao(novaAutomacao),
-      nome: gerarNomeAutomacao(novaAutomacao),
-      status: "ATIVA",
-    });
-
-    setAutomacoes((prev) => [...prev, criada]);
-    setLoadingSalvar(false);
-    setShowCriarModal(false);
-    setNovaAutomacao(estadoInicialAutomacao);
-    setPasso(0);
-  };
-  const salvarEdicaoAutomacao = async () => {
+  const salvarAutomacao = async () => {
     if (
       !novaAutomacao.tipo ||
       !novaAutomacao.ambiente ||
@@ -211,16 +179,28 @@ const Automacoes = () => {
 
     setLoadingSalvar(true);
 
-    setAutomacoes((prev) =>
-      prev.map((a) =>
-        a.id === automacaoEditando.id ? { ...a, ...novaAutomacao } : a,
-      ),
-    );
+    if (modoModal === "EDITAR" && automacaoEditando) {
+      await editarAutomacao(automacaoEditando.id, novaAutomacao);
+
+      setAutomacoes((prev) =>
+        prev.map((a) =>
+          a.id === automacaoEditando.id ? { ...a, ...novaAutomacao } : a,
+        ),
+      );
+    } else {
+      const criada = await criarAutomacao({
+        ...novaAutomacao,
+        nome: gerarNomeAutomacao(novaAutomacao),
+        status: "ATIVA",
+      });
+
+      setAutomacoes((prev) => [...prev, criada]);
+    }
 
     setLoadingSalvar(false);
     setShowCriarModal(false);
-    setAutomacaoEditando(null);
     setNovaAutomacao(estadoInicialAutomacao);
+    setModoModal("CRIAR");
     setPasso(0);
   };
 
@@ -241,86 +221,133 @@ const Automacoes = () => {
         </button>
       </header>
 
+      {/* FILTROS */}
+      <div className="filtros-container">
+        <div className="filtros-box">
+          <select
+            value={filtroStatus}
+            onChange={(e) => setFiltroStatus(e.target.value)}
+          >
+            <option value="TODAS">Status: Todas</option>
+            <option value="ATIVA">Status: Ativas</option>
+            <option value="PAUSADA">Status: Pausadas</option>
+          </select>
+
+          <select
+            value={filtroPerfil}
+            onChange={(e) => setFiltroPerfil(e.target.value)}
+          >
+            <option value="TODOS">Perfil: Todos</option>
+            <option value="Economia Noturna">Economia Noturna</option>
+            <option value="Economia por Inatividade">
+              Economia por Inatividade
+            </option>
+            <option value="Horário Comercial">Horário Comercial</option>
+            <option value="Automação Personalizada">
+              Automação Personalizada
+            </option>
+          </select>
+        </div>
+      </div>
+
       {/* LISTA */}
       <div className="automacoes-list">
-        {automacoes.map((a) => {
-          const perfil = identificarPerfilAutomacao(a) || {};
-          const perfilNome = perfil.perfil || "Automação Personalizada";
-          const perfilClass = perfilNome.toLowerCase().replace(/\s+/g, "-");
-          const descricaoPerfil =
-            DESCRICOES_PERFIL[perfilNome] ||
-            "Automação configurada manualmente.";
+        {automacoes
+          .filter((a) => {
+            // filtro por status
+            if (filtroStatus !== "TODAS" && a.status !== filtroStatus) {
+              return false;
+            }
 
-          const economia = estimarEconomiaAutomacao(a);
+            // filtro por perfil
+            const perfil =
+              identificarPerfilAutomacao(a)?.perfil ||
+              "Automação Personalizada";
 
-          return (
-            <div className="automacao-card" key={a.id}>
-              <div className="automacao-top-actions">
-                <div className="automacao-status-wrapper">
-                  <span
-                    className={`automacao-perfil perfil-${perfilClass}`}
-                    title={descricaoPerfil}
-                  >
-                    {perfilNome}
-                  </span>
+            if (filtroPerfil !== "TODOS" && perfil !== filtroPerfil) {
+              return false;
+            }
 
-                  <span
-                    className={`status-text ${
-                      a.status === "ATIVA" ? "ativa" : "pausada"
-                    }`}
-                  >
-                    {a.status === "ATIVA" ? "Ativa" : "Pausada"}
-                  </span>
+            return true;
+          })
+          .map((a) => {
+            const perfil = identificarPerfilAutomacao(a) || {};
+            const perfilNome = perfil.perfil || "Automação Personalizada";
+            const perfilClass = perfilNome.toLowerCase().replace(/\s+/g, "-");
+            const descricaoPerfil =
+              DESCRICOES_PERFIL[perfilNome] ||
+              "Automação configurada manualmente.";
+
+            const economia = estimarEconomiaAutomacao(a);
+
+            return (
+              <div className="automacao-card" key={a.id}>
+                <div className="automacao-top-actions">
+                  <div className="automacao-status-wrapper">
+                    <span
+                      className={`automacao-perfil perfil-${perfilClass}`}
+                      title={descricaoPerfil}
+                    >
+                      {perfilNome}
+                    </span>
+
+                    <span
+                      className={`status-text ${
+                        a.status === "ATIVA" ? "ativa" : "pausada"
+                      }`}
+                    >
+                      {a.status === "ATIVA" ? "Ativa" : "Pausada"}
+                    </span>
+                  </div>
+
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={a.status === "ATIVA"}
+                      onChange={() => alternarStatus(a)}
+                    />
+                    <span className="slider" />
+                  </label>
                 </div>
 
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={a.status === "ATIVA"}
-                    onChange={() => alternarStatus(a)}
-                  />
-                  <span className="slider" />
-                </label>
-              </div>
+                <h3 className="automacao-nome">{gerarNomeAutomacao(a)}</h3>
+                <p className="automacao-descricao">{descricaoPerfil}</p>
+                <p className="automacao-regra">{a.regra}</p>
 
-              <h3 className="automacao-nome">{gerarNomeAutomacao(a)}</h3>
-              <p className="automacao-descricao">{descricaoPerfil}</p>
-              <p className="automacao-regra">{a.regra}</p>
+                {economia?.kwh > 0 && (
+                  <div className="automacao-economia">
+                    Economia estimada:
+                    <strong>
+                      {" "}
+                      {economia.kwh} kWh / mês · R$ {economia.valor}
+                    </strong>
+                  </div>
+                )}
 
-              {economia?.kwh > 0 && (
-                <div className="automacao-economia">
-                  Economia estimada:
-                  <strong>
-                    {" "}
-                    {economia.kwh} kWh / mês · R$ {economia.valor}
-                  </strong>
+                <div className="automacao-actions">
+                  <button
+                    className="btn-secondary"
+                    onClick={() => navigate(`/automacoes/${a.id}`)}
+                  >
+                    Detalhes
+                  </button>
+                  <button
+                    className="btn-secondary"
+                    onClick={() => abrirModalEditar(a)}
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    className="btn-secondary"
+                    onClick={() => abrirModalDuplicar(a)}
+                  >
+                    Duplicar
+                  </button>
                 </div>
-              )}
-
-              <div className="automacao-actions">
-                <button
-                  className="btn-secondary"
-                  onClick={() => navigate(`/automacoes/${a.id}`)}
-                >
-                  Detalhes
-                </button>
-                <button
-                  className="btn-secondary"
-                  onClick={() => abrirModalEditar(a)}
-                >
-                  Editar
-                </button>
-
-                <button
-                  className="btn-secondary"
-                  onClick={() => duplicarAutomacao(a)}
-                >
-                  Duplicar
-                </button>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
 
       {/* ================= MODAL CRIAR ================= */}
@@ -520,15 +547,11 @@ const Automacoes = () => {
                 <button
                   className="btn-primary"
                   disabled={loadingSalvar}
-                  onClick={
-                    modoModal === "CRIAR"
-                      ? salvarNovaAutomacao
-                      : salvarEdicaoAutomacao
-                  }
+                  onClick={salvarAutomacao}
                 >
-                  {modoModal === "CRIAR"
-                    ? "Criar Automação"
-                    : "Salvar Alterações"}
+                  {modoModal === "EDITAR"
+                    ? "Salvar Alterações"
+                    : "Criar Automação"}
                 </button>
               )}
             </div>
