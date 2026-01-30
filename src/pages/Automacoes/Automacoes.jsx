@@ -5,214 +5,234 @@ import "./Automacoes.css";
 import {
   listarAutomacoes,
   criarAutomacao,
+  identificarPerfilAutomacao,
+  gerarNomeAutomacao,
+  estimarEconomiaAutomacao,
+  alterarStatusAutomacao,
 } from "../../services/automacoesService";
+
+import { AUTOMACAO_TEMPLATES } from "../../constants/automacaoTemplates";
+
+/* =========================
+   CONSTANTES
+========================= */
+const DIAS_SEMANA = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"];
+
+const EQUIPAMENTOS_DISPONIVEIS = [
+  "Ar Condicionado 01",
+  "Ar Condicionado 02",
+  "Ar Condicionado 03",
+];
+
+const DESCRICOES_PERFIL = {
+  "Economia Noturna":
+    "Reduz o consumo desligando equipamentos automaticamente durante a noite.",
+  "Economia por Inatividade":
+    "Desliga os equipamentos quando não há pessoas no ambiente.",
+  "Horário Comercial":
+    "Mantém os equipamentos ativos apenas durante o horário de funcionamento.",
+  "Automação Personalizada":
+    "Regra criada manualmente conforme a necessidade do ambiente.",
+};
+
+const estadoInicialAutomacao = {
+  templateId: null,
+  tipo: "",
+  ambiente: "",
+  dias: [],
+  inicio: "",
+  fim: "",
+  regra: "",
+  equipamentos: [],
+};
+
+/* =========================
+   HELPERS
+========================= */
+const gerarRegraAutomacao = (dados) => {
+  if (dados.tipo === "HORARIO") {
+    if (!dados.inicio || !dados.fim || !dados.dias.length) return "";
+    return `${dados.dias.join(", ")} · ${dados.inicio} → ${dados.fim}`;
+  }
+  if (dados.tipo === "OCUPACAO") return dados.regra || "";
+  return "";
+};
+
+const calcularImpactoAutomacao = (equipamentos = []) => {
+  if (equipamentos.length >= 5) return "Alto impacto";
+  if (equipamentos.length >= 3) return "Impacto médio";
+  if (equipamentos.length > 0) return "Baixo impacto";
+  return "Nenhum equipamento selecionado";
+};
+const atualizarRegra = (dados) => {
+  return {
+    ...dados,
+    regra: gerarRegraAutomacao(dados),
+  };
+};
 
 const Automacoes = () => {
   const navigate = useNavigate();
 
-  // =========================
-  // STATES GERAIS
-  // =========================
   const [automacoes, setAutomacoes] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [mostrarFiltros, setMostrarFiltros] = useState(false);
-  const [filtroTipo, setFiltroTipo] = useState("TODOS");
-  const [filtroStatus, setFiltroStatus] = useState("TODOS");
-
-  // =========================
-  // MODAL CRIAR
-  // =========================
   const [showCriarModal, setShowCriarModal] = useState(false);
-  const [passo, setPasso] = useState(1);
+  const [passo, setPasso] = useState(0);
   const [loadingSalvar, setLoadingSalvar] = useState(false);
   const [erroForm, setErroForm] = useState("");
 
-  const [novaAutomacao, setNovaAutomacao] = useState({
-    tipo: "",
-    ambiente: "",
-    regra: "",
-    equipamentos: [],
-  });
+  const [novaAutomacao, setNovaAutomacao] = useState(estadoInicialAutomacao);
 
-  // =========================
-  // BUSCAR AUTOMAÇÕES
-  // =========================
+  /* =========================
+     BUSCAR AUTOMAÇÕES
+  ========================= */
   useEffect(() => {
     listarAutomacoes().then((dados) => {
-      setAutomacoes(dados);
+      setAutomacoes(dados || []);
       setLoading(false);
     });
   }, []);
 
-  // =========================
-  // FILTROS
-  // =========================
-  const automacoesFiltradas = automacoes.filter((a) => {
-    const tipoOk = filtroTipo === "TODOS" || a.tipo === filtroTipo;
-    const statusOk = filtroStatus === "TODOS" || a.status === filtroStatus;
-    return tipoOk && statusOk;
-  });
+  /* =========================
+     STATUS
+  ========================= */
+  const alternarStatus = async (automacao) => {
+    const novoStatus = automacao.status === "ATIVA" ? "PAUSADA" : "ATIVA";
+    await alterarStatusAutomacao(automacao.id, novoStatus);
 
-  // =========================
-  // FECHAR MODAL
-  // =========================
-  const fecharModal = () => {
-    setShowCriarModal(false);
-    setPasso(1);
-    setErroForm("");
-    setNovaAutomacao({
-      tipo: "",
-      ambiente: "",
-      regra: "",
-      equipamentos: [],
-    });
+    setAutomacoes((prev) =>
+      prev.map((a) =>
+        a.id === automacao.id ? { ...a, status: novoStatus } : a,
+      ),
+    );
   };
 
-  // =========================
-  // CRIAR AUTOMAÇÃO
-  // =========================
+  /* =========================
+     DUPLICAR
+  ========================= */
+  const duplicarAutomacao = (automacao) => {
+    setNovaAutomacao({
+      ...estadoInicialAutomacao,
+      tipo: automacao.tipo,
+      dias: automacao.dias || [],
+      inicio: automacao.inicio || "",
+      fim: automacao.fim || "",
+      regra: automacao.regra || "",
+      equipamentos: automacao.equipamentos || [],
+    });
+    setPasso(1);
+    setShowCriarModal(true);
+  };
+
+  /* =========================
+     SALVAR
+  ========================= */
   const salvarNovaAutomacao = async () => {
-    if (!novaAutomacao.tipo || !novaAutomacao.ambiente || !novaAutomacao.regra) {
-      setErroForm("Preencha todos os campos obrigatórios");
+    if (
+      !novaAutomacao.tipo ||
+      !novaAutomacao.ambiente ||
+      !novaAutomacao.regra ||
+      !novaAutomacao.equipamentos.length
+    ) {
+      setErroForm("Preencha todos os campos obrigatórios.");
       return;
     }
 
-    setErroForm("");
     setLoadingSalvar(true);
 
     const criada = await criarAutomacao({
       ...novaAutomacao,
-      equipamentos: ["Ar 01", "Ar 02"], // mock por enquanto
+      nome: gerarNomeAutomacao(novaAutomacao),
+      status: "ATIVA",
     });
 
     setAutomacoes((prev) => [...prev, criada]);
     setLoadingSalvar(false);
-    fecharModal();
+    setShowCriarModal(false);
+    setNovaAutomacao(estadoInicialAutomacao);
+    setPasso(0);
   };
 
-  // =========================
-  // LOADING
-  // =========================
   if (loading) {
-    return <p style={{ padding: 32 }}>Carregando automações...</p>;
+    return <div className="automacoes-page">Carregando...</div>;
   }
 
-  // =========================
-  // RENDER
-  // =========================
   return (
-    <div className="app">
-      <div className="automacoes-page">
-        {/* HEADER */}
-        <header className="page-header">
-          <div>
-            <h1 className="page-title">Automações</h1>
-            <p className="page-subtitle">
-              Automatize o funcionamento dos equipamentos
-            </p>
-          </div>
-
-          <button className="btn-primary" onClick={() => setShowCriarModal(true)}>
-            + Criar Automação
-          </button>
-        </header>
-
-        {/* MINI DASHBOARD */}
-        <div className="mini-dashboard">
-          <div className="dashboard-card ativo">
-            <span className="dash-number">
-              {automacoes.filter((a) => a.status === "ATIVA").length}
-            </span>
-            <span className="dash-label">Ativas Agora</span>
-          </div>
-
-          <div className="dashboard-card">
-            <span className="dash-number">
-              {automacoes.filter((a) => a.tipo === "HORARIO").length}
-            </span>
-            <span className="dash-label">Por Horário</span>
-          </div>
-
-          <div className="dashboard-card">
-            <span className="dash-number">
-              {automacoes.filter((a) => a.tipo === "OCUPACAO").length}
-            </span>
-            <span className="dash-label">Por Ocupação</span>
-          </div>
-
-          <div className="dashboard-card erro">
-            <span className="dash-number">0</span>
-            <span className="dash-label">Com Erro</span>
-          </div>
+    <div className="automacoes-page">
+      <header className="page-header">
+        <div>
+          <h1>Automações</h1>
+          <p>Gerencie regras automáticas dos equipamentos</p>
         </div>
 
-        {/* FILTROS */}
-        <div className="filtros-container">
-          <button
-            className="btn-filtros"
-            onClick={() => setMostrarFiltros(!mostrarFiltros)}
-          >
-            Filtros
-          </button>
+        <button
+          className="btn-primary"
+          onClick={() => {
+            setNovaAutomacao(estadoInicialAutomacao);
+            setPasso(0);
+            setShowCriarModal(true);
+          }}
+        >
+          Criar Automação
+        </button>
+      </header>
 
-          {mostrarFiltros && (
-            <div className="filtros-box">
-              <select
-                value={filtroTipo}
-                onChange={(e) => setFiltroTipo(e.target.value)}
-              >
-                <option value="TODOS">Todos os tipos</option>
-                <option value="HORARIO">Por Horário</option>
-                <option value="OCUPACAO">Por Ocupação</option>
-              </select>
+      {/* LISTA */}
+      <div className="automacoes-list">
+        {automacoes.map((a) => {
+          const perfil = identificarPerfilAutomacao(a) || {};
+          const perfilNome = perfil.perfil || "Automação Personalizada";
+          const perfilClass = perfilNome.toLowerCase().replace(/\s+/g, "-");
+          const descricaoPerfil =
+            DESCRICOES_PERFIL[perfilNome] ||
+            "Automação configurada manualmente.";
 
-              <select
-                value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value)}
-              >
-                <option value="TODOS">Todos os status</option>
-                <option value="ATIVA">Ativas</option>
-                <option value="PAUSADA">Pausadas</option>
-              </select>
+          const economia = estimarEconomiaAutomacao(a);
 
-              <button
-                className="btn-clear"
-                onClick={() => {
-                  setFiltroTipo("TODOS");
-                  setFiltroStatus("TODOS");
-                }}
-              >
-                Limpar
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* LISTA */}
-        <div className="automacoes-list">
-          {automacoesFiltradas.map((a) => (
+          return (
             <div className="automacao-card" key={a.id}>
-              <div className="automacao-header">
-                <h3>{a.nome}</h3>
+              <div className="automacao-top-actions">
+                <div className="automacao-status-wrapper">
+                  <span
+                    className={`automacao-perfil perfil-${perfilClass}`}
+                    title={descricaoPerfil}
+                  >
+                    {perfilNome}
+                  </span>
+
+                  <span
+                    className={`status-text ${
+                      a.status === "ATIVA" ? "ativa" : "pausada"
+                    }`}
+                  >
+                    {a.status === "ATIVA" ? "Ativa" : "Pausada"}
+                  </span>
+                </div>
 
                 <label className="switch">
-                  <input type="checkbox" checked={a.status === "ATIVA"} readOnly />
+                  <input
+                    type="checkbox"
+                    checked={a.status === "ATIVA"}
+                    onChange={() => alternarStatus(a)}
+                  />
                   <span className="slider" />
                 </label>
               </div>
 
-              <p>
-                {a.tipo === "HORARIO" ? "⏰" : "👤"} {a.regra}
-              </p>
+              <h3 className="automacao-nome">{gerarNomeAutomacao(a)}</h3>
+              <p className="automacao-descricao">{descricaoPerfil}</p>
+              <p className="automacao-regra">{a.regra}</p>
 
-              <p>
-                📍 {a.ambiente} · {a.equipamentos.length} equipamentos
-              </p>
-
-              <span className="automacao-status ativo">
-                🟢 Executando agora
-              </span>
+              {economia?.kwh > 0 && (
+                <div className="automacao-economia">
+                  Economia estimada:
+                  <strong>
+                    {" "}
+                    {economia.kwh} kWh / mês · R$ {economia.valor}
+                  </strong>
+                </div>
+              )}
 
               <div className="automacao-actions">
                 <button
@@ -224,131 +244,228 @@ const Automacoes = () => {
 
                 <button
                   className="btn-secondary"
-                  onClick={() =>
-                    navigate(`/automacoes/${a.id}/historico`)
-                  }
+                  onClick={() => duplicarAutomacao(a)}
                 >
-                  Histórico
+                  Duplicar
                 </button>
               </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
+      </div>
 
-        {/* MODAL CRIAR */}
-        {showCriarModal && (
-          <div className="modal-overlay" onClick={fecharModal}>
-            <div
-              className="modal-content modal-lg"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="modal-header">
-                <h2>Criar Automação</h2>
-                <span>Passo {passo} de 5</span>
-              </div>
+      {/* ================= MODAL CRIAR ================= */}
+      {showCriarModal && (
+        <div className="modal-overlay" onClick={() => setShowCriarModal(false)}>
+          <div
+            className="modal-content modal-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2>Criar Automação</h2>
+              <p>Passo {passo + 1} de 5</p>
+            </div>
 
-              <div className="modal-body">
-                {passo === 1 && (
-                  <>
-                    <h3>Tipo de automação</h3>
-                    <button
-                      onClick={() => {
-                        setNovaAutomacao({ ...novaAutomacao, tipo: "HORARIO" });
-                        setPasso(2);
-                      }}
-                    >
-                      ⏰ Por Horário
-                    </button>
-                    <button
-                      onClick={() => {
-                        setNovaAutomacao({ ...novaAutomacao, tipo: "OCUPACAO" });
-                        setPasso(2);
-                      }}
-                    >
-                      👤 Por Ocupação
-                    </button>
-                  </>
-                )}
+            <div className="modal-body">
+              {passo === 0 && (
+                <>
+                  <h3>Escolha um modelo</h3>
+                  <div className="template-grid">
+                    {AUTOMACAO_TEMPLATES.map((tpl) => (
+                      <div
+                        key={tpl.id}
+                        className={`template-card ${
+                          novaAutomacao.templateId === tpl.id
+                            ? "selecionado"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          setNovaAutomacao({
+                            ...estadoInicialAutomacao,
+                            templateId: tpl.id,
+                            tipo: tpl.tipo,
+                            dias: tpl.dias || [],
+                            inicio: tpl.inicio || "",
+                            fim: tpl.fim || "",
+                            regra: gerarRegraAutomacao(tpl),
+                          })
+                        }
+                      >
+                        <h4>{tpl.nome}</h4>
+                        <p>{tpl.descricao}</p>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
 
-                {passo === 2 && (
-                  <>
-                    <h3>Ambiente</h3>
+              {passo === 1 && (
+                <>
+                  <h3>Ambiente</h3>
+                  <input
+                    placeholder="Ex: Sala de Reunião"
+                    value={novaAutomacao.ambiente}
+                    onChange={(e) =>
+                      setNovaAutomacao({
+                        ...novaAutomacao,
+                        ambiente: e.target.value,
+                      })
+                    }
+                  />
+                </>
+              )}
+              {/* PASSO 2 — DIAS E HORÁRIO */}
+              {passo === 2 && (
+                <>
+                  <label className="form-label">Dias da semana</label>
+
+                  <div className="dias-grid">
+                    {DIAS_SEMANA.map((dia) => (
+                      <label key={dia} className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={novaAutomacao.dias.includes(dia)}
+                          onChange={() => {
+                            const dias = novaAutomacao.dias.includes(dia)
+                              ? novaAutomacao.dias.filter((d) => d !== dia)
+                              : [...novaAutomacao.dias, dia];
+
+                            setNovaAutomacao({
+                              ...novaAutomacao,
+                              dias,
+                              regra: gerarRegraAutomacao({
+                                ...novaAutomacao,
+                                dias,
+                              }),
+                            });
+                          }}
+                        />
+                        <span>{dia}</span>
+                      </label>
+                    ))}
+                  </div>
+
+                  <label className="form-label">Horário</label>
+
+                  <div className="horario-grid">
                     <input
-                      placeholder="Ex: Escritório"
-                      value={novaAutomacao.ambiente}
+                      type="time"
+                      value={novaAutomacao.inicio}
                       onChange={(e) =>
                         setNovaAutomacao({
                           ...novaAutomacao,
-                          ambiente: e.target.value,
+                          inicio: e.target.value,
+                          regra: gerarRegraAutomacao({
+                            ...novaAutomacao,
+                            inicio: e.target.value,
+                          }),
                         })
                       }
                     />
-                  </>
-                )}
 
-                {passo === 3 && (
-                  <>
-                    <h3>Regra</h3>
+                    <span className="horario-separador">até</span>
+
                     <input
-                      placeholder="Ex: 22:00 → 06:00"
-                      value={novaAutomacao.regra}
+                      type="time"
+                      value={novaAutomacao.fim}
                       onChange={(e) =>
                         setNovaAutomacao({
                           ...novaAutomacao,
-                          regra: e.target.value,
+                          fim: e.target.value,
+                          regra: gerarRegraAutomacao({
+                            ...novaAutomacao,
+                            fim: e.target.value,
+                          }),
                         })
                       }
                     />
-                  </>
-                )}
+                  </div>
+                </>
+              )}
 
-                {passo === 4 && (
-                  <>
-                    <h3>Resumo</h3>
-                    <p><strong>Tipo:</strong> {novaAutomacao.tipo}</p>
-                    <p><strong>Ambiente:</strong> {novaAutomacao.ambiente}</p>
-                    <p><strong>Regra:</strong> {novaAutomacao.regra}</p>
+              {/* PASSO 3 — EQUIPAMENTOS */}
+              {passo === 3 && (
+                <>
+                  <h3>Equipamentos</h3>
 
-                    <div className="impact-preview">
-                      <p>⚡ Economia estimada:</p>
-                      <strong>~ 120 kWh / mês</strong>
-                      <p>💰 Economia financeira:</p>
-                      <strong>~ R$ 95,00 / mês</strong>
-                    </div>
-                  </>
-                )}
+                  <div className="equipamentos-grid">
+                    {EQUIPAMENTOS_DISPONIVEIS.map((eq) => (
+                      <label key={eq} className="checkbox-item">
+                        <input
+                          type="checkbox"
+                          checked={novaAutomacao.equipamentos.includes(eq)}
+                          onChange={() => {
+                            const equipamentos =
+                              novaAutomacao.equipamentos.includes(eq)
+                                ? novaAutomacao.equipamentos.filter(
+                                    (e) => e !== eq,
+                                  )
+                                : [...novaAutomacao.equipamentos, eq];
 
-                {erroForm && <p className="form-error">{erroForm}</p>}
-              </div>
+                            setNovaAutomacao({
+                              ...novaAutomacao,
+                              equipamentos,
+                            });
+                          }}
+                        />
+                        <span>{eq}</span>
+                      </label>
+                    ))}
+                  </div>
+                </>
+              )}
 
-              <div className="modal-footer">
-                <button className="btn-secondary" onClick={fecharModal}>
-                  Cancelar
+              {passo === 4 && (
+                <>
+                  <h3>Resumo</h3>
+                  <div className="resumo-box">
+                    <p>
+                      <strong>Nome:</strong> {gerarNomeAutomacao(novaAutomacao)}
+                    </p>
+                    <p>
+                      <strong>Regra:</strong> {novaAutomacao.regra}
+                    </p>
+                    <p>
+                      <strong>Impacto:</strong>{" "}
+                      {calcularImpactoAutomacao(novaAutomacao.equipamentos)}
+                    </p>
+                  </div>
+                </>
+              )}
+
+              {erroForm && <p className="form-error">{erroForm}</p>}
+            </div>
+
+            <div className="modal-footer">
+              <button
+                className="btn-secondary"
+                onClick={() => setShowCriarModal(false)}
+              >
+                Cancelar
+              </button>
+
+              {passo < 4 && (
+                <button
+                  className="btn-primary"
+                  onClick={() => setPasso(passo + 1)}
+                >
+                  Próximo
                 </button>
+              )}
 
-                {passo < 4 && (
-                  <button
-                    className="btn-primary"
-                    onClick={() => setPasso(passo + 1)}
-                  >
-                    Próximo →
-                  </button>
-                )}
-
-                {passo === 4 && (
-                  <button
-                    className="btn-primary"
-                    disabled={loadingSalvar}
-                    onClick={salvarNovaAutomacao}
-                  >
-                    {loadingSalvar ? "Salvando..." : "Criar Automação"}
-                  </button>
-                )}
-              </div>
+              {passo === 4 && (
+                <button
+                  className="btn-primary"
+                  disabled={loadingSalvar}
+                  onClick={salvarNovaAutomacao}
+                >
+                  Criar Automação
+                </button>
+              )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

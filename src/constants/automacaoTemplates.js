@@ -1,0 +1,30 @@
+export const AUTOMACAO_TEMPLATES = [
+  {
+    id: "economia-noturna",
+    nome: "Economia Noturna",
+    descricao: "Desliga equipamentos fora do horário de uso",
+    tipo: "HORARIO",
+    dias: ["SEG", "TER", "QUA", "QUI", "SEX"],
+    inicio: "22:00",
+    fim: "06:00",
+    impacto: "Alto",
+  },
+  {
+    id: "horario-comercial",
+    nome: "Horário Comercial",
+    descricao: "Mantém equipamentos ativos apenas no expediente",
+    tipo: "HORARIO",
+    dias: ["SEG", "TER", "QUA", "QUI", "SEX"],
+    inicio: "08:00",
+    fim: "18:00",
+    impacto: "Médio",
+  },
+  {
+    id: "por-ocupacao",
+    nome: "Economia por Inatividade",
+    descricao: "Desliga equipamentos sem presença detectada",
+    tipo: "OCUPACAO",
+    regra: "15 minutos sem ocupação",
+    impacto: "Médio",
+  },
+];

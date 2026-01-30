@@ -1,5 +1,6 @@
-
-
+// ===============================
+// 🔹 MOCK DATA (FONTE ÚNICA)
+// ===============================
 let automacoesMock = [
   {
     id: 1,
@@ -7,12 +8,12 @@ let automacoesMock = [
     tipo: "HORARIO",
     status: "ATIVA",
     ambiente: "Escritório Gerência",
-    regra: "Seg–Sex · 22h → 06h",
+    regra: "SEG, TER, QUA, QUI, SEX · 22:00 → 06:00",
     equipamentos: ["Ar 01", "Ar 02", "Ar 03"],
+    executando: true,
     dias: ["SEG", "TER", "QUA", "QUI", "SEX"],
     inicio: "22:00",
     fim: "06:00",
-    executando: true,
   },
   {
     id: 2,
@@ -22,32 +23,12 @@ let automacoesMock = [
     ambiente: "Sala de Reunião",
     regra: "20 minutos sem movimento",
     equipamentos: ["Ar 02"],
-    dias: ["SEG", "TER", "QUA", "QUI", "SEX"],
-    inicio: "08:00",
-    fim: "18:00",
     executando: false,
+    dias: [],
+    inicio: "",
+    fim: "",
   },
 ];
-
-// ===============================
-// 🔹 CRIAR AUTOMAÇÃO
-// ===============================
-export async function criarAutomacao(dados) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const nova = {
-        id: Date.now(),
-        nome: dados.nome || "Nova Automação",
-        status: "ATIVA",
-        executando: false,
-        ...dados,
-      };
-
-      automacoesMock.push(nova); // ✅ IMPORTANTE
-      resolve(nova);
-    }, 800);
-  });
-}
 
 // ===============================
 // 🔹 LISTAR AUTOMAÇÕES
@@ -56,26 +37,39 @@ export function listarAutomacoes() {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve([...automacoesMock]);
-    }, 500);
+    }, 400);
   });
 }
 
 // ===============================
-// 🔹 BUSCAR DETALHES
+// 🔹 BUSCAR POR ID
 // ===============================
 export function buscarAutomacaoPorId(id) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
-      const automacao = automacoesMock.find(
-        (a) => String(a.id) === String(id)
+      resolve(
+        automacoesMock.find((a) => String(a.id) === String(id))
       );
+    }, 400);
+  });
+}
 
-      if (!automacao) {
-        reject("Automação não encontrada");
-      } else {
-        resolve({ ...automacao });
-      }
-    }, 500);
+// ===============================
+// 🔹 CRIAR AUTOMAÇÃO
+// ===============================
+export function criarAutomacao(dados) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const nova = {
+        id: Date.now(),
+        status: "ATIVA",
+        executando: false,
+        ...dados,
+      };
+
+      automacoesMock.push(nova);
+      resolve(nova);
+    }, 600);
   });
 }
 
@@ -83,54 +77,34 @@ export function buscarAutomacaoPorId(id) {
 // 🔹 EDITAR AUTOMAÇÃO
 // ===============================
 export function editarAutomacao(id, payload) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
-      const index = automacoesMock.findIndex(
-        (a) => String(a.id) === String(id)
+      automacoesMock = automacoesMock.map((a) =>
+        String(a.id) === String(id) ? { ...a, ...payload } : a
       );
-
-      if (index === -1) {
-        reject("Automação não encontrada");
-        return;
-      }
-
-      automacoesMock[index] = {
-        ...automacoesMock[index],
-        ...payload,
-      };
-
-      resolve({ ...automacoesMock[index] });
+      resolve({ sucesso: true });
     }, 500);
   });
 }
 
 // ===============================
-// 🔹 PAUSAR / ATIVAR
+// 🔹 ALTERAR STATUS
 // ===============================
 export function alterarStatusAutomacao(id, status) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
-      const automacao = automacoesMock.find(
-        (a) => String(a.id) === String(id)
+      automacoesMock = automacoesMock.map((a) =>
+        String(a.id) === String(id) ? { ...a, status } : a
       );
-
-      if (!automacao) {
-        reject("Automação não encontrada");
-        return;
-      }
-
-      automacao.status = status;
-      automacao.executando = status === "ATIVA";
-
-      resolve({ ...automacao });
-    }, 500);
+      resolve({ sucesso: true });
+    }, 400);
   });
 }
 
 // ===============================
 // 🔹 HISTÓRICO
 // ===============================
-export function buscarHistoricoAutomacao(_id) {
+export function buscarHistoricoAutomacao() {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve([
@@ -147,6 +121,124 @@ export function buscarHistoricoAutomacao(_id) {
           mensagem: "Ar-condicionado 02 offline",
         },
       ]);
-    }, 600);
+    }, 500);
   });
+}
+
+// ===============================
+// 🔹 IDENTIFICAR PERFIL DA AUTOMAÇÃO (ÚNICA)
+// ===============================
+export function identificarPerfilAutomacao(automacao) {
+  if (!automacao) {
+    return {
+      perfil: "Desconhecida",
+      impacto: "Indefinido",
+      prioridade: "baixa",
+    };
+  }
+
+  // ECONOMIA NOTURNA
+  if (
+    automacao.tipo === "HORARIO" &&
+    automacao.inicio &&
+    automacao.inicio >= "18:00"
+  ) {
+    return {
+      perfil: "Economia Noturna",
+      impacto: "Médio",
+      prioridade: "media",
+    };
+  }
+
+  // HORÁRIO COMERCIAL
+  if (
+    automacao.tipo === "HORARIO" &&
+    automacao.inicio >= "07:00" &&
+    automacao.fim <= "19:00"
+  ) {
+    return {
+      perfil: "Horário Comercial",
+      impacto: "Baixo",
+      prioridade: "baixa",
+    };
+  }
+
+  // OCUPAÇÃO
+  if (automacao.tipo === "OCUPACAO") {
+    return {
+      perfil: "Economia por Inatividade",
+      impacto: "Médio",
+      prioridade: "media",
+    };
+  }
+
+  return {
+    perfil: "Automação Personalizada",
+    impacto: "Baixo",
+    prioridade: "baixa",
+  };
+}
+
+// ===============================
+// 🔹 GERAR NOME AUTOMÁTICO (ÚNICO)
+// ===============================
+export function gerarNomeAutomacao(automacao) {
+  if (!automacao) return "Automação";
+
+  if (automacao.nome && automacao.nome.trim() !== "") {
+    return automacao.nome;
+  }
+
+  const ambiente = automacao.ambiente || "Ambiente";
+
+  if (
+    automacao.tipo === "HORARIO" &&
+    automacao.inicio &&
+    automacao.inicio >= "18:00"
+  ) {
+    return `Economia Noturna — ${ambiente}`;
+  }
+
+  if (
+    automacao.tipo === "HORARIO" &&
+    automacao.inicio >= "07:00" &&
+    automacao.fim <= "19:00"
+  ) {
+    return `Horário Comercial — ${ambiente}`;
+  }
+
+  if (automacao.tipo === "OCUPACAO") {
+    return `Desligamento por Inatividade — ${ambiente}`;
+  }
+
+  return `Automação — ${ambiente}`;
+}
+// ===============================
+// 🔹 ESTIMATIVA DE ECONOMIA
+// ===============================
+export function estimarEconomiaAutomacao(automacao) {
+  if (!automacao || !automacao.equipamentos?.length) {
+    return { kwh: 0, valor: 0 };
+  }
+
+  const consumoPorHora = 1.2; // kWh por equipamento
+  const tarifa = 0.9; // R$ por kWh
+
+  let horasDia = 0;
+
+  if (automacao.tipo === "HORARIO") horasDia = 6;
+  if (automacao.tipo === "OCUPACAO") horasDia = 4;
+
+  const kwhMes =
+    automacao.equipamentos.length *
+    consumoPorHora *
+    horasDia *
+    30;
+
+  const valor = kwhMes * tarifa;
+
+  return {
+    kwh: Math.round(kwhMes),
+    valor: Math.round(valor),
+  };
 }
