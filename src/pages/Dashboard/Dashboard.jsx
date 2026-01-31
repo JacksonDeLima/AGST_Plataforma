@@ -308,7 +308,7 @@ const Dashboard = () => {
               className="btn-primary btn-fit"
               onClick={handleAdicionarAmbiente}
             >
-              + {t("dashboard.adicionarAmbiente")}
+               {t("dashboard.adicionarAmbiente")}
             </button>
           </div>
         </header>
