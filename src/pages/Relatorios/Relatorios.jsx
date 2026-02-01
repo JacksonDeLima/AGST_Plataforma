@@ -1,5 +1,6 @@
 // src/pages/Relatorios/Relatorios.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Relatorios.css";
 import { getUsersByCorporation } from "../../services/reportsService";
 import { useLanguage } from "../../context/LanguageContext";
@@ -7,6 +8,7 @@ import * as XLSX from "xlsx";
 
 export default function Relatorios() {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [activeReport, setActiveReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [corporations, setCorporations] = useState([]);
@@ -55,6 +57,13 @@ export default function Relatorios() {
 
   return (
     <div className="relatorios-page">
+      <button
+        className="btn-secondary"
+        style={{ marginBottom: "20px" }}
+        onClick={() => navigate(-1)}
+      >
+        ← Voltar
+      </button>
       <div className="page-header">
         <h1>{t('relatorios.title')}</h1>
         <p className="page-subtitle">{t('relatorios.subtitle')}</p>

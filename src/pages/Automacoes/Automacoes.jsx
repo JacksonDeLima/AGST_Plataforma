@@ -51,12 +51,21 @@ const estadoInicialAutomacao = {
    HELPERS
 ========================= */
 const gerarRegraAutomacao = (dados) => {
-  if (dados.tipo === "HORARIO") {
-    if (!dados.inicio || !dados.fim || !dados.dias.length) return "";
-    return `${dados.dias.join(", ")} · ${dados.inicio} → ${dados.fim}`;
+  switch (dados.tipo) {
+    case "HORARIO":
+      if (!dados.inicio || !dados.fim || !dados.dias.length) return "";
+      return `${dados.dias.join(", ")} · ${dados.inicio} → ${dados.fim}`;
+
+    case "OCUPACAO":
+      return dados.regra || "";
+
+    case "PERSONALIZADA":
+      // não define nada automaticamente
+      return dados.regra || "";
+
+    default:
+      return "";
   }
-  if (dados.tipo === "OCUPACAO") return dados.regra || "";
-  return "";
 };
 
 const calcularImpactoAutomacao = (equipamentos = []) => {
@@ -75,6 +84,10 @@ const atualizarRegra = (dados) => {
 const Automacoes = () => {
   const navigate = useNavigate();
 
+  const ambienteNome =
+    new URLSearchParams(window.location.search).get("ambiente") ||
+    "ambiente-padrao";
+
   const [automacoes, setAutomacoes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -89,6 +102,16 @@ const Automacoes = () => {
   const [novaAutomacao, setNovaAutomacao] = useState(estadoInicialAutomacao);
   const [filtroStatus, setFiltroStatus] = useState("TODAS");
   const [filtroPerfil, setFiltroPerfil] = useState("TODOS");
+
+  const [ambientePausado, setAmbientePausado] = useState(() => {
+    const salvo = localStorage.getItem(`ambiente_pausado_${ambienteNome}`);
+    return salvo === "true";
+  });
+  const isPersonalizada = novaAutomacao.tipo === "PERSONALIZADA";
+
+  useEffect(() => {
+    localStorage.setItem(`ambiente_pausado_${ambienteNome}`, ambientePausado);
+  }, [ambientePausado, ambienteNome]);
 
   /* =========================
      BUSCAR AUTOMAÇÕES
@@ -166,7 +189,87 @@ const Automacoes = () => {
   /* =========================
      SALVAR
   ========================= */
+  function validarAutomacaoPersonalizada() {
+    // Mapeando para o estado atual (novaAutomacao)
+    const nomeAutomacao = novaAutomacao.ambiente;
+    const acaoSelecionada = novaAutomacao.equipamentos.length > 0;
+    const horarioInicio = novaAutomacao.inicio;
+    const diasSelecionados = novaAutomacao.dias;
+    const tempoInatividade = null; // Campo futuro
+
+    if (!nomeAutomacao || nomeAutomacao.trim() === "") {
+      alert("Informe um nome para a automação.");
+      return false;
+    }
+
+    if (!acaoSelecionada) {
+      alert("Selecione uma ação para a automação.");
+      return false;
+    }
+
+    const temCondicao =
+      horarioInicio || diasSelecionados?.length > 0 || tempoInatividade;
+
+    if (!temCondicao) {
+      alert("Defina pelo menos uma condição para a automação.");
+      return false;
+    }
+
+    return true;
+  }
+
+  function getStatusAutomacao(automacao, ambienteAtivo, automacaoExecutando) {
+    if (ambientePausado) {
+      return {
+        titulo: "Pausada",
+        descricao: "Automações pausadas manualmente",
+        tipo: "pausada"
+      };
+    }
+
+    // Ambiente em manutenção
+    if (ambienteAtivo.status === "MANUTENCAO") {
+      return {
+        titulo: "Bloqueada",
+        descricao: "Ambiente em manutenção",
+        tipo: "bloqueada"
+      };
+    }
+
+    // Ambiente offline
+    if (ambienteAtivo.status === "OFFLINE") {
+      return {
+        titulo: "Pausada",
+        descricao: "Ambiente offline",
+        tipo: "pausada"
+      };
+    }
+
+    // Automação que está mandando agora
+    if (automacao.id === automacaoExecutando?.id) {
+      return {
+        titulo: "Executando agora",
+        descricao: "",
+        tipo: "executando"
+      };
+    }
+
+    // Automação ativa, mas perdeu prioridade
+    return {
+      titulo: "Ativa, mas não executando",
+      descricao: automacaoExecutando
+        ? `Sobreposta por: ${automacaoExecutando.nome}`
+        : "Aguardando condição de maior prioridade",
+      tipo: "sobreposta"
+    };
+  }
+
   const salvarAutomacao = async () => {
+    if (novaAutomacao.tipo === "PERSONALIZADA") {
+      const valido = validarAutomacaoPersonalizada();
+      if (!valido) return;
+    }
+
     if (
       !novaAutomacao.tipo ||
       !novaAutomacao.ambiente ||
@@ -204,15 +307,36 @@ const Automacoes = () => {
     setPasso(0);
   };
 
+  const automacaoExecutando = automacoes.find(
+    (a) => a.tipo === "INATIVIDADE" && a.status === "ATIVA"
+  );
+
   if (loading) {
     return <div className="automacoes-page">Carregando...</div>;
   }
 
   return (
     <div className="automacoes-page">
+      <button
+        className="btn-secondary"
+        style={{ marginBottom: "20px" }}
+        onClick={() => navigate(-1)}
+      >
+        ← Voltar
+      </button>
       <header className="page-header">
         <div>
           <h1>Automações</h1>
+          <div className="automacoes-actions" style={{ marginBottom: "16px" }}>
+            <button
+              onClick={() => setAmbientePausado(!ambientePausado)}
+              className={ambientePausado ? "btn-primary" : "btn-secondary"}
+            >
+              {ambientePausado
+                ? "Retomar automações do ambiente"
+                : "Pausar automações do ambiente"}
+            </button>
+          </div>
           <p>Gerencie regras automáticas dos equipamentos</p>
         </div>
 
@@ -246,6 +370,7 @@ const Automacoes = () => {
             <option value="Automação Personalizada">
               Automação Personalizada
             </option>
+            <option value="PERSONALIZADA">Personalizada (Manual)</option>
           </select>
         </div>
       </div>
@@ -279,6 +404,10 @@ const Automacoes = () => {
               "Automação configurada manualmente.";
 
             const economia = estimarEconomiaAutomacao(a);
+            
+            // Mock temporário para evitar erro (será substituído por dados reais)
+            const ambienteAtivo = { status: "ONLINE" };
+            const statusInfo = getStatusAutomacao(a, ambienteAtivo, automacaoExecutando);
 
             return (
               <div className="automacao-card" key={a.id}>
@@ -303,8 +432,9 @@ const Automacoes = () => {
                   <label className="switch">
                     <input
                       type="checkbox"
-                      checked={a.status === "ATIVA"}
+                      checked={!ambientePausado && a.status === "ATIVA"}
                       onChange={() => alternarStatus(a)}
+                      disabled={ambientePausado}
                     />
                     <span className="slider" />
                   </label>
@@ -313,6 +443,13 @@ const Automacoes = () => {
                 <h3 className="automacao-nome">{gerarNomeAutomacao(a)}</h3>
                 <p className="automacao-descricao">{descricaoPerfil}</p>
                 <p className="automacao-regra">{a.regra}</p>
+
+                <div className={`status-automacao ${statusInfo.tipo}`}>
+                  <strong>{statusInfo.titulo}</strong>
+                  {statusInfo.descricao && (
+                    <div className="status-descricao">{statusInfo.descricao}</div>
+                  )}
+                </div>
 
                 {economia?.kwh > 0 && (
                   <div className="automacao-economia">
@@ -391,6 +528,25 @@ const Automacoes = () => {
                         <p>{tpl.descricao}</p>
                       </div>
                     ))}
+
+                    <div
+                      className={`template-card ${
+                        novaAutomacao.tipo === "PERSONALIZADA" ? "selecionado" : ""
+                      }`}
+                      onClick={() =>
+                        setNovaAutomacao({
+                          ...estadoInicialAutomacao,
+                          templateId: "personalizada",
+                          tipo: "PERSONALIZADA",
+                        })
+                      }
+                    >
+                      <h4>Personalizada (Manual)</h4>
+                      <p>
+                        Crie uma automação totalmente personalizada, definindo horários,
+                        dias e configurações manualmente.
+                      </p>
+                    </div>
                   </div>
                 </>
               )}

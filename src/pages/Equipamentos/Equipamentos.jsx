@@ -1,7 +1,10 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Equipamentos.css";
 
 const Equipamentos = () => {
+  const navigate = useNavigate();
+
   const [equipamentos, setEquipamentos] = useState([
     {
       id: 1,
@@ -144,6 +147,13 @@ const Equipamentos = () => {
   return (
     <div className="app">
       <div className="equipamentos-page">
+        <button
+          className="btn-secondary"
+          style={{ marginBottom: "20px" }}
+          onClick={() => navigate(-1)}
+        >
+          ← Voltar
+        </button>
         {/* HEADER */}
         <div className="page-header">
           <h1 className="page-title">Equipamentos</h1>
