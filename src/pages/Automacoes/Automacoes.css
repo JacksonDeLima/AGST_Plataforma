@@ -659,3 +659,34 @@ button:disabled {
   color: #7c2d12;
   font-size: 14px;
 }
+
+/* HOVER NO CARD */
+.automacao-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.automacao-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+}
+
+/* SWITCH – FEEDBACK */
+.switch input:checked + .slider {
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.switch input:disabled + .slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* BOTÕES – MICROINTERAÇÃO */
+.btn-primary,
+.btn-secondary {
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-primary:active,
+.btn-secondary:active {
+  transform: scale(0.97);
+}

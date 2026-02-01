@@ -343,7 +343,14 @@ const Automacoes = () => {
     .sort((a, b) => getPrioridade(a) - getPrioridade(b))[0];
 
   if (loading) {
-    return <div className="automacoes-page">Carregando...</div>;
+    return (
+      <div className="automacoes-page">
+        <div className="empty-state">
+          <h3>Carregando automações…</h3>
+          <p>Aguarde alguns instantes.</p>
+        </div>
+      </div>
+    );
   }
 
   if (!ambienteAtivo) {
@@ -525,7 +532,10 @@ const Automacoes = () => {
                 <p className="automacao-regra">{a.regra}</p>
 
                 <div className={`status-automacao ${statusInfo.tipo}`}>
-                  <strong>{statusInfo.titulo}</strong>
+                  <strong>
+                    {statusInfo.tipo === "executando" && "⚡ "}
+                    {statusInfo.titulo}
+                  </strong>
                   {statusInfo.descricao && (
                     <div className="status-descricao">{statusInfo.descricao}</div>
                   )}
