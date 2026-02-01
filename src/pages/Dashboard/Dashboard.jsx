@@ -388,6 +388,7 @@ const Dashboard = () => {
                       <input
                         type="checkbox"
                         checked={ambiente.pausado}
+                        disabled={ambiente.status?.toUpperCase() === "MANUTENCAO"}
                         onChange={() =>
                           setAmbientes((prev) =>
                             prev.map((a) =>
@@ -402,7 +403,9 @@ const Dashboard = () => {
                     </label>
 
                     <span className="ambiente-pausa-texto">
-                      {ambiente.pausado ? "Ambiente pausado" : "Ambiente ativo"}
+                      {ambiente.status?.toUpperCase() === "MANUTENCAO"
+                        ? "Ambiente em manutenção"
+                        : ambiente.pausado ? "Ambiente pausado" : "Ambiente ativo"}
                     </span>
                   </div>
 

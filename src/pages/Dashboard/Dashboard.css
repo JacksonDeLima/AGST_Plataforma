@@ -1,1 +1,19 @@
+.ambiente-pausa {
+  display: flex;
+  align-items: center;
+  gap: 12px;            /* espaço REAL entre switch e texto */
+  margin-top: 8px;
+}
+
+.ambiente-pausa .switch {
+  flex-shrink: 0;      /* impede o switch de invadir o texto */
+}
+
+.ambiente-pausa-texto {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  line-height: 1.2;
+  white-space: nowrap; /* evita quebra estranha */
+}
 
