@@ -14,6 +14,33 @@ import {
 
 import { AUTOMACAO_TEMPLATES } from "../../constants/automacaoTemplates";
 
+const MOCK_AMBIENTES = [
+  {
+    id: 1,
+    nome: "Escritório Gerência",
+    status: "ONLINE",
+    pausado: false,
+  },
+  {
+    id: 2,
+    nome: "Sala de Reuniões A",
+    status: "PARCIAL",
+    pausado: false,
+  },
+  {
+    id: 3,
+    nome: "Sala de Reuniões B",
+    status: "OFFLINE",
+    pausado: false,
+  },
+  {
+    id: 4,
+    nome: "Auditório Principal",
+    status: "MANUTENCAO",
+    pausado: false,
+  },
+];
+
 /* =========================
    CONSTANTES
 ========================= */
@@ -84,9 +111,9 @@ const atualizarRegra = (dados) => {
 const Automacoes = () => {
   const navigate = useNavigate();
 
-  const ambienteNome =
-    new URLSearchParams(window.location.search).get("ambiente") ||
-    "ambiente-padrao";
+  const params = new URLSearchParams(window.location.search);
+  const ambienteId = Number(params.get("ambienteId"));
+  const ambienteAtivo = MOCK_AMBIENTES.find((a) => a.id === ambienteId);
 
   const [automacoes, setAutomacoes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -103,15 +130,8 @@ const Automacoes = () => {
   const [filtroStatus, setFiltroStatus] = useState("TODAS");
   const [filtroPerfil, setFiltroPerfil] = useState("TODOS");
 
-  const [ambientePausado, setAmbientePausado] = useState(() => {
-    const salvo = localStorage.getItem(`ambiente_pausado_${ambienteNome}`);
-    return salvo === "true";
-  });
+  const [ambientePausado, setAmbientePausado] = useState(ambienteAtivo ? ambienteAtivo.pausado : false);
   const isPersonalizada = novaAutomacao.tipo === "PERSONALIZADA";
-
-  useEffect(() => {
-    localStorage.setItem(`ambiente_pausado_${ambienteNome}`, ambientePausado);
-  }, [ambientePausado, ambienteNome]);
 
   /* =========================
      BUSCAR AUTOMAÇÕES
@@ -315,6 +335,14 @@ const Automacoes = () => {
     return <div className="automacoes-page">Carregando...</div>;
   }
 
+  if (!ambienteAtivo) {
+    return (
+      <div className="automacoes-page">
+        <p>Ambiente não encontrado.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="automacoes-page">
       <button
@@ -405,8 +433,6 @@ const Automacoes = () => {
 
             const economia = estimarEconomiaAutomacao(a);
             
-            // Mock temporário para evitar erro (será substituído por dados reais)
-            const ambienteAtivo = { status: "ONLINE" };
             const statusInfo = getStatusAutomacao(a, ambienteAtivo, automacaoExecutando);
 
             return (

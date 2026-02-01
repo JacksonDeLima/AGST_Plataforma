@@ -225,7 +225,7 @@ const Dashboard = () => {
      NAVEGAÇÃO
   ========================= */
   const handleControlar = (ambiente) => {
-    navigate(`/automacoes?ambiente=${encodeURIComponent(ambiente.nome)}`);
+    navigate(`/automacoes?ambienteId=${ambiente.id}`);
   };
   
   function getTextoStatus(ambiente) {
