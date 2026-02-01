@@ -130,7 +130,7 @@ const Automacoes = () => {
   const [filtroStatus, setFiltroStatus] = useState("TODAS");
   const [filtroPerfil, setFiltroPerfil] = useState("TODOS");
 
-  const [ambientePausado, setAmbientePausado] = useState(ambienteAtivo ? ambienteAtivo.pausado : false);
+  const ambientePausado = ambienteAtivo ? ambienteAtivo.pausado : false;
   const isPersonalizada = novaAutomacao.tipo === "PERSONALIZADA";
 
   /* =========================
@@ -355,15 +355,20 @@ const Automacoes = () => {
       <header className="page-header">
         <div>
           <h1>Automações</h1>
-          <div className="automacoes-actions" style={{ marginBottom: "16px" }}>
-            <button
-              onClick={() => setAmbientePausado(!ambientePausado)}
-              className={ambientePausado ? "btn-primary" : "btn-secondary"}
-            >
-              {ambientePausado
-                ? "Retomar automações do ambiente"
-                : "Pausar automações do ambiente"}
-            </button>
+          <div className="ambiente-info-topo">
+            <h2 className="ambiente-nome-topo">{ambienteAtivo.nome}</h2>
+
+            <div className="ambiente-status-topo">
+              <span
+                className={`status-badge status-${ambienteAtivo.status.toLowerCase()}`}
+              >
+                {ambienteAtivo.status}
+              </span>
+
+              {ambienteAtivo.pausado && (
+                <span className="status-badge status-pausado">Pausado</span>
+              )}
+            </div>
           </div>
           <p>Gerencie regras automáticas dos equipamentos</p>
         </div>
