@@ -338,9 +338,6 @@ const Automacoes = () => {
     setPasso(0);
   };
 
-  const automacaoExecutando = automacoes.find(
-    (a) => a.tipo === "INATIVIDADE" && a.status === "ATIVA"
-  );
   const automacaoExecutando = automacoes
     .filter((a) => a.status === "ATIVA")
     .sort((a, b) => getPrioridade(a) - getPrioridade(b))[0];
