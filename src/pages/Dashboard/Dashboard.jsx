@@ -15,44 +15,67 @@ const Dashboard = () => {
     {
       id: 1,
       nome: "Escritório Gerência",
-      tipo: "Sala",
+      tipo: "Escritório",
+      status: "ONLINE",
+      pausado: false,
       temperatura: 22,
       potencia: 10.5,
-      status: "ONLINE",
-      equipamentosTotal: 5,
-      equipamentosLigados: 5,
+      equipamentos: [
+        { id: 1, nome: "Samsung 1", ligado: true },
+        { id: 2, nome: "Samsung 2", ligado: true },
+        { id: 3, nome: "Samsung 3", ligado: true },
+        { id: 4, nome: "Samsung 4", ligado: true },
+        { id: 5, nome: "Samsung 5", ligado: true }
+      ],
+      ultimaAtualizacao: "2026-01-31T14:20:00"
     },
     {
       id: 2,
       nome: "Sala de Reuniões A",
       tipo: "Sala",
+      status: "PARCIAL",
+      pausado: false,
       temperatura: 23,
       potencia: 4.2,
-      status: "PARCIAL",
-      equipamentosTotal: 3,
-      equipamentosLigados: 1,
-      ultimaAtualizacao: "2026-01-31T14:20:00",
+      equipamentos: [
+        { id: 6, nome: "Samsung 6", ligado: true },
+        { id: 7, nome: "Samsung 7", ligado: false },
+        { id: 8, nome: "Samsung 8", ligado: false }
+      ],
+      ultimaAtualizacao: "2026-01-31T13:50:00"
     },
     {
       id: 3,
       nome: "Sala de Reuniões B",
       tipo: "Sala",
+      status: "OFFLINE",
+      pausado: false,
       temperatura: 27,
       potencia: 0,
-      status: "OFFLINE",
-      equipamentosTotal: 2,
-      equipamentosLigados: 0,
+      equipamentos: [
+        { id: 9, nome: "Samsung 9", ligado: false },
+        { id: 10, nome: "Samsung 10", ligado: false }
+      ]
     },
     {
       id: 4,
       nome: "Auditório Principal",
       tipo: "Auditório",
+      status: "MANUTENCAO",
+      pausado: false,
       temperatura: 24,
       potencia: 0,
-      status: "MANUTENCAO",
-      equipamentosTotal: 8,
-      equipamentosLigados: 0,
-    },
+      equipamentos: [
+        { id: 11, nome: "Samsung 11", ligado: false },
+        { id: 12, nome: "Samsung 12", ligado: false },
+        { id: 13, nome: "Samsung 13", ligado: false },
+        { id: 14, nome: "Samsung 14", ligado: false },
+        { id: 15, nome: "Samsung 15", ligado: false },
+        { id: 16, nome: "Samsung 16", ligado: false },
+        { id: 17, nome: "Samsung 17", ligado: false },
+        { id: 18, nome: "Samsung 18", ligado: false }
+      ]
+    }
   ]);
 
   const [showModal, setShowModal] = useState(false);
@@ -135,7 +158,7 @@ const Dashboard = () => {
     setNovoAmbiente({
       nome: ambiente.nome,
       tipo: ambiente.tipo,
-      equipamentos: ambiente.equipamentos || [],
+      equipamentos: ambiente.equipamentos?.map((e) => e.id) || [],
       status: ambiente.status || "offline",
     });
 
@@ -159,6 +182,12 @@ const Dashboard = () => {
       return;
     }
 
+    // Converte IDs selecionados de volta para objetos de equipamento
+    const equipamentosObjetos = novoAmbiente.equipamentos.map((id) => {
+      const eqOriginal = equipamentosDisponiveis.find((e) => e.id === id);
+      return { ...eqOriginal, ligado: false }; // Default desligado ao criar/editar via modal simples
+    });
+
     if (modoModal === "CRIAR") {
       const novo = {
         id: ambientes.length + 1,
@@ -167,7 +196,7 @@ const Dashboard = () => {
         temperatura: 25,
         potencia: 0,
         status: novoAmbiente.status,
-        equipamentos: novoAmbiente.equipamentos,
+        equipamentos: equipamentosObjetos,
       };
 
       setAmbientes([...ambientes, novo]);
@@ -182,7 +211,7 @@ const Dashboard = () => {
                 nome: novoAmbiente.nome,
                 tipo: novoAmbiente.tipo,
                 status: novoAmbiente.status,
-                equipamentos: novoAmbiente.equipamentos,
+                equipamentos: equipamentosObjetos,
               }
             : a,
         ),
@@ -201,6 +230,8 @@ const Dashboard = () => {
   
   function getTextoStatus(ambiente) {
     const status = ambiente.status?.toUpperCase();
+    const total = ambiente.equipamentos?.length || 0;
+    const ligados = ambiente.equipamentos?.filter(e => e.ligado).length || 0;
 
     if (status === "MANUTENCAO") {
       return (
@@ -216,14 +247,14 @@ const Dashboard = () => {
     }
 
     if (status === "PARCIAL") {
-      return `🟡 Parcial • ${ambiente.equipamentosLigados} de ${ambiente.equipamentosTotal} ligados`;
+      return `🟡 Parcial • ${ligados} de ${total} ligados`;
     }
 
     if (status === "ONLINE") {
       return "🟢 Online • Todos ligados";
     }
 
-    return ambiente.status;
+    return status;
   }
 
   function podeControlar(ambiente) {
@@ -341,16 +372,45 @@ const Dashboard = () => {
                 <div>
                   <h3 className="ambiente-nome">{ambiente.nome}</h3>
 
-                  {ambiente.equipamentosTotal > 0 && (
+                  {ambiente.equipamentos?.length > 0 && (
                     <p className="ambiente-equipamentos">
-                      {ambiente.equipamentosTotal}{" "}
-                      {ambiente.equipamentosTotal === 1 ? "equipamento" : "equipamentos"}
+                      {ambiente.equipamentos.length}{" "}
+                      {ambiente.equipamentos.length === 1 ? "equipamento" : "equipamentos"}
                     </p>
                   )}
 
                   <span className={`status ${ambiente.status?.toLowerCase() || ""}`}>
                     {getTextoStatus(ambiente)}
                   </span>
+
+                  <div className="ambiente-pausa">
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={ambiente.pausado}
+                        onChange={() =>
+                          setAmbientes((prev) =>
+                            prev.map((a) =>
+                              a.id === ambiente.id
+                                ? { ...a, pausado: !a.pausado }
+                                : a
+                            )
+                          )
+                        }
+                      />
+                      <span className="slider" />
+                    </label>
+
+                    <span className="ambiente-pausa-texto">
+                      {ambiente.pausado ? "Ambiente pausado" : "Ambiente ativo"}
+                    </span>
+                  </div>
+
+                  {ambiente.pausado && (
+                    <p className="ambiente-pausado-info">
+                      ⏸ Automações deste ambiente estão pausadas
+                    </p>
+                  )}
                 </div>
 
                 <button
@@ -384,7 +444,7 @@ const Dashboard = () => {
 
               <button
                 className="btn-controlar"
-                disabled={!podeControlar(ambiente)}
+                disabled={!podeControlar(ambiente) || ambiente.pausado}
                 onClick={() => handleControlar(ambiente)}
                 title={
                   ambiente.status?.toUpperCase() === "OFFLINE"
