@@ -419,8 +419,46 @@ const Automacoes = () => {
         </div>
       </div>
 
+      {(ambienteAtivo.status === "OFFLINE" ||
+        ambienteAtivo.status === "MANUTENCAO") && (
+        <div className="alerta-ambiente">
+          <strong>Automações indisponíveis</strong>
+          <p>
+            {ambienteAtivo.status === "OFFLINE"
+              ? "O ambiente está offline e não pode executar automações."
+              : "O ambiente está em manutenção e as automações estão bloqueadas."}
+          </p>
+        </div>
+      )}
+
       {/* LISTA */}
       <div className="automacoes-list">
+        {automacoes.filter((a) => {
+          // filtro por status
+          if (filtroStatus !== "TODAS" && a.status !== filtroStatus) {
+            return false;
+          }
+
+          // filtro por perfil
+          const perfil =
+            identificarPerfilAutomacao(a)?.perfil || "Automação Personalizada";
+
+          if (filtroPerfil !== "TODOS" && perfil !== filtroPerfil) {
+            return false;
+          }
+
+          return true;
+        }).length === 0 && (
+          <div className="empty-state">
+            <h3>Nenhuma automação encontrada</h3>
+            <p>
+              {filtroStatus !== "TODAS" || filtroPerfil !== "TODOS"
+                ? "Tente ajustar os filtros ou criar uma nova automação."
+                : "Crie sua primeira automação para este ambiente."}
+            </p>
+          </div>
+        )}
+
         {automacoes
           .filter((a) => {
             // filtro por status
