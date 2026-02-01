@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import { useLanguage } from "../../context/LanguageContext";
+import { listarAmbientes } from "../../services/ambientesServices";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -11,72 +12,13 @@ const Dashboard = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const [ambientes, setAmbientes] = useState([
-    {
-      id: 1,
-      nome: "Escritório Gerência",
-      tipo: "Escritório",
-      status: "ONLINE",
-      pausado: false,
-      temperatura: 22,
-      potencia: 10.5,
-      equipamentos: [
-        { id: 1, nome: "Samsung 1", ligado: true },
-        { id: 2, nome: "Samsung 2", ligado: true },
-        { id: 3, nome: "Samsung 3", ligado: true },
-        { id: 4, nome: "Samsung 4", ligado: true },
-        { id: 5, nome: "Samsung 5", ligado: true }
-      ],
-      ultimaAtualizacao: "2026-01-31T14:20:00"
-    },
-    {
-      id: 2,
-      nome: "Sala de Reuniões A",
-      tipo: "Sala",
-      status: "PARCIAL",
-      pausado: false,
-      temperatura: 23,
-      potencia: 4.2,
-      equipamentos: [
-        { id: 6, nome: "Samsung 6", ligado: true },
-        { id: 7, nome: "Samsung 7", ligado: false },
-        { id: 8, nome: "Samsung 8", ligado: false }
-      ],
-      ultimaAtualizacao: "2026-01-31T13:50:00"
-    },
-    {
-      id: 3,
-      nome: "Sala de Reuniões B",
-      tipo: "Sala",
-      status: "OFFLINE",
-      pausado: false,
-      temperatura: 27,
-      potencia: 0,
-      equipamentos: [
-        { id: 9, nome: "Samsung 9", ligado: false },
-        { id: 10, nome: "Samsung 10", ligado: false }
-      ]
-    },
-    {
-      id: 4,
-      nome: "Auditório Principal",
-      tipo: "Auditório",
-      status: "MANUTENCAO",
-      pausado: false,
-      temperatura: 24,
-      potencia: 0,
-      equipamentos: [
-        { id: 11, nome: "Samsung 11", ligado: false },
-        { id: 12, nome: "Samsung 12", ligado: false },
-        { id: 13, nome: "Samsung 13", ligado: false },
-        { id: 14, nome: "Samsung 14", ligado: false },
-        { id: 15, nome: "Samsung 15", ligado: false },
-        { id: 16, nome: "Samsung 16", ligado: false },
-        { id: 17, nome: "Samsung 17", ligado: false },
-        { id: 18, nome: "Samsung 18", ligado: false }
-      ]
-    }
-  ]);
+  const [ambientes, setAmbientes] = useState([]);
+
+  useEffect(() => {
+    listarAmbientes().then((dados) => {
+      setAmbientes(dados);
+    });
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [erroModal, setErroModal] = useState("");

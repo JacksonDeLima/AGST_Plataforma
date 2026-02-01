@@ -77,6 +77,17 @@ const estadoInicialAutomacao = {
 /* =========================
    HELPERS
 ========================= */
+const PRIORIDADE_AUTOMACAO = {
+  INATIVIDADE: 1,
+  NOTURNA: 2,
+  HORARIO: 3,
+  PERSONALIZADA: 4,
+};
+
+function getPrioridade(automacao) {
+  return PRIORIDADE_AUTOMACAO[automacao.tipo] || 99;
+}
+
 const gerarRegraAutomacao = (dados) => {
   switch (dados.tipo) {
     case "HORARIO":
@@ -330,6 +341,9 @@ const Automacoes = () => {
   const automacaoExecutando = automacoes.find(
     (a) => a.tipo === "INATIVIDADE" && a.status === "ATIVA"
   );
+  const automacaoExecutando = automacoes
+    .filter((a) => a.status === "ATIVA")
+    .sort((a, b) => getPrioridade(a) - getPrioridade(b))[0];
 
   if (loading) {
     return <div className="automacoes-page">Carregando...</div>;
