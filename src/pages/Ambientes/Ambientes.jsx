@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import { useLanguage } from "../../context/LanguageContext";
 import { listarAmbientes } from "../../services/ambientesServices";
-import "./Dashboard.css";
+import "./Ambientes.css";
 
-const Dashboard = () => {
+const Ambientes = () => {
   const [statusFiltro, setStatusFiltro] = useState("TODOS");
 
   const { t } = useLanguage();
@@ -490,4 +490,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Ambientes;
