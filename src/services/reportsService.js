@@ -66,3 +66,45 @@ export async function getUsersByCorporation() {
 
   return result;
 }
+
+export async function getEnergyConsumptionReport() {
+  // 👉 Estrutura pensada para API real
+  return {
+    summary: {
+      totalKwh: 1680,
+      avgPerDevice: 210,
+      avgEfficiency: 1.45,
+      outOfScheduleDevices: 3,
+    },
+
+    timeline: [
+      { date: "01/09", kwh: 210 },
+      { date: "02/09", kwh: 230 },
+      { date: "03/09", kwh: 250 },
+      { date: "04/09", kwh: 310 },
+      { date: "05/09", kwh: 280 },
+      { date: "06/09", kwh: 200 },
+    ],
+
+    byDevice: [
+      { name: "AC Sala", kwh: 420, efficiency: 1.9 },
+      { name: "AC Escritório", kwh: 380, efficiency: 1.4 },
+      { name: "AC Reunião", kwh: 290, efficiency: 1.1 },
+      { name: "AC Recepção", kwh: 240, efficiency: 1.0 },
+      { name: "Servidor", kwh: 350, efficiency: 2.2 },
+    ],
+
+    byEnvironment: [
+      { name: "Sala", value: 420 },
+      { name: "Escritório", value: 380 },
+      { name: "Reunião", value: 290 },
+      { name: "Recepção", value: 240 },
+      { name: "Infraestrutura", value: 350 },
+    ],
+
+    alerts: [
+      { device: "AC Sala", type: "Fora do horário" },
+      { device: "Servidor", type: "Consumo elevado contínuo" },
+    ],
+  };
+}
