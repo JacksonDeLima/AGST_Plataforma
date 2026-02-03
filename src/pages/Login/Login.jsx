@@ -7,12 +7,9 @@ import { useAuth } from "../../context/AuthContext.jsx";
 
 import {
   resolveAuthMode,
-  loginUser,
   bootstrapOAuthSession,
   redirectToAuthorize,
   logAuthSnapshot,
-  getStoredTokens,
-  validateToken,
 } from "../../services/authService";
 
 const DEBUG_AUTH =
@@ -21,7 +18,7 @@ const DEBUG_AUTH =
 export default function Login() {
   const navigate = useNavigate();
   const mode = useMemo(() => resolveAuthMode(), []);
-  const { loginWithPassword, bootstrap: authBootstrap } = useAuth();
+  const { loginWithPassword } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -269,4 +266,6 @@ export default function Login() {
     </div>
   );
 }
+
+
 
