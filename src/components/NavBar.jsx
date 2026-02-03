@@ -1,6 +1,7 @@
 ﻿// src/components/NavBar.jsx
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ChevronDown,
   MapPin,
@@ -301,6 +302,25 @@ const NavBar = () => {
   const [deletePass, setDeletePass] = useState("");
 
   const [actionLoading, setActionLoading] = useState(false);
+
+  const portalRoot = typeof document !== "undefined" ? document.body : null;
+
+  const anyWsModalOpen =
+    showAddCorp || modalForgot || modalProfile || modalChangePass || modalDelete;
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const className = "ws-modal-open";
+    if (anyWsModalOpen) {
+      document.body.classList.add(className);
+    } else {
+      document.body.classList.remove(className);
+    }
+
+    return () => {
+      document.body.classList.remove(className);
+    };
+  }, [anyWsModalOpen]);
 
   // manter valores sync com user
   useEffect(() => {
@@ -755,7 +775,7 @@ const NavBar = () => {
       {/* ============================
           ===== Modal Criar Corp =====
           ============================ */}
-      {showAddCorp && (
+      {showAddCorp && portalRoot && createPortal(
         <div
           className="ws-modal-overlay"
           onClick={handleCloseAdd}
@@ -829,12 +849,14 @@ const NavBar = () => {
             </div>
           </div>
         </div>
-      )}
+      , portalRoot)}
 
       {/* ============================
           ===== Modais do usuÃ¡rio ====
           ============================ */}
-      {(modalForgot || modalProfile || modalChangePass || modalDelete) && (
+      {(modalForgot || modalProfile || modalChangePass || modalDelete) &&
+        portalRoot &&
+        createPortal(
         <div
           className="ws-modal-overlay"
           onClick={closeAllModals}
@@ -1004,7 +1026,7 @@ const NavBar = () => {
             </div>
           </div>
         </div>
-      )}
+      , portalRoot)}
     </aside>
   );
 };

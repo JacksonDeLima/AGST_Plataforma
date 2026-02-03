@@ -354,7 +354,7 @@
   align-items: center;
   justify-content: center;
   padding: 18px;
-  z-index: 999;
+  z-index: 9999;
 }
 
 .ws-modal {
@@ -364,6 +364,8 @@
   border: 1px solid var(--border-subtle, rgba(148, 163, 184, 0.35));
   box-shadow: 0 40px 80px rgba(2, 6, 23, 0.45);
   overflow: hidden;
+  position: relative;
+  z-index: 10000;
 }
 
 .ws-modal-head {

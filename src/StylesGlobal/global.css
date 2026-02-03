@@ -640,6 +640,14 @@ body {
   color: var(--text-main);
 }
 
+body.ws-modal-open {
+  overflow: hidden;
+}
+
+body.ws-modal-open .app-main {
+  pointer-events: none;
+}
+
 /* ===========================
    Layout principal (Auth)
    =========================== */
