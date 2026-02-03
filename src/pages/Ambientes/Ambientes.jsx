@@ -258,13 +258,7 @@ const Ambientes = () => {
       {/* <NavBar /> */}
 
       <main className="main-content">
-        <button
-          className="btn-secondary"
-          style={{ marginBottom: "20px" }}
-          onClick={() => navigate(-1)}
-        >
-          ← Voltar
-        </button>
+      
         <header className="page-header">
           <div>
             <h1>Ambientes</h1>
