@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import "./GerirUsuarios.css";
 import { API_BASE_URL } from "../../config/apiConfig";
 
@@ -62,6 +63,7 @@ function formatDateBR(iso) {
 }
 
 const GerirUsuarios = () => {
+  const navigate = useNavigate();
   const [busca, setBusca] = useState("");
 
   // ✅ Workspace do NavBar
@@ -443,6 +445,13 @@ const GerirUsuarios = () => {
     <div className="app">
       <div className="main-content">
         <div className="gerir-usuarios-page">
+          <button
+            className="btn-secondary"
+            style={{ marginBottom: "20px" }}
+            onClick={() => navigate(-1)}
+          >
+            ← Voltar
+          </button>
           {/* HEADER */}
           <div className="page-header">
             <div className="header-left">

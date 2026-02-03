@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { useAuth } from "../context/AuthContext.jsx";
+﻿import { useEffect } from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute({ children }) {
   const { status, mode, beginOAuth } = useAuth();
@@ -8,18 +8,26 @@ export default function ProtectedRoute({ children }) {
 
   useEffect(() => {
     if (mode === "oauth" && status === "unauthed") {
-      const target = `${location.pathname}${location.search || ""}${location.hash || ""}`;
+      const target =
+        location.pathname +
+        location.search +
+        location.hash;
+
       beginOAuth({ redirectAfterLogin: target });
     }
-  }, [mode, status, beginOAuth, location.pathname, location.search, location.hash]);
+  }, [mode, status]);
 
+  // Regra de ouro: nao decide nada enquanto estiver carregando
   if (status === "loading") {
-    return <div style={{ padding: 24 }}>Carregando sessão...</div>;
+    return (
+      <div style={{ padding: 24 }}>
+        Restaurando sessao...
+      </div>
+    );
   }
 
   if (status !== "authed") {
-    // no oauth, o effect acima dispara o redirect automático
-    return <div style={{ padding: 24 }}>Redirecionando para login...</div>;
+    return <Navigate to="/login" replace />;
   }
 
   return children;

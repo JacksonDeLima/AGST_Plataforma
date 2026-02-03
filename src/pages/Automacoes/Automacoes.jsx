@@ -14,6 +14,33 @@ import {
 
 import { AUTOMACAO_TEMPLATES } from "../../constants/automacaoTemplates";
 
+const MOCK_AMBIENTES = [
+  {
+    id: 1,
+    nome: "Escritório Gerência",
+    status: "ONLINE",
+    pausado: false,
+  },
+  {
+    id: 2,
+    nome: "Sala de Reuniões A",
+    status: "PARCIAL",
+    pausado: false,
+  },
+  {
+    id: 3,
+    nome: "Sala de Reuniões B",
+    status: "OFFLINE",
+    pausado: false,
+  },
+  {
+    id: 4,
+    nome: "Auditório Principal",
+    status: "MANUTENCAO",
+    pausado: false,
+  },
+];
+
 /* =========================
    CONSTANTES
 ========================= */
@@ -50,13 +77,33 @@ const estadoInicialAutomacao = {
 /* =========================
    HELPERS
 ========================= */
+const PRIORIDADE_AUTOMACAO = {
+  INATIVIDADE: 1,
+  NOTURNA: 2,
+  HORARIO: 3,
+  PERSONALIZADA: 4,
+};
+
+function getPrioridade(automacao) {
+  return PRIORIDADE_AUTOMACAO[automacao.tipo] || 99;
+}
+
 const gerarRegraAutomacao = (dados) => {
-  if (dados.tipo === "HORARIO") {
-    if (!dados.inicio || !dados.fim || !dados.dias.length) return "";
-    return `${dados.dias.join(", ")} · ${dados.inicio} → ${dados.fim}`;
+  switch (dados.tipo) {
+    case "HORARIO":
+      if (!dados.inicio || !dados.fim || !dados.dias.length) return "";
+      return `${dados.dias.join(", ")} · ${dados.inicio} → ${dados.fim}`;
+
+    case "OCUPACAO":
+      return dados.regra || "";
+
+    case "PERSONALIZADA":
+      // não define nada automaticamente
+      return dados.regra || "";
+
+    default:
+      return "";
   }
-  if (dados.tipo === "OCUPACAO") return dados.regra || "";
-  return "";
 };
 
 const calcularImpactoAutomacao = (equipamentos = []) => {
@@ -75,6 +122,10 @@ const atualizarRegra = (dados) => {
 const Automacoes = () => {
   const navigate = useNavigate();
 
+  const params = new URLSearchParams(window.location.search);
+  const ambienteId = Number(params.get("ambienteId"));
+  const ambienteAtivo = MOCK_AMBIENTES.find((a) => a.id === ambienteId);
+
   const [automacoes, setAutomacoes] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -89,6 +140,9 @@ const Automacoes = () => {
   const [novaAutomacao, setNovaAutomacao] = useState(estadoInicialAutomacao);
   const [filtroStatus, setFiltroStatus] = useState("TODAS");
   const [filtroPerfil, setFiltroPerfil] = useState("TODOS");
+
+  const ambientePausado = ambienteAtivo ? ambienteAtivo.pausado : false;
+  const isPersonalizada = novaAutomacao.tipo === "PERSONALIZADA";
 
   /* =========================
      BUSCAR AUTOMAÇÕES
@@ -166,7 +220,87 @@ const Automacoes = () => {
   /* =========================
      SALVAR
   ========================= */
+  function validarAutomacaoPersonalizada() {
+    // Mapeando para o estado atual (novaAutomacao)
+    const nomeAutomacao = novaAutomacao.ambiente;
+    const acaoSelecionada = novaAutomacao.equipamentos.length > 0;
+    const horarioInicio = novaAutomacao.inicio;
+    const diasSelecionados = novaAutomacao.dias;
+    const tempoInatividade = null; // Campo futuro
+
+    if (!nomeAutomacao || nomeAutomacao.trim() === "") {
+      alert("Informe um nome para a automação.");
+      return false;
+    }
+
+    if (!acaoSelecionada) {
+      alert("Selecione uma ação para a automação.");
+      return false;
+    }
+
+    const temCondicao =
+      horarioInicio || diasSelecionados?.length > 0 || tempoInatividade;
+
+    if (!temCondicao) {
+      alert("Defina pelo menos uma condição para a automação.");
+      return false;
+    }
+
+    return true;
+  }
+
+  function getStatusAutomacao(automacao, ambienteAtivo, automacaoExecutando) {
+    if (ambientePausado) {
+      return {
+        titulo: "Pausada",
+        descricao: "Automações pausadas manualmente",
+        tipo: "pausada"
+      };
+    }
+
+    // Ambiente em manutenção
+    if (ambienteAtivo.status === "MANUTENCAO") {
+      return {
+        titulo: "Bloqueada",
+        descricao: "Ambiente em manutenção",
+        tipo: "bloqueada"
+      };
+    }
+
+    // Ambiente offline
+    if (ambienteAtivo.status === "OFFLINE") {
+      return {
+        titulo: "Pausada",
+        descricao: "Ambiente offline",
+        tipo: "pausada"
+      };
+    }
+
+    // Automação que está mandando agora
+    if (automacao.id === automacaoExecutando?.id) {
+      return {
+        titulo: "Executando agora",
+        descricao: "",
+        tipo: "executando"
+      };
+    }
+
+    // Automação ativa, mas perdeu prioridade
+    return {
+      titulo: "Ativa, mas não executando",
+      descricao: automacaoExecutando
+        ? `Sobreposta por: ${automacaoExecutando.nome}`
+        : "Aguardando condição de maior prioridade",
+      tipo: "sobreposta"
+    };
+  }
+
   const salvarAutomacao = async () => {
+    if (novaAutomacao.tipo === "PERSONALIZADA") {
+      const valido = validarAutomacaoPersonalizada();
+      if (!valido) return;
+    }
+
     if (
       !novaAutomacao.tipo ||
       !novaAutomacao.ambiente ||
@@ -204,15 +338,56 @@ const Automacoes = () => {
     setPasso(0);
   };
 
+  const automacaoExecutando = automacoes
+    .filter((a) => a.status === "ATIVA")
+    .sort((a, b) => getPrioridade(a) - getPrioridade(b))[0];
+
   if (loading) {
-    return <div className="automacoes-page">Carregando...</div>;
+    return (
+      <div className="automacoes-page">
+        <div className="empty-state">
+          <h3>Carregando automações…</h3>
+          <p>Aguarde alguns instantes.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!ambienteAtivo) {
+    return (
+      <div className="automacoes-page">
+        <p>Ambiente não encontrado.</p>
+      </div>
+    );
   }
 
   return (
     <div className="automacoes-page">
+      <button
+        className="btn-secondary"
+        style={{ marginBottom: "20px" }}
+        onClick={() => navigate(-1)}
+      >
+        ← Voltar
+      </button>
       <header className="page-header">
         <div>
           <h1>Automações</h1>
+          <div className="ambiente-info-topo">
+            <h2 className="ambiente-nome-topo">{ambienteAtivo.nome}</h2>
+
+            <div className="ambiente-status-topo">
+              <span
+                className={`status-badge status-${ambienteAtivo.status.toLowerCase()}`}
+              >
+                {ambienteAtivo.status}
+              </span>
+
+              {ambienteAtivo.pausado && (
+                <span className="status-badge status-pausado">Pausado</span>
+              )}
+            </div>
+          </div>
           <p>Gerencie regras automáticas dos equipamentos</p>
         </div>
 
@@ -246,12 +421,51 @@ const Automacoes = () => {
             <option value="Automação Personalizada">
               Automação Personalizada
             </option>
+            <option value="PERSONALIZADA">Personalizada (Manual)</option>
           </select>
         </div>
       </div>
 
+      {(ambienteAtivo.status === "OFFLINE" ||
+        ambienteAtivo.status === "MANUTENCAO") && (
+        <div className="alerta-ambiente">
+          <strong>Automações indisponíveis</strong>
+          <p>
+            {ambienteAtivo.status === "OFFLINE"
+              ? "O ambiente está offline e não pode executar automações."
+              : "O ambiente está em manutenção e as automações estão bloqueadas."}
+          </p>
+        </div>
+      )}
+
       {/* LISTA */}
       <div className="automacoes-list">
+        {automacoes.filter((a) => {
+          // filtro por status
+          if (filtroStatus !== "TODAS" && a.status !== filtroStatus) {
+            return false;
+          }
+
+          // filtro por perfil
+          const perfil =
+            identificarPerfilAutomacao(a)?.perfil || "Automação Personalizada";
+
+          if (filtroPerfil !== "TODOS" && perfil !== filtroPerfil) {
+            return false;
+          }
+
+          return true;
+        }).length === 0 && (
+          <div className="empty-state">
+            <h3>Nenhuma automação encontrada</h3>
+            <p>
+              {filtroStatus !== "TODAS" || filtroPerfil !== "TODOS"
+                ? "Tente ajustar os filtros ou criar uma nova automação."
+                : "Crie sua primeira automação para este ambiente."}
+            </p>
+          </div>
+        )}
+
         {automacoes
           .filter((a) => {
             // filtro por status
@@ -279,6 +493,8 @@ const Automacoes = () => {
               "Automação configurada manualmente.";
 
             const economia = estimarEconomiaAutomacao(a);
+            
+            const statusInfo = getStatusAutomacao(a, ambienteAtivo, automacaoExecutando);
 
             return (
               <div className="automacao-card" key={a.id}>
@@ -303,8 +519,9 @@ const Automacoes = () => {
                   <label className="switch">
                     <input
                       type="checkbox"
-                      checked={a.status === "ATIVA"}
+                      checked={!ambientePausado && a.status === "ATIVA"}
                       onChange={() => alternarStatus(a)}
+                      disabled={ambientePausado}
                     />
                     <span className="slider" />
                   </label>
@@ -313,6 +530,16 @@ const Automacoes = () => {
                 <h3 className="automacao-nome">{gerarNomeAutomacao(a)}</h3>
                 <p className="automacao-descricao">{descricaoPerfil}</p>
                 <p className="automacao-regra">{a.regra}</p>
+
+                <div className={`status-automacao ${statusInfo.tipo}`}>
+                  <strong>
+                    {statusInfo.tipo === "executando" && "⚡ "}
+                    {statusInfo.titulo}
+                  </strong>
+                  {statusInfo.descricao && (
+                    <div className="status-descricao">{statusInfo.descricao}</div>
+                  )}
+                </div>
 
                 {economia?.kwh > 0 && (
                   <div className="automacao-economia">
@@ -391,6 +618,25 @@ const Automacoes = () => {
                         <p>{tpl.descricao}</p>
                       </div>
                     ))}
+
+                    <div
+                      className={`template-card ${
+                        novaAutomacao.tipo === "PERSONALIZADA" ? "selecionado" : ""
+                      }`}
+                      onClick={() =>
+                        setNovaAutomacao({
+                          ...estadoInicialAutomacao,
+                          templateId: "personalizada",
+                          tipo: "PERSONALIZADA",
+                        })
+                      }
+                    >
+                      <h4>Personalizada (Manual)</h4>
+                      <p>
+                        Crie uma automação totalmente personalizada, definindo horários,
+                        dias e configurações manualmente.
+                      </p>
+                    </div>
                   </div>
                 </>
               )}
