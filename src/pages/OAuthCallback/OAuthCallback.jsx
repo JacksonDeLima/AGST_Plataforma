@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+﻿import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 
@@ -26,18 +26,18 @@ export default function OAuthCallback() {
         setMsg("Trocando code por tokens...");
         await exchangeCodeForTokens({ code, state });
 
-        setMsg("Validando sessão...");
+        setMsg("Validando sessÃ£o...");
         const b = await bootstrap();
 
         if (!alive) return;
 
         if (b?.ok) {
-          // tenta respeitar redirect salvo, senão /dashboard
-          const post = sessionStorage.getItem("post_auth_redirect") || "/dashboard";
+          // tenta respeitar redirect salvo, senÃ£o /ambientes
+          const post = sessionStorage.getItem("post_auth_redirect") || "/ambientes";
           sessionStorage.removeItem("post_auth_redirect");
           navigate(post, { replace: true });
         } else {
-          setMsg("Não foi possível validar a sessão após o login.");
+          setMsg("NÃ£o foi possÃ­vel validar a sessÃ£o apÃ³s o login.");
           navigate("/login", { replace: true });
         }
       } catch (e) {
@@ -60,3 +60,4 @@ export default function OAuthCallback() {
     </div>
   );
 }
+

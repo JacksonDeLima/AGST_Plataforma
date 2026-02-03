@@ -1,4 +1,4 @@
-import React, {
+﻿import React, {
   createContext,
   useCallback,
   useContext,
@@ -15,7 +15,7 @@ const LS_ACCESS = "access_token";
 const LS_REFRESH = "refresh_token";
 const LS_CORP_ID = "corporation_id";
 
-// 🔧 liga/desliga logs
+// ðŸ”§ liga/desliga logs
 const DEBUG_AUTH =
   String(import.meta.env.VITE_DEBUG_AUTH || "").toLowerCase() === "true";
 
@@ -35,8 +35,8 @@ function authGroup(title, fn) {
 function maskToken(t = "") {
   const s = String(t || "");
   if (!s) return "";
-  if (s.length <= 18) return `${s.slice(0, 6)}…${s.slice(-4)}`;
-  return `${s.slice(0, 10)}…${s.slice(-6)}`;
+  if (s.length <= 18) return `${s.slice(0, 6)}â€¦${s.slice(-4)}`;
+  return `${s.slice(0, 10)}â€¦${s.slice(-6)}`;
 }
 
 function now() {
@@ -109,7 +109,7 @@ const OAUTH_CLIENT_ID = import.meta.env.VITE_OAUTH_CLIENT_ID || "Brise2Web";
 const OAUTH_AUTHORIZE_PATH = import.meta.env.VITE_OAUTH_AUTHORIZE_PATH || "/oauth/authorize";
 const OAUTH_TOKEN_PATH = import.meta.env.VITE_OAUTH_TOKEN_PATH || "/oauth/token";
 
-// se não setar no .env, usamos runtime: window.location.origin + "/oauth/callback"
+// se nÃ£o setar no .env, usamos runtime: window.location.origin + "/oauth/callback"
 const ENV_REDIRECT_URI = import.meta.env.VITE_OAUTH_REDIRECT_URI || "";
 
 const SS_OAUTH_REDIRECT_AT = "oauth_redirect_at";
@@ -167,31 +167,31 @@ function getRedirectUri() {
 }
 
 async function startOAuthRedirect({ redirectAfterLogin } = {}) {
-  groupCollapsed("➡️ [OAuth PKCE] startOAuthRedirect()", () => {
+  groupCollapsed("âž¡ï¸ [OAuth PKCE] startOAuthRedirect()", () => {
     console.log("time:", now());
     console.log("url(before):", urlSnap());
     console.log("storage(before):", storageSnap());
-    console.log("redirectAfterLogin:", redirectAfterLogin || "(não informado)");
+    console.log("redirectAfterLogin:", redirectAfterLogin || "(nÃ£o informado)");
     console.log("redirect_uri:", getRedirectUri());
   });
 
   const redirect_uri = getRedirectUri();
 
-  // guarda a rota que o usuário queria abrir
+  // guarda a rota que o usuÃ¡rio queria abrir
   if (redirectAfterLogin) {
     sessionStorage.setItem(SS_POST_AUTH_REDIRECT, String(redirectAfterLogin));
   } else if (!sessionStorage.getItem(SS_POST_AUTH_REDIRECT)) {
-    sessionStorage.setItem(SS_POST_AUTH_REDIRECT, "/dashboard");
+    sessionStorage.setItem(SS_POST_AUTH_REDIRECT, "/ambientes");
   }
 
   const state = generateState();
   const verifier = generateVerifier();
   const challenge = await sha256Base64Url(verifier);
 
-  groupCollapsed("🔐 [OAuth PKCE] generated values", () => {
+  groupCollapsed("ðŸ” [OAuth PKCE] generated values", () => {
     console.log("state:", state);
-    console.log("verifier_prefix:", verifier.slice(0, 10) + "…");
-    console.log("challenge_prefix:", String(challenge).slice(0, 10) + "…");
+    console.log("verifier_prefix:", verifier.slice(0, 10) + "â€¦");
+    console.log("challenge_prefix:", String(challenge).slice(0, 10) + "â€¦");
     console.log("storage(after_gen):", storageSnap());
   });
 
@@ -205,7 +205,7 @@ async function startOAuthRedirect({ redirectAfterLogin } = {}) {
   });
 
   const url = `${buildApiUrl(OAUTH_AUTHORIZE_PATH)}?${qs.toString()}`;
-  authLog("➡️ [OAuth PKCE] authorize URL:", url);
+  authLog("âž¡ï¸ [OAuth PKCE] authorize URL:", url);
 
   safeRedirect(url);
 }
@@ -294,7 +294,7 @@ async function apiRequest(path, { method = "GET", body, accessToken } = {}) {
 
   const t0 = performance.now();
   if (DEBUG_AUTH) {
-    console.log("📡 [apiRequest] ->", {
+    console.log("ðŸ“¡ [apiRequest] ->", {
       method,
       url,
       hasAuth: !!accessToken,
@@ -318,7 +318,7 @@ async function apiRequest(path, { method = "GET", body, accessToken } = {}) {
     data = rawText || null;
   }
 
-  if (DEBUG_AUTH) console.log(`📥 [apiRequest] <- ${res.status} (${ms}ms)`, data);
+  if (DEBUG_AUTH) console.log(`ðŸ“¥ [apiRequest] <- ${res.status} (${ms}ms)`, data);
 
   if (!res.ok) {
     const err = new Error(
@@ -358,7 +358,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!DEBUG_AUTH) return;
 
-    groupCollapsed("🧪 [Auth DEBUG] ENV + URL + STORAGE (mount)", () => {
+    groupCollapsed("ðŸ§ª [Auth DEBUG] ENV + URL + STORAGE (mount)", () => {
       console.log("time:", now());
       console.log("env:", logEnvSnap());
       console.log("url:", urlSnap());
@@ -368,7 +368,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (!DEBUG_AUTH) return;
-    authLog("🧭 [Auth] snapshot:", {
+    authLog("ðŸ§­ [Auth] snapshot:", {
       mode,
       status,
       isAuthenticated,
@@ -394,7 +394,7 @@ export function AuthProvider({ children }) {
   ]);
 
   const logout = useCallback(() => {
-    authGroup("🚪 [Auth] logout()", () => {
+    authGroup("ðŸšª [Auth] logout()", () => {
       clearTokens();
       storeCorpId("");
       sessionStorage.removeItem(SS_POST_AUTH_REDIRECT);
@@ -464,7 +464,7 @@ export function AuthProvider({ children }) {
   }, [corporations, corporationId]);
 
   const setActiveCorporation = useCallback(async (id) => {
-    return authGroup("🔁 [Auth] setActiveCorporation()", async () => {
+    return authGroup("ðŸ” [Auth] setActiveCorporation()", async () => {
       const cid = String(id || "");
       setCorporationId(cid);
       storeCorpId(cid);
@@ -486,7 +486,7 @@ export function AuthProvider({ children }) {
       } catch (e) {
         if (e?.status === 403 || e?.status === 404) {
           console.warn(
-            `[Auth] Sem permissão/sem detalhe em /corporations/${cid} (HTTP ${e?.status}). Seguindo com dados do /corporations.`
+            `[Auth] Sem permissÃ£o/sem detalhe em /corporations/${cid} (HTTP ${e?.status}). Seguindo com dados do /corporations.`
           );
           return { ok: true, limited: true };
         }
@@ -532,9 +532,9 @@ export function AuthProvider({ children }) {
     [loadMe, loadCorporations, setActiveCorporation]
   );
 
-  // ✅ troca code -> token (PKCE)
+  // âœ… troca code -> token (PKCE)
   const exchangeCodeForTokens = useCallback(async ({ code, state }) => {
-    return authGroup("🧩 [OAuth] exchangeCodeForTokens()", async () => {
+    return authGroup("ðŸ§© [OAuth] exchangeCodeForTokens()", async () => {
       const redirect_uri = getRedirectUri();
       const expectedState = sessionStorage.getItem(SS_OAUTH_STATE) || "";
       const verifier = sessionStorage.getItem(SS_PKCE_VERIFIER) || "";
@@ -565,18 +565,18 @@ export function AuthProvider({ children }) {
       setAccessToken(at);
       setRefreshToken(rt);
 
-      // limpa temporários
+      // limpa temporÃ¡rios
       sessionStorage.removeItem(SS_PKCE_VERIFIER);
       sessionStorage.removeItem(SS_OAUTH_STATE);
 
-      authLog("✅ tokens recebidos:", { access: maskToken(at), refresh: maskToken(rt) });
+      authLog("âœ… tokens recebidos:", { access: maskToken(at), refresh: maskToken(rt) });
       return { ok: true, token };
     });
   }, []);
 
-  // ✅ refresh token (sem redirect)
+  // âœ… refresh token (sem redirect)
   const refreshSession = useCallback(async () => {
-    return authGroup("🔁 [OAuth] refreshSession()", async () => {
+    return authGroup("ðŸ” [OAuth] refreshSession()", async () => {
       const { refreshToken: rt } = getStoredTokens();
       if (!rt) return { ok: false, reason: "NO_REFRESH_TOKEN" };
 
@@ -595,14 +595,14 @@ export function AuthProvider({ children }) {
       setAccessToken(at);
       setRefreshToken(newRt);
 
-      authLog("✅ refresh ok:", { access: maskToken(at), refresh: maskToken(newRt) });
+      authLog("âœ… refresh ok:", { access: maskToken(at), refresh: maskToken(newRt) });
       return { ok: true };
     });
   }, []);
 
-  // ✅ BOOTSTRAP: valida token, carrega user e corp, se falhar tenta refresh (oauth)
+  // âœ… BOOTSTRAP: valida token, carrega user e corp, se falhar tenta refresh (oauth)
   const bootstrap = useCallback(async () => {
-    return authGroup("♻️ [Auth] bootstrap()", async () => {
+    return authGroup("â™»ï¸ [Auth] bootstrap()", async () => {
       setError("");
 
       const { accessToken: at, refreshToken: rt } = getStoredTokens();
@@ -627,7 +627,7 @@ export function AuthProvider({ children }) {
         setStatus("authed");
         return { ok: true };
       } catch (e) {
-        authLog("❌ validate-token falhou:", e?.status, e?.data || e?.message);
+        authLog("âŒ validate-token falhou:", e?.status, e?.data || e?.message);
 
         // no oauth, tenta refresh antes de derrubar
         if (mode === "oauth" && rt) {
@@ -649,11 +649,11 @@ export function AuthProvider({ children }) {
               return { ok: true, refreshed: true };
             }
           } catch (refreshErr) {
-            authLog("❌ refresh falhou:", refreshErr?.status, refreshErr?.data || refreshErr?.message);
+            authLog("âŒ refresh falhou:", refreshErr?.status, refreshErr?.data || refreshErr?.message);
           }
         }
 
-        // se não deu, derruba sessão
+        // se nÃ£o deu, derruba sessÃ£o
         clearTokens();
         setAccessToken("");
         setRefreshToken("");
@@ -672,7 +672,7 @@ export function AuthProvider({ children }) {
     bootstrap();
   }, [bootstrap]);
 
-  // ✅ disparo automático do OAuth quando necessário (usado pelos guards)
+  // âœ… disparo automÃ¡tico do OAuth quando necessÃ¡rio (usado pelos guards)
   const beginOAuth = useCallback(async ({ redirectAfterLogin } = {}) => {
     await startOAuthRedirect({ redirectAfterLogin });
   }, []);
@@ -729,3 +729,4 @@ export function useAuth() {
   if (!ctx) throw new Error("useAuth deve ser usado dentro de <AuthProvider />");
   return ctx;
 }
+

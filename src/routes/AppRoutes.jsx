@@ -1,11 +1,11 @@
-import { Routes, Route } from "react-router-dom";
+﻿import { Routes, Route } from "react-router-dom";
 
 import DetalhesAutomacao from "../pages/Automacoes/DetalhesAutomacao";
 import HistoricoAutomacao from "../pages/Automacoes/HistoricoAutomacao";
 import CriarAutomacao from "../pages/Automacoes/CriarAutomacao";
 
 import Login from "../pages/Login/Login";
-import Dashboard from "../pages/Dashboard/Dashboard";
+import Dashboard from "../pages/Ambientes/Ambientes";
 import Equipamentos from "../pages/Equipamentos/Equipamentos";
 import EsqueciSenha from "../pages/EsqueciSenha/EsqueciSenha";
 import RedefinirSenha from "../pages/RedefinirSenha/index";
@@ -29,10 +29,10 @@ import OAuthCallback from "../pages/OAuthCallback/OAuthCallback";
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* ===== Callback OAuth (pública) ===== */}
+      {/* ===== Callback OAuth (pÃºblica) ===== */}
       <Route path="/oauth/callback" element={<OAuthCallback />} />
 
-      {/* ===== Rotas públicas ===== */}
+      {/* ===== Rotas pÃºblicas ===== */}
       <Route
         path="/"
         element={
@@ -67,7 +67,7 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       >
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/ambientes" element={<Dashboard />} />
         <Route path="/equipamentos" element={<Equipamentos />} />
         <Route path="/automacoes" element={<Automacoes />} />
         <Route path="/automacoes/:id" element={<DetalhesAutomacao />} />
@@ -81,7 +81,10 @@ export default function AppRoutes() {
         <Route path="/configuracoes" element={<Configuracoes />} />
       </Route>
 
-      <Route path="*" element={<h1>404 - Página não encontrada</h1>} />
+      <Route path="*" element={<h1>404 - PÃ¡gina nÃ£o encontrada</h1>} />
     </Routes>
   );
 }
+
+
+

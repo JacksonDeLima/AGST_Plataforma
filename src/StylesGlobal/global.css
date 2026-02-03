@@ -1,5 +1,5 @@
-/* ===========================
-   Design Tokens / Variáveis
+﻿/* ===========================
+   Design Tokens / VariÃ¡veis
    =========================== */
 
 :root {
@@ -623,7 +623,7 @@ html[data-theme="dark"] .auth-form label {
   background: linear-gradient(135deg, #1e3a5f, #2d4a6f);
 }
 
-/* Reset básico */
+/* Reset bÃ¡sico */
 *,
 *::before,
 *::after {
@@ -667,7 +667,7 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-/* Lado esquerdo - brand / informações */
+/* Lado esquerdo - brand / informaÃ§Ãµes */
 
 .auth-brand,
 .register-brand {
@@ -678,7 +678,7 @@ body {
   justify-content: center;
 }
 
-/* Logo/ícone genérico */
+/* Logo/Ã­cone genÃ©rico */
 
 .login-logo {
   margin-bottom: 14px;
@@ -731,7 +731,7 @@ body {
   color: var(--text-soft);
 }
 
-/* Lado direito - box de conteúdo (forms, mensagens, etc.) */
+/* Lado direito - box de conteÃºdo (forms, mensagens, etc.) */
 
 .auth-box,
 .register-box {
@@ -743,7 +743,7 @@ body {
   border-left: 1px solid rgba(226, 232, 240, 0.9);
 }
 
-/* Cabeçalho do conteúdo */
+/* CabeÃ§alho do conteÃºdo */
 
 .auth-header,
 .register-header {
@@ -788,7 +788,7 @@ body {
 }
 
 /* ===========================
-   Formulário / Inputs
+   FormulÃ¡rio / Inputs
    =========================== */
 
 .auth-form,
@@ -947,10 +947,10 @@ body {
 }
 
 /* ===========================
-   Botões
+   BotÃµes
    =========================== */
 
-/* Botão Register (Auth) */
+/* BotÃ£o Register (Auth) */
 .register-button {
   margin-top: 4px;
   width: 100%;
@@ -991,7 +991,7 @@ body {
   box-shadow: none;
 }
 
-/* Botões Padrão Sistema (Automações/Dashboard) */
+/* BotÃµes PadrÃ£o Sistema (AutomaÃ§Ãµes/ambientes) */
 .btn-primary {
   background-color: #0ea5e9;
   color: white;
@@ -1041,7 +1041,7 @@ body {
   width: 100%;
 }
 
-/* Botão de link (secundário) */
+/* BotÃ£o de link (secundÃ¡rio) */
 
 .link-button {
   border: none;
@@ -1087,7 +1087,7 @@ body {
 }
 
 /* ===========================
-   Links / rodapé / textos auxiliares
+   Links / rodapÃ© / textos auxiliares
    =========================== */
 
 .auth-login-link,
@@ -1110,10 +1110,10 @@ body {
 }
 
 /* ===========================
-   Estados e variações específicas
+   Estados e variaÃ§Ãµes especÃ­ficas
    =========================== */
 
-/* Exemplo para textos auxiliares em páginas como "esqueci senha" */
+/* Exemplo para textos auxiliares em pÃ¡ginas como "esqueci senha" */
 .forgot-instructions {
   font-size: 12px;
   color: var(--text-soft);
@@ -1157,7 +1157,7 @@ body {
 }
 
 /* ===========================
-   Layout geral do sistema (Dashboard + Páginas Internas)
+   Layout geral do sistema (Dashboard + PÃ¡ginas Internas)
    =========================== */
 
 .app {
@@ -1167,7 +1167,7 @@ body {
   background: var(--bg-body);
 }
 
-/* Espaço reservado para a sidebar fixa */
+/* EspaÃ§o reservado para a sidebar fixa */
 .sidebar-space {
   width: 250px;
   /* mesmo tamanho da sua sidebar */
@@ -1177,7 +1177,7 @@ body {
   min-height: 100vh;
 }
 
-/* Área principal das páginas */
+/* Ãrea principal das pÃ¡ginas */
 .main-content {
   flex: 1;
   padding: 24px;
@@ -1187,7 +1187,7 @@ body {
 }
 
 /* ===========================
-   Página Gerir Usuários
+   PÃ¡gina Gerir UsuÃ¡rios
    =========================== */
 
 .gerir-usuarios-page {
@@ -1239,7 +1239,7 @@ body {
   font-size: 14px;
 }
 
-/* Cards de usuário (caso ainda use) */
+/* Cards de usuÃ¡rio (caso ainda use) */
 .usuario-card {
   background: white;
   padding: 16px;
@@ -1304,7 +1304,7 @@ body {
   gap: 12px;
 }
 
-/* Deixa o link mais “discreto” e alinhado */
+/* Deixa o link mais â€œdiscretoâ€ e alinhado */
 .auth-forgot-link {
   font-size: 0.9rem;
   padding: 0;
@@ -1318,7 +1318,7 @@ body {
   text-decoration: underline;
 }
 
-/* Quando desabilitado, não parece clicável */
+/* Quando desabilitado, nÃ£o parece clicÃ¡vel */
 .auth-forgot-link:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -1326,7 +1326,7 @@ body {
 }
 
 /* ===========================
-   Corporações (Lista + Detalhe)
+   CorporaÃ§Ãµes (Lista + Detalhe)
    =========================== */
 
 .corporations-page {
@@ -1355,7 +1355,7 @@ body {
   color: var(--text-main);
 }
 
-/* Botão danger (Excluir) */
+/* BotÃ£o danger (Excluir) */
 .btn-danger {
   background: var(--danger);
   color: white;
@@ -1376,7 +1376,7 @@ body {
 }
 
 /* ===========================
-   Modal genérico (páginas internas)
+   Modal genÃ©rico (pÃ¡ginas internas)
    =========================== */
 
 .modal-backdrop {
@@ -1436,13 +1436,13 @@ body {
   margin-top: 12px;
 }
 
-/* Dentro do modal, o btn-primary não fica 100% */
+/* Dentro do modal, o btn-primary nÃ£o fica 100% */
 .modal-actions .btn-primary {
   width: auto;
   min-width: 160px;
 }
 
-/* Link-button “vira” botão discreto no modal */
+/* Link-button â€œviraâ€ botÃ£o discreto no modal */
 .modal-actions .link-button {
   padding: 8px 10px;
   border-radius: 10px;
@@ -1472,7 +1472,7 @@ body {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.55);
-  /* igual ao seu modal genérico */
+  /* igual ao seu modal genÃ©rico */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1490,7 +1490,7 @@ body {
   overflow: hidden;
 }
 
-/* Cabeçalho */
+/* CabeÃ§alho */
 .gu-modal-head {
   display: flex;
   justify-content: space-between;
@@ -1624,7 +1624,7 @@ body {
   color: #166534;
 }
 
-/* Rodapé */
+/* RodapÃ© */
 .gu-modal-footer {
   display: flex;
   gap: 10px;
@@ -1657,7 +1657,7 @@ body {
   cursor: not-allowed;
 }
 
-/* No modal, btn-primary não precisa ser 100% */
+/* No modal, btn-primary nÃ£o precisa ser 100% */
 .gu-modal-footer .btn-primary {
   width: auto;
   min-width: 160px;
@@ -1732,7 +1732,7 @@ body {
 }
 
 /* ===============================
-   HEADER (PADRÃO AUTOMAÇÕES)
+   HEADER (PADRÃƒO AUTOMAÃ‡Ã•ES)
 =============================== */
 .page-header {
   display: flex;
@@ -1864,7 +1864,7 @@ body {
 }
 
 /* ===============================
-   MODAL (PADRÃO AUTOMAÇÕES)
+   MODAL (PADRÃƒO AUTOMAÃ‡Ã•ES)
 =============================== */
 .modal-overlay {
   position: fixed;
@@ -1916,7 +1916,7 @@ body {
 }
 
 /* ===============================
-   FORM / INPUTS (PADRÃO AUTOMAÇÕES)
+   FORM / INPUTS (PADRÃƒO AUTOMAÃ‡Ã•ES)
 =============================== */
 .form-label {
   display: block;

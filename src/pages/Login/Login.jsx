@@ -1,4 +1,4 @@
-// src/pages/auth/Login.jsx
+﻿// src/pages/auth/Login.jsx
 import "../../StylesGlobal/global.css";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
@@ -44,12 +44,12 @@ export default function Login() {
         await bootstrapOAuthSession({
           onAuthenticated: () => {
             if (DEBUG_AUTH) logAuthSnapshot("Login.jsx (OAuth autenticado)");
-            navigate("/dashboard", { replace: true });
+            navigate("/ambientes", { replace: true });
           },
         });
       } catch (e) {
-        console.error("❌ [Login] OAuth bootstrap error:", e);
-        if (alive) setErrorMsg("Falha ao iniciar sessão OAuth. Tente novamente.");
+        console.error("âŒ [Login] OAuth bootstrap error:", e);
+        if (alive) setErrorMsg("Falha ao iniciar sessÃ£o OAuth. Tente novamente.");
       } finally {
         if (alive) setBooting(false);
       }
@@ -62,9 +62,9 @@ export default function Login() {
 
   function validate() {
     const errors = {};
-    if (!email.trim()) errors.email = "Email é obrigatório";
-    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email inválido";
-    if (!password) errors.password = "Senha é obrigatória";
+    if (!email.trim()) errors.email = "Email Ã© obrigatÃ³rio";
+    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email invÃ¡lido";
+    if (!password) errors.password = "Senha Ã© obrigatÃ³ria";
     return errors;
   }
 
@@ -81,7 +81,7 @@ export default function Login() {
     setIsLoading(true);
     setFieldErrors({});
 
-    // ✅ Agora autentica pelo AuthContext (não pelo authService)
+    // âœ… Agora autentica pelo AuthContext (nÃ£o pelo authService)
     const result = await loginWithPassword(email, password);
 
     setIsLoading(false);
@@ -91,7 +91,7 @@ export default function Login() {
       return;
     }
 
-    navigate("/dashboard", { replace: true });
+    navigate("/ambientes", { replace: true });
   }
 
 
@@ -110,38 +110,38 @@ export default function Login() {
 
           <p className="auth-brand-subtitle">
             {mode === "oauth"
-              ? "Autenticação via OAuth2 (produção / same-origin)."
+              ? "AutenticaÃ§Ã£o via OAuth2 (produÃ§Ã£o / same-origin)."
               : "Modo DEV (localhost): login por e-mail/senha. OAuth fica pronto para testes futuros."}
           </p>
 
           <ul className="auth-brand-list">
             <li>
-              • Modo atual: <b>{mode}</b>
+              â€¢ Modo atual: <b>{mode}</b>
             </li>
-            <li>• Tokens no localStorage</li>
-            <li>• Authorization: Bearer access_token</li>
+            <li>â€¢ Tokens no localStorage</li>
+            <li>â€¢ Authorization: Bearer access_token</li>
           </ul>
 
           {DEBUG_AUTH && (
             <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
-              🔎 DEBUG_AUTH ligado (tokens completos no console)
+              ðŸ”Ž DEBUG_AUTH ligado (tokens completos no console)
             </div>
           )}
         </div>
 
-        {/* Lado direito - formulário */}
+        {/* Lado direito - formulÃ¡rio */}
         <div className="auth-box">
           <div className="auth-header">
             <h1>Entrar</h1>
             <p>
               {mode === "oauth"
-                ? "Verificando sessão e redirecionando se necessário..."
-                : "Entre com seu usuário e senha (modo local)."}
+                ? "Verificando sessÃ£o e redirecionando se necessÃ¡rio..."
+                : "Entre com seu usuÃ¡rio e senha (modo local)."}
             </p>
           </div>
 
           {booting && (
-            <div className="auth-info-banner">Verificando sessão OAuth...</div>
+            <div className="auth-info-banner">Verificando sessÃ£o OAuth...</div>
           )}
 
           {errorMsg && <div className="auth-error-banner">{errorMsg}</div>}
@@ -180,7 +180,7 @@ export default function Login() {
                 </div>
 
                 <div className="input-group">
-                  {/* ✅ label + link alinhados (mais profissional) */}
+                  {/* âœ… label + link alinhados (mais profissional) */}
                   <div className="auth-label-row">
                     <label htmlFor="password">Senha</label>
 
@@ -225,7 +225,7 @@ export default function Login() {
                   className="btn-secondary"
                   onClick={() => {
                     console.warn(
-                      "OAuth em localhost não persiste tokens por origem. Para testar, rode o app no mesmo domínio do backend."
+                      "OAuth em localhost nÃ£o persiste tokens por origem. Para testar, rode o app no mesmo domÃ­nio do backend."
                     );
                     redirectToAuthorize();
                   }}
@@ -238,7 +238,7 @@ export default function Login() {
           )}
 
           <div className="auth-login-link">
-            <span>Não tem uma conta?</span>
+            <span>NÃ£o tem uma conta?</span>
             <button
               type="button"
               className="link-button"
@@ -264,8 +264,9 @@ export default function Login() {
       </div>
 
       <footer className="auth-footer">
-        © {new Date().getFullYear()} Brise Cloud · AGST
+        Â© {new Date().getFullYear()} Brise Cloud Â· AGST
       </footer>
     </div>
   );
 }
+
