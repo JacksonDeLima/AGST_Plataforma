@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { AmbienteProvider } from "./context/AmbienteContext.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import { LanguageProvider } from "./context/LanguageContext.jsx";
 import "./index.css";
@@ -13,9 +14,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     <ThemeProvider>
       <LanguageProvider>
         <AuthProvider>
-          <BrowserRouter>
-            <AppRoutes />
-          </BrowserRouter>
+          <AmbienteProvider>
+            <BrowserRouter>
+              <AppRoutes />
+            </BrowserRouter>
+          </AmbienteProvider>
         </AuthProvider>
       </LanguageProvider>
     </ThemeProvider>

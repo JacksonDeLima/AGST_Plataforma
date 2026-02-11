@@ -1,4 +1,3 @@
-// src/services/usersService.js
 import { API_BASE_URL } from "../config/apiconfig"; // <- ajuste se necessário
 
 const LS_ACCESS = "access_token";

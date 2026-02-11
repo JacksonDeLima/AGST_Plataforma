@@ -3,22 +3,41 @@ import { Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import { useLanguage } from "../../context/LanguageContext";
-import { listarAmbientes } from "../../services/ambientesServices";
+import { listarAmbientes } from "../../services/ambientesService";
+import { useAuth } from "../../context/AuthContext";
+import { useAmbiente } from "../../context/AmbienteContext";
+
 import "./Ambientes.css";
 
 const Ambientes = () => {
   const [statusFiltro, setStatusFiltro] = useState("TODOS");
 
+  const { corporationId } = useAuth();
+  const { setActiveAmbiente } = useAmbiente();
+
   const { t } = useLanguage();
   const navigate = useNavigate();
 
   const [ambientes, setAmbientes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    listarAmbientes().then((dados) => {
-      setAmbientes(dados);
-    });
-  }, []);
+    if (!corporationId) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const dados = listarAmbientes(corporationId);
+      setAmbientes(dados || []);
+    } catch {
+      setError("Erro inesperado ao carregar ambientes");
+      setAmbientes([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [corporationId]);
 
   const [showModal, setShowModal] = useState(false);
   const [erroModal, setErroModal] = useState("");
@@ -167,7 +186,8 @@ const Ambientes = () => {
      NAVEGAÇÃO
   ========================= */
   const handleControlar = (ambiente) => {
-    navigate(`/automacoes?ambienteId=${ambiente.id}`);
+    setActiveAmbiente(ambiente.id);
+    navigate("/automacoes");
   };
   
   function getTextoStatus(ambiente) {
@@ -288,21 +308,26 @@ const Ambientes = () => {
         </header>
 
         <div className="ambientes-grid">
-          {ambientes.length === 0 && (
+          {loading && <p>Carregando ambientes...</p>}
+
+          {!loading && error && (
+            <p className="error">{error}</p>
+          )}
+          {!loading && !error && ambientes.length === 0 && (
             <div className="empty-state">
               <p>Nenhum ambiente cadastrado ainda.</p>
               <p>Cadastre um ambiente para começar o monitoramento.</p>
             </div>
           )}
 
-          {ambientes.length > 0 && ambientesFiltrados.length === 0 && (
+          {!loading && !error && ambientes.length > 0 && ambientesFiltrados.length === 0 && (
             <div className="empty-state">
               <p>Nenhum ambiente encontrado para este filtro.</p>
               <p>Tente selecionar outro status.</p>
             </div>
           )}
 
-          {ambientesFiltrados.map((ambiente) => (
+          {!loading && !error && ambientesFiltrados.length > 0 && ambientesFiltrados.map((ambiente) => (
             <div key={ambiente.id} className="automacao-card ambiente-card">
               <div className="ambiente-header">
                 <div>

@@ -1,244 +1,117 @@
-// ===============================
-// 🔹 MOCK DATA (FONTE ÚNICA)
-// ===============================
-let automacoesMock = [
+
+let MOCK_AUTOMACOES = [
   {
     id: 1,
+    ambienteId: 1,
     nome: "Economia Noturna",
-    tipo: "HORARIO",
-    status: "ATIVA",
-    ambiente: "Escritório Gerência",
-    regra: "SEG, TER, QUA, QUI, SEX · 22:00 → 06:00",
-    equipamentos: ["Ar 01", "Ar 02", "Ar 03"],
+    perfil: "economia",
+    ativa: true,
     executando: true,
-    dias: ["SEG", "TER", "QUA", "QUI", "SEX"],
-    inicio: "22:00",
-    fim: "06:00",
+    status: "ATIVA",
+    economiaKwhMes: 648,
+    economiaReaisMes: 583,
+    sobrepostaPor: null,
+    criadoEm: "2026-01-10T22:00:00",
   },
   {
     id: 2,
+    ambienteId: 1,
     nome: "Desligar por Inatividade",
-    tipo: "OCUPACAO",
-    status: "ATIVA",
-    ambiente: "Sala de Reunião",
-    regra: "20 minutos sem movimento",
-    equipamentos: ["Ar 02"],
+    perfil: "inatividade",
+    ativa: true,
     executando: false,
-    dias: [],
-    inicio: "",
-    fim: "",
+    status: "ATIVA",
+    economiaKwhMes: 144,
+    economiaReaisMes: 130,
+    sobrepostaPor: "Economia Noturna",
+    criadoEm: "2026-01-12T08:00:00",
   },
 ];
 
 // ===============================
-// 🔹 LISTAR AUTOMAÇÕES
+// LISTAR
 // ===============================
-export function listarAutomacoes() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([...automacoesMock]);
-    }, 400);
+export async function listarAutomacoes(ambienteId) {
+  return MOCK_AUTOMACOES.filter(
+    (a) => String(a.ambienteId) === String(ambienteId)
+  );
+}
+
+// ===============================
+// BUSCAR POR ID
+// ===============================
+export async function buscarAutomacaoPorId(id) {
+  return MOCK_AUTOMACOES.find((a) => String(a.id) === String(id)) || null;
+}
+
+// ===============================
+// CRIAR
+// ===============================
+export async function criarAutomacao(payload) {
+  const nova = {
+    id: Date.now(),
+    ativa: true,
+    executando: false,
+    status: "ATIVA",
+    criadoEm: new Date().toISOString(),
+    ...payload,
+  };
+
+  MOCK_AUTOMACOES.push(nova);
+  return nova;
+}
+
+// ===============================
+// EDITAR
+// ===============================
+export async function editarAutomacao(id, payload) {
+  MOCK_AUTOMACOES = MOCK_AUTOMACOES.map((a) =>
+    String(a.id) === String(id) ? { ...a, ...payload } : a
+  );
+
+  return buscarAutomacaoPorId(id);
+}
+
+// ===============================
+// ATIVAR / DESATIVAR
+// ===============================
+export async function alterarStatusAutomacao(id, ativa) {
+  return editarAutomacao(id, {
+    ativa,
+    status: ativa ? "ATIVA" : "PAUSADA",
   });
 }
 
 // ===============================
-// 🔹 BUSCAR POR ID
+// PERFIL
 // ===============================
-export function buscarAutomacaoPorId(id) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(
-        automacoesMock.find((a) => String(a.id) === String(id))
-      );
-    }, 400);
-  });
+export function identificarPerfilAutomacao(template) {
+  return template?.perfil || "custom";
 }
 
 // ===============================
-// 🔹 CRIAR AUTOMAÇÃO
+// NOME PADRAO
 // ===============================
-export function criarAutomacao(dados) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const nova = {
-        id: Date.now(),
-        status: "ATIVA",
-        executando: false,
-        ...dados,
-      };
-
-      automacoesMock.push(nova);
-      resolve(nova);
-    }, 600);
-  });
+export function gerarNomeAutomacao(template) {
+  return template?.nome || "Nova automacao";
 }
 
 // ===============================
-// 🔹 EDITAR AUTOMAÇÃO
+// ECONOMIA
 // ===============================
-export function editarAutomacao(id, payload) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      automacoesMock = automacoesMock.map((a) =>
-        String(a.id) === String(id) ? { ...a, ...payload } : a
-      );
-      resolve({ sucesso: true });
-    }, 500);
-  });
-}
-
-// ===============================
-// 🔹 ALTERAR STATUS
-// ===============================
-export function alterarStatusAutomacao(id, status) {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      automacoesMock = automacoesMock.map((a) =>
-        String(a.id) === String(id) ? { ...a, status } : a
-      );
-      resolve({ sucesso: true });
-    }, 400);
-  });
-}
-
-// ===============================
-// 🔹 HISTÓRICO
-// ===============================
-export function buscarHistoricoAutomacao() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        {
-          id: 1,
-          data: "27/01/2026 22:00",
-          status: "SUCESSO",
-          mensagem: "Equipamentos desligados",
-        },
-        {
-          id: 2,
-          data: "26/01/2026 22:00",
-          status: "ERRO",
-          mensagem: "Ar-condicionado 02 offline",
-        },
-      ]);
-    }, 500);
-  });
-}
-
-// ===============================
-// 🔹 IDENTIFICAR PERFIL DA AUTOMAÇÃO (ÚNICA)
-// ===============================
-export function identificarPerfilAutomacao(automacao) {
-  if (!automacao) {
-    return {
-      perfil: "Desconhecida",
-      impacto: "Indefinido",
-      prioridade: "baixa",
-    };
-  }
-
-  // ECONOMIA NOTURNA
-  if (
-    automacao.tipo === "HORARIO" &&
-    automacao.inicio &&
-    automacao.inicio >= "18:00"
-  ) {
-    return {
-      perfil: "Economia Noturna",
-      impacto: "Médio",
-      prioridade: "media",
-    };
-  }
-
-  // HORÁRIO COMERCIAL
-  if (
-    automacao.tipo === "HORARIO" &&
-    automacao.inicio >= "07:00" &&
-    automacao.fim <= "19:00"
-  ) {
-    return {
-      perfil: "Horário Comercial",
-      impacto: "Baixo",
-      prioridade: "baixa",
-    };
-  }
-
-  // OCUPAÇÃO
-  if (automacao.tipo === "OCUPACAO") {
-    return {
-      perfil: "Economia por Inatividade",
-      impacto: "Médio",
-      prioridade: "media",
-    };
-  }
-
+export function estimarEconomiaAutomacao(template) {
   return {
-    perfil: "Automação Personalizada",
-    impacto: "Baixo",
-    prioridade: "baixa",
+    kwhMes: template?.economiaKwhMes || 0,
+    reaisMes: template?.economiaReaisMes || 0,
   };
 }
 
 // ===============================
-// 🔹 GERAR NOME AUTOMÁTICO (ÚNICO)
+// HISTORICO
 // ===============================
-export function gerarNomeAutomacao(automacao) {
-  if (!automacao) return "Automação";
-
-  if (automacao.nome && automacao.nome.trim() !== "") {
-    return automacao.nome;
-  }
-
-  const ambiente = automacao.ambiente || "Ambiente";
-
-  if (
-    automacao.tipo === "HORARIO" &&
-    automacao.inicio &&
-    automacao.inicio >= "18:00"
-  ) {
-    return `Economia Noturna — ${ambiente}`;
-  }
-
-  if (
-    automacao.tipo === "HORARIO" &&
-    automacao.inicio >= "07:00" &&
-    automacao.fim <= "19:00"
-  ) {
-    return `Horário Comercial — ${ambiente}`;
-  }
-
-  if (automacao.tipo === "OCUPACAO") {
-    return `Desligamento por Inatividade — ${ambiente}`;
-  }
-
-  return `Automação — ${ambiente}`;
-}
-// ===============================
-// 🔹 ESTIMATIVA DE ECONOMIA
-// ===============================
-export function estimarEconomiaAutomacao(automacao) {
-  if (!automacao || !automacao.equipamentos?.length) {
-    return { kwh: 0, valor: 0 };
-  }
-
-  const consumoPorHora = 1.2; // kWh por equipamento
-  const tarifa = 0.9; // R$ por kWh
-
-  let horasDia = 0;
-
-  if (automacao.tipo === "HORARIO") horasDia = 6;
-  if (automacao.tipo === "OCUPACAO") horasDia = 4;
-
-  const kwhMes =
-    automacao.equipamentos.length *
-    consumoPorHora *
-    horasDia *
-    30;
-
-  const valor = kwhMes * tarifa;
-
-  return {
-    kwh: Math.round(kwhMes),
-    valor: Math.round(valor),
-  };
+export async function buscarHistoricoAutomacao() {
+  return [
+    { data: "2026-01-15", evento: "Executada com sucesso" },
+    { data: "2026-01-16", evento: "Ignorada (ambiente pausado)" },
+  ];
 }

@@ -1,4 +1,3 @@
-// src/services/httpClient.js
 import { API_BASE_URL } from "../config/apiconfig";
 
 function buildApiUrl(path) {

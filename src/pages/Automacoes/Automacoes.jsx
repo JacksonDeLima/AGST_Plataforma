@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import "./Automacoes.css";
 
 import {
@@ -11,35 +11,10 @@ import {
   estimarEconomiaAutomacao,
   alterarStatusAutomacao,
 } from "../../services/automacoesService";
+import { getAmbienteById } from "../../services/ambientesService";
+import { useAmbiente } from "../../context/AmbienteContext";
 
 import { AUTOMACAO_TEMPLATES } from "../../constants/automacaoTemplates";
-
-const MOCK_AMBIENTES = [
-  {
-    id: 1,
-    nome: "Escritório Gerência",
-    status: "ONLINE",
-    pausado: false,
-  },
-  {
-    id: 2,
-    nome: "Sala de Reuniões A",
-    status: "PARCIAL",
-    pausado: false,
-  },
-  {
-    id: 3,
-    nome: "Sala de Reuniões B",
-    status: "OFFLINE",
-    pausado: false,
-  },
-  {
-    id: 4,
-    nome: "Auditório Principal",
-    status: "MANUTENCAO",
-    pausado: false,
-  },
-];
 
 /* =========================
    CONSTANTES
@@ -121,10 +96,15 @@ const atualizarRegra = (dados) => {
 
 const Automacoes = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { ambienteId: ambienteAtivoId } = useAmbiente();
 
-  const params = new URLSearchParams(window.location.search);
-  const ambienteId = Number(params.get("ambienteId"));
-  const ambienteAtivo = MOCK_AMBIENTES.find((a) => a.id === ambienteId);
+  const params = new URLSearchParams(location.search);
+  const ambienteIdUrl = params.get("ambienteId");
+  const ambienteIdFinal = ambienteIdUrl || ambienteAtivoId;
+
+  const [ambienteAtivo, setAmbienteAtivo] = useState(null);
+  const [loadingAmbiente, setLoadingAmbiente] = useState(true);
 
   const [automacoes, setAutomacoes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -144,7 +124,35 @@ const Automacoes = () => {
   const ambientePausado = ambienteAtivo ? ambienteAtivo.pausado : false;
   const isPersonalizada = novaAutomacao.tipo === "PERSONALIZADA";
 
-  /* =========================
+    /* =========================
+     BUSCAR AMBIENTE
+  ========================= */
+  useEffect(() => {
+    if (!ambienteIdFinal) {
+      setAmbienteAtivo(null);
+      setLoadingAmbiente(false);
+      return;
+    }
+
+    setLoadingAmbiente(true);
+
+    getAmbienteById(ambienteIdFinal)
+      .then((res) => {
+        if (!res.ok) {
+          setAmbienteAtivo(null);
+          return;
+        }
+
+        setAmbienteAtivo(res.data || null);
+      })
+      .catch(() => {
+        setAmbienteAtivo(null);
+      })
+      .finally(() => {
+        setLoadingAmbiente(false);
+      });
+  }, [ambienteIdFinal]);
+/* =========================
      BUSCAR AUTOMAÇÕES
   ========================= */
   useEffect(() => {
@@ -342,11 +350,24 @@ const Automacoes = () => {
     .filter((a) => a.status === "ATIVA")
     .sort((a, b) => getPrioridade(a) - getPrioridade(b))[0];
 
-  if (loading) {
+  if (!ambienteIdFinal) {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
-          <h3>Carregando automações…</h3>
+          <h2>Selecione um ambiente</h2>
+          <p>
+            Volte para <strong>Ambientes</strong> e escolha qual deseja gerenciar.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || loadingAmbiente) {
+    return (
+      <div className="automacoes-page">
+        <div className="empty-state">
+          <h3>Carregando automacoes...</h3>
           <p>Aguarde alguns instantes.</p>
         </div>
       </div>
@@ -356,12 +377,14 @@ const Automacoes = () => {
   if (!ambienteAtivo) {
     return (
       <div className="automacoes-page">
-        <p>Ambiente não encontrado.</p>
+        <div className="empty-state">
+          <h2>Ambiente nÃ£o encontrado</h2>
+          <p>Esse ambiente nÃ£o existe ou foi removido.</p>
+        </div>
       </div>
     );
   }
-
-  return (
+return (
     <div className="automacoes-page">
       <button
         className="btn-secondary"

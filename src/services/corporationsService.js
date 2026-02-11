@@ -1,4 +1,3 @@
-// src/services/corporationsService.js
 import { httpRequest } from "./httpClient";
 import { endpoints } from "../config/endpoints";
 import { buildApiUrl } from "../config/apiconfig";

@@ -1,4 +1,3 @@
-// src/services/reportsService.js
 import { httpRequest } from "./httpClient";
 
 export async function getUsersByCorporation() {
