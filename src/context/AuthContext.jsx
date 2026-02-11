@@ -1,5 +1,4 @@
-﻿// src/context/AuthContext.jsx
-import React, {
+﻿import React, {
   createContext,
   useContext,
   useEffect,
@@ -32,7 +31,7 @@ export function AuthProvider({ children }) {
   const [error, setError] = useState("");
   const [corporations, setCorporations] = useState([]);
   const [corporationId, setCorporationId] = useState(
-    () => localStorage.getItem(LS_ACTIVE_CORP) || ""
+    () => localStorage.getItem(LS_ACTIVE_CORP) || "",
   );
 
   const mode = useMemo(() => resolveAuthMode(), []);
@@ -42,8 +41,14 @@ export function AuthProvider({ children }) {
     const nextId = String(id || "");
     setCorporationId(nextId);
 
-    if (nextId) localStorage.setItem(LS_ACTIVE_CORP, nextId);
-    else localStorage.removeItem(LS_ACTIVE_CORP);
+    if (nextId) {
+      localStorage.setItem(LS_ACTIVE_CORP, nextId);
+    } else {
+      localStorage.removeItem(LS_ACTIVE_CORP);
+    }
+
+    // 🔥 IMPORTANTE: limpa ambiente ativo ao trocar corporação
+    localStorage.removeItem("agst_active_ambiente_id");
   }, []);
 
   const syncActiveCorporation = useCallback((list) => {
@@ -158,7 +163,7 @@ export function AuthProvider({ children }) {
         return { ok: false, error: e };
       }
     },
-    [loadMe, loadCorporations]
+    [loadMe, loadCorporations],
   );
 
   const beginOAuth = useCallback(({ redirectAfterLogin } = {}) => {
@@ -176,11 +181,13 @@ export function AuthProvider({ children }) {
 
     const data = await httpRequest(
       `${endpoints.oauth.token}?${qs.toString()}`,
-      { method: "GET" }
+      { method: "GET" },
     );
 
-    if (data?.access_token) localStorage.setItem("access_token", data.access_token);
-    if (data?.refresh_token) localStorage.setItem("refresh_token", data.refresh_token);
+    if (data?.access_token)
+      localStorage.setItem("access_token", data.access_token);
+    if (data?.refresh_token)
+      localStorage.setItem("refresh_token", data.refresh_token);
     if (data?.expires_in) setTokenExpiryFromExpiresIn(data.expires_in);
 
     return { ok: true, data };
@@ -224,7 +231,7 @@ export function AuthProvider({ children }) {
       exchangeCodeForTokens,
       loginWithPassword,
       logout,
-    ]
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -232,6 +239,7 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth deve ser usado dentro de <AuthProvider />");
+  if (!ctx)
+    throw new Error("useAuth deve ser usado dentro de <AuthProvider />");
   return ctx;
 }

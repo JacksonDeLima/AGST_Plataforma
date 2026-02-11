@@ -10,9 +10,11 @@ import {
   gerarNomeAutomacao,
   estimarEconomiaAutomacao,
   alterarStatusAutomacao,
+  deletarAutomacao,
 } from "../../services/automacoesService";
 import { getAmbienteById } from "../../services/ambientesService";
 import { useAmbiente } from "../../context/AmbienteContext";
+import { useAuth } from "../../context/AuthContext";
 
 import { AUTOMACAO_TEMPLATES } from "../../constants/automacaoTemplates";
 
@@ -41,7 +43,6 @@ const DESCRICOES_PERFIL = {
 const estadoInicialAutomacao = {
   templateId: null,
   tipo: "",
-  ambiente: "",
   dias: [],
   inicio: "",
   fim: "",
@@ -98,6 +99,7 @@ const Automacoes = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { ambienteId: ambienteAtivoId } = useAmbiente();
+  const { corporationId } = useAuth();
 
   const params = new URLSearchParams(location.search);
   const ambienteIdUrl = params.get("ambienteId");
@@ -124,7 +126,14 @@ const Automacoes = () => {
   const ambientePausado = ambienteAtivo ? ambienteAtivo.pausado : false;
   const isPersonalizada = novaAutomacao.tipo === "PERSONALIZADA";
 
-    /* =========================
+  useEffect(() => {
+    if (ambienteIdUrl && ambienteIdUrl !== ambienteAtivoId) {
+      // sincroniza URL com contexto
+      localStorage.setItem("agst_active_ambiente_id", ambienteIdUrl);
+    }
+  }, [ambienteIdUrl, ambienteAtivoId]);
+
+  /* =========================
      BUSCAR AMBIENTE
   ========================= */
   useEffect(() => {
@@ -152,22 +161,41 @@ const Automacoes = () => {
         setLoadingAmbiente(false);
       });
   }, [ambienteIdFinal]);
-/* =========================
+  /* =========================
      BUSCAR AUTOMAÇÕES
   ========================= */
   useEffect(() => {
-    listarAutomacoes().then((dados) => {
+    listarAutomacoes(corporationId, ambienteIdFinal).then((dados) => {
       setAutomacoes(dados || []);
       setLoading(false);
     });
-  }, []);
+  }, [corporationId, ambienteIdFinal]);
+
+  const excluirAutomacao = async (automacaoId) => {
+    const confirmar = window.confirm(
+      "Deseja realmente excluir esta automação?",
+    );
+    if (!confirmar) return;
+
+    await deletarAutomacao(automacaoId, corporationId, ambienteIdFinal);
+
+    setAutomacoes((prev) =>
+      prev.filter((a) => String(a.id) !== String(automacaoId)),
+    );
+  };
 
   /* =========================
      STATUS
   ========================= */
   const alternarStatus = async (automacao) => {
     const novoStatus = automacao.status === "ATIVA" ? "PAUSADA" : "ATIVA";
-    await alterarStatusAutomacao(automacao.id, novoStatus);
+
+    await alterarStatusAutomacao(
+      automacao.id,
+      novoStatus,
+      corporationId,
+      ambienteIdFinal,
+    );
 
     setAutomacoes((prev) =>
       prev.map((a) =>
@@ -262,7 +290,7 @@ const Automacoes = () => {
       return {
         titulo: "Pausada",
         descricao: "Automações pausadas manualmente",
-        tipo: "pausada"
+        tipo: "pausada",
       };
     }
 
@@ -271,7 +299,7 @@ const Automacoes = () => {
       return {
         titulo: "Bloqueada",
         descricao: "Ambiente em manutenção",
-        tipo: "bloqueada"
+        tipo: "bloqueada",
       };
     }
 
@@ -280,7 +308,7 @@ const Automacoes = () => {
       return {
         titulo: "Pausada",
         descricao: "Ambiente offline",
-        tipo: "pausada"
+        tipo: "pausada",
       };
     }
 
@@ -289,7 +317,7 @@ const Automacoes = () => {
       return {
         titulo: "Executando agora",
         descricao: "",
-        tipo: "executando"
+        tipo: "executando",
       };
     }
 
@@ -299,7 +327,7 @@ const Automacoes = () => {
       descricao: automacaoExecutando
         ? `Sobreposta por: ${automacaoExecutando.nome}`
         : "Aguardando condição de maior prioridade",
-      tipo: "sobreposta"
+      tipo: "sobreposta",
     };
   }
 
@@ -311,7 +339,6 @@ const Automacoes = () => {
 
     if (
       !novaAutomacao.tipo ||
-      !novaAutomacao.ambiente ||
       !novaAutomacao.regra ||
       !novaAutomacao.equipamentos.length
     ) {
@@ -322,7 +349,12 @@ const Automacoes = () => {
     setLoadingSalvar(true);
 
     if (modoModal === "EDITAR" && automacaoEditando) {
-      await editarAutomacao(automacaoEditando.id, novaAutomacao);
+      await editarAutomacao(
+        automacaoEditando.id,
+        novaAutomacao,
+        corporationId,
+        ambienteIdFinal,
+      );
 
       setAutomacoes((prev) =>
         prev.map((a) =>
@@ -330,10 +362,11 @@ const Automacoes = () => {
         ),
       );
     } else {
-      const criada = await criarAutomacao({
+      const criada = await criarAutomacao(corporationId, ambienteIdFinal, {
         ...novaAutomacao,
         nome: gerarNomeAutomacao(novaAutomacao),
         status: "ATIVA",
+        ambienteId: ambienteIdFinal,
       });
 
       setAutomacoes((prev) => [...prev, criada]);
@@ -350,13 +383,25 @@ const Automacoes = () => {
     .filter((a) => a.status === "ATIVA")
     .sort((a, b) => getPrioridade(a) - getPrioridade(b))[0];
 
+  if (!corporationId) {
+    return (
+      <div className="automacoes-page">
+        <div className="empty-state">
+          <h2>Selecione uma corporação</h2>
+          <p>Escolha uma corporação ativa para visualizar as automações.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!ambienteIdFinal) {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
           <h2>Selecione um ambiente</h2>
           <p>
-            Volte para <strong>Ambientes</strong> e escolha qual deseja gerenciar.
+            Volte para <strong>Ambientes</strong> e escolha qual deseja
+            gerenciar.
           </p>
         </div>
       </div>
@@ -374,6 +419,11 @@ const Automacoes = () => {
     );
   }
 
+  // 🔒 Segurança extra: ambiente inválido
+  if (ambienteIdFinal && !ambienteAtivo && !loadingAmbiente) {
+    localStorage.removeItem("agst_active_ambiente_id");
+  }
+
   if (!ambienteAtivo) {
     return (
       <div className="automacoes-page">
@@ -384,7 +434,7 @@ const Automacoes = () => {
       </div>
     );
   }
-return (
+  return (
     <div className="automacoes-page">
       <button
         className="btn-secondary"
@@ -516,8 +566,12 @@ return (
               "Automação configurada manualmente.";
 
             const economia = estimarEconomiaAutomacao(a);
-            
-            const statusInfo = getStatusAutomacao(a, ambienteAtivo, automacaoExecutando);
+
+            const statusInfo = getStatusAutomacao(
+              a,
+              ambienteAtivo,
+              automacaoExecutando,
+            );
 
             return (
               <div className="automacao-card" key={a.id}>
@@ -560,7 +614,9 @@ return (
                     {statusInfo.titulo}
                   </strong>
                   {statusInfo.descricao && (
-                    <div className="status-descricao">{statusInfo.descricao}</div>
+                    <div className="status-descricao">
+                      {statusInfo.descricao}
+                    </div>
                   )}
                 </div>
 
@@ -593,6 +649,12 @@ return (
                     onClick={() => abrirModalDuplicar(a)}
                   >
                     Duplicar
+                  </button>
+                  <button
+                    className="btn-danger"
+                    onClick={() => excluirAutomacao(a.id)}
+                  >
+                    Excluir
                   </button>
                 </div>
               </div>
@@ -644,7 +706,9 @@ return (
 
                     <div
                       className={`template-card ${
-                        novaAutomacao.tipo === "PERSONALIZADA" ? "selecionado" : ""
+                        novaAutomacao.tipo === "PERSONALIZADA"
+                          ? "selecionado"
+                          : ""
                       }`}
                       onClick={() =>
                         setNovaAutomacao({
@@ -656,29 +720,15 @@ return (
                     >
                       <h4>Personalizada (Manual)</h4>
                       <p>
-                        Crie uma automação totalmente personalizada, definindo horários,
-                        dias e configurações manualmente.
+                        Crie uma automação totalmente personalizada, definindo
+                        horários, dias e configurações manualmente.
                       </p>
                     </div>
                   </div>
                 </>
               )}
 
-              {passo === 1 && (
-                <>
-                  <h3>Ambiente</h3>
-                  <input
-                    placeholder="Ex: Sala de Reunião"
-                    value={novaAutomacao.ambiente}
-                    onChange={(e) =>
-                      setNovaAutomacao({
-                        ...novaAutomacao,
-                        ambiente: e.target.value,
-                      })
-                    }
-                  />
-                </>
-              )}
+              {passo === 1 && <></>}
               {/* PASSO 2 — DIAS E HORÁRIO */}
               {passo === 2 && (
                 <>

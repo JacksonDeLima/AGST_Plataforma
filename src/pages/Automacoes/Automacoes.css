@@ -666,9 +666,10 @@ button:disabled {
 }
 
 .automacao-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
 }
+
 
 /* SWITCH – FEEDBACK */
 .switch input:checked + .slider {
@@ -689,4 +690,63 @@ button:disabled {
 .btn-primary:active,
 .btn-secondary:active {
   transform: scale(0.97);
+}
+
+.btn-danger {
+  background: #c2b8b994;
+  color: rgb(70, 88, 168);
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #d46b6b;
+}
+/* ===== STATUS BADGES ===== */
+
+.status-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+
+.status-text.ativa {
+  background: #e6f9f0;
+  color: #059669;
+}
+
+.status-text.pausada {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* Status de execução */
+.status-automacao {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: #f3f4f6;
+}
+
+.status-automacao.executando {
+  background: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+}
+
+.status-automacao.sobreposta {
+  background: #fef9c3;
+  color: #92400e;
+}
+
+.status-automacao.pausada {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.status-automacao.bloqueada {
+  background: #fee2e2;
+  color: #b91c1c;
 }

@@ -1,10 +1,20 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useAuth } from "./AuthContext";
 
 const AmbienteContext = createContext(null);
 
 const LS_ACTIVE_AMBIENTE = "agst_active_ambiente_id";
 
 export function AmbienteProvider({ children }) {
+  const { corporationId } = useAuth();
+
+useEffect(() => {
+  // Sempre que a corporação mudar,
+  // limpamos o ambiente ativo
+  setAmbienteId(null);
+  localStorage.removeItem(LS_ACTIVE_AMBIENTE);
+}, [corporationId]);
+
   const [ambienteId, setAmbienteId] = useState(
     () => localStorage.getItem(LS_ACTIVE_AMBIENTE) || null
   );

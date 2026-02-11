@@ -1,99 +1,27 @@
 function getStorageKey(corporationId) {
-  return `agst:ambientes:${corporationId}`;
+  return `agst_mock_ambientes_${corporationId}`;
 }
 
-function loadFromStorage(corporationId) {
-  try {
-    const raw = localStorage.getItem(getStorageKey(corporationId));
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
+function loadAmbientes(corporationId) {
+  const key = getStorageKey(corporationId);
+  const stored = localStorage.getItem(key);
+  return stored ? JSON.parse(stored) : [];
 }
 
-function saveToStorage(corporationId, data) {
-  localStorage.setItem(
-    getStorageKey(corporationId),
-    JSON.stringify(data)
-  );
+function saveAmbientes(corporationId, data) {
+  const key = getStorageKey(corporationId);
+  localStorage.setItem(key, JSON.stringify(data));
 }
 
-// ================================
-// MOCK DE AMBIENTES (API-READY)
-// ================================
-
-let MOCK_AMBIENTES = [
-  {
-    id: 1,
-    nome: "Escritório Gerência",
-    status: "ONLINE",
-    pausado: false,
-    temperatura: 22,
-    potencia: 10.5,
-    equipamentos: [
-      { id: 1, nome: "Samsung 1", ligado: true },
-      { id: 2, nome: "Samsung 2", ligado: true },
-    ],
-    ultimaAtualizacao: "2026-01-31T14:20:00",
-  },
-  {
-    id: 2,
-    nome: "Sala de Reuniões A",
-    status: "PARCIAL",
-    pausado: false,
-    temperatura: 23,
-    potencia: 4.2,
-    equipamentos: [
-      { id: 3, nome: "Samsung 3", ligado: true },
-      { id: 4, nome: "Samsung 4", ligado: false },
-    ],
-    ultimaAtualizacao: "2026-01-31T13:50:00",
-  },
-  {
-    id: 3,
-    nome: "Sala de Reuniões B",
-    status: "OFFLINE",
-    pausado: true,
-    temperatura: null,
-    potencia: null,
-    equipamentos: [{ id: 5, nome: "Samsung 5", ligado: false }],
-    ultimaAtualizacao: "2026-01-30T18:10:00",
-  },
-];
-
-// ================================
-// HELPERS
-// ================================
-
-function delay(ms = 400) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export async function listarAmbientes(corporationId) {
+  const data = loadAmbientes(corporationId);
+  return Array.isArray(data) ? data : [];
 }
 
-// ================================
-// SERVICES (API-READY)
-// ================================
-
-/**
- * Lista ambientes da corp ativa
- * (mock por enquanto)
- */
-export function listAmbientes(corporationId) {
-  if (!corporationId) return [];
-
-  const stored = loadFromStorage(corporationId);
-  if (stored) return stored;
-
-  saveToStorage(corporationId, MOCK_AMBIENTES);
-  return MOCK_AMBIENTES;
+export async function listAmbientes(corporationId) {
+  return listarAmbientes(corporationId);
 }
 
-export function listarAmbientes(corporationId) {
-  return listAmbientes(corporationId);
-}
-
-/**
- * Busca ambiente por ID
- */
 export async function getAmbienteById(ambienteId, corporationId) {
   const findInList = (list) =>
     Array.isArray(list)
@@ -103,13 +31,13 @@ export async function getAmbienteById(ambienteId, corporationId) {
   let ambiente = null;
 
   if (corporationId) {
-    const list = loadFromStorage(corporationId) || [];
+    const list = loadAmbientes(corporationId) || [];
     ambiente = findInList(list);
   } else {
     try {
       for (let i = 0; i < localStorage.length; i += 1) {
         const key = localStorage.key(i);
-        if (key && key.startsWith("agst:ambientes:")) {
+        if (key && key.startsWith("agst_mock_ambientes_")) {
           const raw = localStorage.getItem(key);
           const list = raw ? JSON.parse(raw) : null;
           ambiente = findInList(list);
@@ -120,45 +48,80 @@ export async function getAmbienteById(ambienteId, corporationId) {
   }
 
   if (!ambiente) {
-    ambiente = findInList(MOCK_AMBIENTES);
-  }
-
-  if (!ambiente) {
-    return { ok: false, message: "Ambiente nÃ£o encontrado" };
+    return { ok: false, message: "Ambiente nao encontrado" };
   }
 
   return { ok: true, data: ambiente };
 }
 
-/**
- * Cria novo ambiente
- */
-export function createAmbiente(corporationId, ambiente) {
-  const list = loadFromStorage(corporationId) || [];
+export async function criarAmbiente(corporationId, payload) {
+  const ambientes = loadAmbientes(corporationId);
 
   const novo = {
     id: Date.now(),
-    status: "ATIVO",
-    equipamentosTotal: 0,
-    equipamentosLigados: 0,
-    temperatura: null,
-    potencia: null,
-    ...ambiente,
+    ...payload,
   };
 
-  const updated = [...list, novo];
-  saveToStorage(corporationId, updated);
+  ambientes.push(novo);
+  saveAmbientes(corporationId, ambientes);
 
   return novo;
 }
 
-export async function updateAmbiente(corporationId, ambienteId, changes) {
-  const list = loadFromStorage(corporationId) || [];
+export async function createAmbiente(corporationId, payload) {
+  return criarAmbiente(corporationId, payload);
+}
 
-  const updated = list.map((a) =>
-    a.id === ambienteId ? { ...a, ...changes } : a
+export async function editarAmbiente(corporationId, id, payload) {
+  const ambientes = loadAmbientes(corporationId);
+
+  const idx = ambientes.findIndex((a) => String(a.id) === String(id));
+
+  if (idx >= 0) {
+    ambientes[idx] = { ...ambientes[idx], ...payload };
+    saveAmbientes(corporationId, ambientes);
+    return ambientes[idx];
+  }
+
+  return null;
+}
+
+
+export async function updateAmbiente(corporationId, ambienteId, changes) {
+  return editarAmbiente(corporationId, ambienteId, changes);
+}
+export async function removerAmbiente(corporationId, ambienteId) {
+  const ambientes = loadAmbientes(corporationId);
+
+  const filtrados = ambientes.filter(
+    (a) => String(a.id) !== String(ambienteId)
   );
 
-  saveToStorage(corporationId, updated);
-  return { ok: true };
+  saveAmbientes(corporationId, filtrados);
+
+  return true;
+}
+
+export async function excluirAmbiente(corporationId, ambienteId) {
+  const ambientes = loadAmbientes(corporationId);
+
+  const novaLista = ambientes.filter(
+    (a) => String(a.id) !== String(ambienteId)
+  );
+
+  saveAmbientes(corporationId, novaLista);
+
+  return true;
+}
+
+export async function deletarAmbiente(corporationId, ambienteId) {
+  const ambientes = loadAmbientes(corporationId);
+
+  const novaLista = ambientes.filter(
+    (a) => String(a.id) !== String(ambienteId)
+  );
+
+  saveAmbientes(corporationId, novaLista);
+
+  return true;
 }

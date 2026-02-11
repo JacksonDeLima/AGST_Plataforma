@@ -3,7 +3,12 @@ import { Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
 import { useLanguage } from "../../context/LanguageContext";
-import { listarAmbientes } from "../../services/ambientesService";
+import {
+  listarAmbientes,
+  criarAmbiente,
+  editarAmbiente,
+  deletarAmbiente,
+} from "../../services/ambientesService";
 import { useAuth } from "../../context/AuthContext";
 import { useAmbiente } from "../../context/AmbienteContext";
 
@@ -18,25 +23,33 @@ const Ambientes = () => {
   const { t } = useLanguage();
   const navigate = useNavigate();
 
-  const [ambientes, setAmbientes] = useState([]);
+  const [ambientes, setAmbientes] = useState(() => []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!corporationId) return;
+    if (!corporationId) {
+      setAmbientes([]);
+      return;
+    }
 
     setLoading(true);
     setError("");
 
-    try {
-      const dados = listarAmbientes(corporationId);
-      setAmbientes(dados || []);
-    } catch {
-      setError("Erro inesperado ao carregar ambientes");
-      setAmbientes([]);
-    } finally {
-      setLoading(false);
-    }
+    listarAmbientes(corporationId)
+      .then((lista) => {
+        console.log("Corporation ID:", corporationId);
+        console.log("Ambientes carregados:", lista);
+
+        setAmbientes(Array.isArray(lista) ? lista : []);
+      })
+      .catch(() => {
+        setError("Erro inesperado ao carregar ambientes");
+        setAmbientes([]);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [corporationId]);
 
   const [showModal, setShowModal] = useState(false);
@@ -49,7 +62,7 @@ const Ambientes = () => {
     nome: "",
     tipo: "Sala",
     equipamentos: [],
-    status: "offline",
+    status: "OFFLINE",
   });
 
   const equipamentosDisponiveis = [
@@ -66,13 +79,13 @@ const Ambientes = () => {
     PARCIAL: 1,
     OFFLINE: 2,
     MANUTENCAO: 3,
-    ONLINE: 4
+    ONLINE: 4,
   };
 
   /* =========================
      FILTRO
   ========================= */
-  const ambientesFiltrados = ambientes
+  const ambientesFiltrados = (Array.isArray(ambientes) ? ambientes : [])
     .filter((ambiente) => {
       if (statusFiltro === "TODOS") return true;
       return ambiente.status?.toUpperCase() === statusFiltro;
@@ -80,7 +93,9 @@ const Ambientes = () => {
     .sort((a, b) => {
       const statusA = a.status?.toUpperCase();
       const statusB = b.status?.toUpperCase();
-      return (prioridadeStatus[statusA] || 99) - (prioridadeStatus[statusB] || 99);
+      return (
+        (prioridadeStatus[statusA] || 99) - (prioridadeStatus[statusB] || 99)
+      );
     });
 
   /* =========================
@@ -106,7 +121,7 @@ const Ambientes = () => {
       nome: "",
       tipo: "Sala",
       equipamentos: [],
-      status: "offline",
+      status: "OFFLINE",
     });
     setShowModal(true);
   };
@@ -120,7 +135,7 @@ const Ambientes = () => {
       nome: ambiente.nome,
       tipo: ambiente.tipo,
       equipamentos: ambiente.equipamentos?.map((e) => e.id) || [],
-      status: ambiente.status || "offline",
+      status: ambiente.status || "OFFLINE",
     });
 
     setShowModal(true);
@@ -132,7 +147,7 @@ const Ambientes = () => {
     setAmbienteEditando(null);
   };
 
-  const handleSalvarAmbiente = () => {
+  const handleSalvarAmbiente = async () => {
     if (!novoAmbiente.nome) {
       setErroModal("Informe o nome do ambiente.");
       return;
@@ -143,43 +158,61 @@ const Ambientes = () => {
       return;
     }
 
-    // Converte IDs selecionados de volta para objetos de equipamento
     const equipamentosObjetos = novoAmbiente.equipamentos.map((id) => {
       const eqOriginal = equipamentosDisponiveis.find((e) => e.id === id);
-      return { ...eqOriginal, ligado: false }; // Default desligado ao criar/editar via modal simples
+      return { ...eqOriginal, ligado: false };
     });
 
     if (modoModal === "CRIAR") {
-      const novo = {
-        id: ambientes.length + 1,
+      const novo = await criarAmbiente(corporationId, {
         nome: novoAmbiente.nome,
         tipo: novoAmbiente.tipo,
         temperatura: 25,
         potencia: 0,
-        status: novoAmbiente.status,
+        status: novoAmbiente.status?.toUpperCase(),
         equipamentos: equipamentosObjetos,
-      };
+        pausado: false,
+        ultimaAtualizacao: new Date().toISOString(),
+      });
 
-      setAmbientes([...ambientes, novo]);
+      setAmbientes((prev) => [...prev, novo]);
     }
 
     if (modoModal === "EDITAR" && ambienteEditando) {
+      const atualizado = await editarAmbiente(
+        corporationId,
+        ambienteEditando.id,
+        {
+          nome: novoAmbiente.nome,
+          tipo: novoAmbiente.tipo,
+          status: novoAmbiente.status?.toUpperCase(),
+          equipamentos: equipamentosObjetos,
+        },
+      );
+
       setAmbientes((prev) =>
-        prev.map((a) =>
-          a.id === ambienteEditando.id
-            ? {
-                ...a,
-                nome: novoAmbiente.nome,
-                tipo: novoAmbiente.tipo,
-                status: novoAmbiente.status,
-                equipamentos: equipamentosObjetos,
-              }
-            : a,
-        ),
+        prev.map((a) => (a.id === ambienteEditando.id ? atualizado : a)),
       );
     }
 
     handleFecharModal();
+  };
+
+  const handleExcluirAmbiente = async (ambiente) => {
+    const confirmar = window.confirm(
+      `Tem certeza que deseja excluir o ambiente "${ambiente.nome}"?`,
+    );
+
+    if (!confirmar) return;
+
+    await deletarAmbiente(corporationId, ambiente.id);
+
+    setAmbientes((prev) => prev.filter((a) => a.id !== ambiente.id));
+
+    const ambienteAtivo = localStorage.getItem("agst_active_ambiente_id");
+    if (String(ambienteAtivo) === String(ambiente.id)) {
+      localStorage.removeItem("agst_active_ambiente_id");
+    }
   };
 
   /* =========================
@@ -189,11 +222,11 @@ const Ambientes = () => {
     setActiveAmbiente(ambiente.id);
     navigate("/automacoes");
   };
-  
+
   function getTextoStatus(ambiente) {
     const status = ambiente.status?.toUpperCase();
     const total = ambiente.equipamentos?.length || 0;
-    const ligados = ambiente.equipamentos?.filter(e => e.ligado).length || 0;
+    const ligados = ambiente.equipamentos?.filter((e) => e.ligado).length || 0;
 
     if (status === "MANUTENCAO") {
       return (
@@ -278,7 +311,6 @@ const Ambientes = () => {
       {/* <NavBar /> */}
 
       <main className="main-content">
-      
         <header className="page-header">
           <div>
             <h1>Ambientes</h1>
@@ -302,7 +334,7 @@ const Ambientes = () => {
               className="btn-primary btn-fit"
               onClick={handleAdicionarAmbiente}
             >
-               {t("dashboard.adicionarAmbiente")}
+              {t("dashboard.adicionarAmbiente")}
             </button>
           </div>
         </header>
@@ -310,9 +342,7 @@ const Ambientes = () => {
         <div className="ambientes-grid">
           {loading && <p>Carregando ambientes...</p>}
 
-          {!loading && error && (
-            <p className="error">{error}</p>
-          )}
+          {!loading && error && <p className="error">{error}</p>}
           {!loading && !error && ambientes.length === 0 && (
             <div className="empty-state">
               <p>Nenhum ambiente cadastrado ainda.</p>
@@ -320,108 +350,134 @@ const Ambientes = () => {
             </div>
           )}
 
-          {!loading && !error && ambientes.length > 0 && ambientesFiltrados.length === 0 && (
-            <div className="empty-state">
-              <p>Nenhum ambiente encontrado para este filtro.</p>
-              <p>Tente selecionar outro status.</p>
-            </div>
-          )}
+          {!loading &&
+            !error &&
+            ambientes.length > 0 &&
+            ambientesFiltrados.length === 0 && (
+              <div className="empty-state">
+                <p>Nenhum ambiente encontrado para este filtro.</p>
+                <p>Tente selecionar outro status.</p>
+              </div>
+            )}
 
-          {!loading && !error && ambientesFiltrados.length > 0 && ambientesFiltrados.map((ambiente) => (
-            <div key={ambiente.id} className="automacao-card ambiente-card">
-              <div className="ambiente-header">
-                <div>
-                  <h3 className="ambiente-nome">{ambiente.nome}</h3>
+          {!loading &&
+            !error &&
+            ambientesFiltrados.length > 0 &&
+            ambientesFiltrados.map((ambiente) => (
+              <div key={ambiente.id} className="automacao-card ambiente-card">
+                <div className="ambiente-header">
+                  <div>
+                    <h3 className="ambiente-nome">{ambiente.nome}</h3>
 
-                  {ambiente.equipamentos?.length > 0 && (
-                    <p className="ambiente-equipamentos">
-                      {ambiente.equipamentos.length}{" "}
-                      {ambiente.equipamentos.length === 1 ? "equipamento" : "equipamentos"}
-                    </p>
-                  )}
+                    {ambiente.equipamentos?.length > 0 && (
+                      <p className="ambiente-equipamentos">
+                        {ambiente.equipamentos.length}{" "}
+                        {ambiente.equipamentos.length === 1
+                          ? "equipamento"
+                          : "equipamentos"}
+                      </p>
+                    )}
 
-                  <span className={`status ${ambiente.status?.toLowerCase() || ""}`}>
-                    {getTextoStatus(ambiente)}
-                  </span>
+                    <div className="status-badge-container">
+                      <span
+                        className={`status-badge status-${ambiente.status?.toLowerCase()}`}
+                      >
+                        {ambiente.status === "ONLINE" && "🟢 Online"}
+                        {ambiente.status === "PARCIAL" && "🟡 Parcial"}
+                        {ambiente.status === "OFFLINE" && "🔴 Offline"}
+                        {ambiente.status === "MANUTENCAO" && "🛠 Manutenção"}
+                      </span>
+                    </div>
 
-                  <div className="ambiente-pausa">
-                    <label className="switch">
-                      <input
-                        type="checkbox"
-                        checked={ambiente.pausado}
-                        disabled={ambiente.status?.toUpperCase() === "MANUTENCAO"}
-                        onChange={() =>
-                          setAmbientes((prev) =>
-                            prev.map((a) =>
-                              a.id === ambiente.id
-                                ? { ...a, pausado: !a.pausado }
-                                : a
+                    <div className="ambiente-pausa">
+                      <label className="switch">
+                        <input
+                          type="checkbox"
+                          checked={ambiente.pausado}
+                          disabled={
+                            ambiente.status?.toUpperCase() === "MANUTENCAO"
+                          }
+                          onChange={() =>
+                            setAmbientes((prev) =>
+                              prev.map((a) =>
+                                a.id === ambiente.id
+                                  ? { ...a, pausado: !a.pausado }
+                                  : a,
+                              ),
                             )
-                          )
-                        }
-                      />
-                      <span className="slider" />
-                    </label>
+                          }
+                        />
+                        <span className="slider" />
+                      </label>
 
-                    <span className="ambiente-pausa-texto">
-                      {ambiente.status?.toUpperCase() === "MANUTENCAO"
-                        ? "Ambiente em manutenção"
-                        : ambiente.pausado ? "Ambiente pausado" : "Ambiente ativo"}
-                    </span>
+                      <span className="ambiente-pausa-texto">
+                        {ambiente.status?.toUpperCase() === "MANUTENCAO"
+                          ? "Ambiente em manutenção"
+                          : ambiente.pausado
+                            ? "Ambiente pausado"
+                            : "Ambiente ativo"}
+                      </span>
+                    </div>
+
+                    {ambiente.pausado && (
+                      <p className="ambiente-pausado-info">
+                        ⏸ Automações deste ambiente estão pausadas
+                      </p>
+                    )}
                   </div>
 
-                  {ambiente.pausado && (
-                    <p className="ambiente-pausado-info">
-                      ⏸ Automações deste ambiente estão pausadas
-                    </p>
-                  )}
+                  <button
+                    className="icon-btn"
+                    onClick={() => handleEditarAmbiente(ambiente)}
+                    title="Editar ambiente"
+                  >
+                    ⚙️
+                  </button>
+                  <button
+                    className="icon-btn btn-danger"
+                    onClick={() => handleExcluirAmbiente(ambiente)}
+                    title="Excluir ambiente"
+                  >
+                    🗑️
+                  </button>
                 </div>
+
+                <p className="ambiente-tipo">{ambiente.tipo}</p>
+
+                <div className="ambiente-info">
+                  <div className="info-row">
+                    <span>Temperatura média</span>
+                    <strong>{mostrarTemperatura(ambiente)}</strong>
+                  </div>
+
+                  <div className="info-row">
+                    <span>Potência</span>
+                    <strong>{mostrarPotencia(ambiente)}</strong>
+                  </div>
+                </div>
+
+                {ambiente.ultimaAtualizacao && (
+                  <p className="ambiente-atualizacao">
+                    🕒 {tempoDesdeAtualizacao(ambiente.ultimaAtualizacao)}
+                  </p>
+                )}
 
                 <button
-                  className="icon-btn"
-                  onClick={() => handleEditarAmbiente(ambiente)}
-                  title="Editar ambiente"
+                  className="btn-controlar"
+                  disabled={!podeControlar(ambiente) || ambiente.pausado}
+                  onClick={() => handleControlar(ambiente)}
+                  title={
+                    ambiente.status?.toUpperCase() === "OFFLINE"
+                      ? "Ambiente sem comunicação"
+                      : ambiente.status?.toUpperCase() === "MANUTENCAO"
+                        ? "Ambiente em manutenção"
+                        : ""
+                  }
                 >
-                  ⚙️
+                  Controlar 🔧
                 </button>
               </div>
-
-              <p className="ambiente-tipo">{ambiente.tipo}</p>
-
-              <div className="ambiente-info">
-                <div className="info-row">
-                  <span>Temperatura média</span>
-                  <strong>{mostrarTemperatura(ambiente)}</strong>
-                </div>
-
-                <div className="info-row">
-                  <span>Potência</span>
-                  <strong>{mostrarPotencia(ambiente)}</strong>
-                </div>
-              </div>
-
-              {ambiente.ultimaAtualizacao && (
-                <p className="ambiente-atualizacao">
-                  🕒 {tempoDesdeAtualizacao(ambiente.ultimaAtualizacao)}
-                </p>
-              )}
-
-              <button
-                className="btn-controlar"
-                disabled={!podeControlar(ambiente) || ambiente.pausado}
-                onClick={() => handleControlar(ambiente)}
-                title={
-                  ambiente.status?.toUpperCase() === "OFFLINE"
-                    ? "Ambiente sem comunicação"
-                    : ambiente.status?.toUpperCase() === "MANUTENCAO"
-                    ? "Ambiente em manutenção"
-                    : ""
-                }
-              >
-                Controlar 🔧
-              </button>
-            </div>
-          ))}
+            ))}
         </div>
 
         {showModal && (
@@ -461,20 +517,28 @@ const Ambientes = () => {
                 </select>
 
                 <label className="form-label">Status do Ambiente</label>
-                <select
-                  className="input"
-                  value={novoAmbiente.status}
-                  onChange={(e) =>
-                    setNovoAmbiente({
-                      ...novoAmbiente,
-                      status: e.target.value,
-                    })
-                  }
-                >
-                  <option value="online">Online</option>
-                  <option value="offline">Offline</option>
-                  <option value="manutencao">Manutenção</option>
-                </select>
+                <div className="status-selector">
+                  {["ONLINE", "OFFLINE", "MANUTENCAO", "PARCIAL"].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      className={`status-option ${
+                        novoAmbiente.status === s ? "selected" : ""
+                      }`}
+                      onClick={() =>
+                        setNovoAmbiente({
+                          ...novoAmbiente,
+                          status: s,
+                        })
+                      }
+                    >
+                      {s === "ONLINE" && "🟢 Online"}
+                      {s === "OFFLINE" && "🔴 Offline"}
+                      {s === "MANUTENCAO" && "🟡 Manutenção"}
+                      {s === "PARCIAL" && "🟠 Parcial"}
+                    </button>
+                  ))}
+                </div>
 
                 <h4 className="modal-section-title">Equipamentos</h4>
                 <div className="equipamentos-grid">
@@ -493,12 +557,14 @@ const Ambientes = () => {
                 {erroModal && <p className="form-error">{erroModal}</p>}
               </div>
 
-              <div className="modal-footer">
+              <div className="modal-footer modal-footer-sa">
                 <button className="btn-secondary" onClick={handleFecharModal}>
                   Cancelar
                 </button>
                 <button className="btn-primary" onClick={handleSalvarAmbiente}>
-                  {modoModal === "CRIAR" ? "Concluir" : "Salvar alterações"}
+                  {modoModal === "CRIAR"
+                    ? "Criar Ambiente"
+                    : "Salvar alterações"}
                 </button>
               </div>
             </div>

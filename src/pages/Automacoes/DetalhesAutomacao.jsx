@@ -4,6 +4,8 @@ import "./DetalhesAutomacao.css";
 
 import AutomacaoForm from "../../components/automacoes/AutomacaoForm";
 import { calcularImpactoAutomacaoDetalhado } from "../../utils/calcularImpactoAutomacao";
+import { useAuth } from "../../context/AuthContext";
+import { useAmbiente } from "../../context/AmbienteContext";
 
 import {
   buscarAutomacaoPorId,
@@ -38,6 +40,9 @@ const LOGS_MOCK = [
 
 const DetalhesAutomacao = () => {
   const { id } = useParams();
+  const { corporationId } = useAuth();
+  const { ambienteId } = useAmbiente();
+
   const navigate = useNavigate();
 
   // =========================
@@ -60,13 +65,18 @@ const DetalhesAutomacao = () => {
   // =========================
   useEffect(() => {
     async function carregar() {
-      const dados = await buscarAutomacaoPorId(id);
+      const dados = await buscarAutomacaoPorId(
+        id, 
+        corporationId, 
+        ambienteId
+      );
+
       setAutomacao(dados);
       setLoading(false);
     }
 
     carregar();
-  }, [id]);
+  }, [id, corporationId, ambienteId]);
 
   useEffect(() => {
     buscarHistoricoAutomacao(id).then((dados) => {
@@ -89,7 +99,7 @@ const DetalhesAutomacao = () => {
   const confirmarAlteracaoStatus = async () => {
     const novoStatus = automacao.status === "ATIVA" ? "PAUSADA" : "ATIVA";
 
-    await alterarStatusAutomacao(id, novoStatus);
+    await alterarStatusAutomacao(id, novoStatus, corporationId, ambienteId);
 
     setAutomacao((prev) => ({
       ...prev,
@@ -101,7 +111,7 @@ const DetalhesAutomacao = () => {
   };
 
   const salvarEdicao = async (dadosForm) => {
-    await editarAutomacao(id, dadosForm);
+    await editarAutomacao(id, dadosForm, corporationId, ambienteId);
 
     setAutomacao((prev) => ({
       ...prev,
