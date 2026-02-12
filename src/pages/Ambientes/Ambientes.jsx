@@ -13,8 +13,11 @@ import { useAuth } from "../../context/AuthContext";
 import { useAmbiente } from "../../context/AmbienteContext";
 
 import "./Ambientes.css";
+import { useToast } from "../../context/ToastContext";
 
 const Ambientes = () => {
+  const { showToast } = useToast();
+
   const [statusFiltro, setStatusFiltro] = useState("TODOS");
 
   const { corporationId } = useAuth();
@@ -150,52 +153,77 @@ const Ambientes = () => {
   const handleSalvarAmbiente = async () => {
     if (!novoAmbiente.nome) {
       setErroModal("Informe o nome do ambiente.");
+      showToast({
+        type: "error",
+        message: "Informe o nome do ambiente.",
+      });
       return;
     }
 
     if (novoAmbiente.equipamentos.length === 0) {
       setErroModal("Selecione ao menos um equipamento.");
+      showToast({
+        type: "error",
+        message: "Selecione ao menos um equipamento.",
+      });
       return;
     }
 
-    const equipamentosObjetos = novoAmbiente.equipamentos.map((id) => {
-      const eqOriginal = equipamentosDisponiveis.find((e) => e.id === id);
-      return { ...eqOriginal, ligado: false };
-    });
-
-    if (modoModal === "CRIAR") {
-      const novo = await criarAmbiente(corporationId, {
-        nome: novoAmbiente.nome,
-        tipo: novoAmbiente.tipo,
-        temperatura: 25,
-        potencia: 0,
-        status: novoAmbiente.status?.toUpperCase(),
-        equipamentos: equipamentosObjetos,
-        pausado: false,
-        ultimaAtualizacao: new Date().toISOString(),
+    try {
+      const equipamentosObjetos = novoAmbiente.equipamentos.map((id) => {
+        const eqOriginal = equipamentosDisponiveis.find((e) => e.id === id);
+        return { ...eqOriginal, ligado: false };
       });
 
-      setAmbientes((prev) => [...prev, novo]);
-    }
-
-    if (modoModal === "EDITAR" && ambienteEditando) {
-      const atualizado = await editarAmbiente(
-        corporationId,
-        ambienteEditando.id,
-        {
+      if (modoModal === "CRIAR") {
+        const novo = await criarAmbiente(corporationId, {
           nome: novoAmbiente.nome,
           tipo: novoAmbiente.tipo,
+          temperatura: 25,
+          potencia: 0,
           status: novoAmbiente.status?.toUpperCase(),
           equipamentos: equipamentosObjetos,
-        },
-      );
+          pausado: false,
+          ultimaAtualizacao: new Date().toISOString(),
+        });
 
-      setAmbientes((prev) =>
-        prev.map((a) => (a.id === ambienteEditando.id ? atualizado : a)),
-      );
+        setAmbientes((prev) => [...prev, novo]);
+
+        showToast({
+          type: "success",
+          message: "Ambiente criado com sucesso",
+        });
+      }
+
+      if (modoModal === "EDITAR" && ambienteEditando) {
+        const atualizado = await editarAmbiente(
+          corporationId,
+          ambienteEditando.id,
+          {
+            nome: novoAmbiente.nome,
+            tipo: novoAmbiente.tipo,
+            status: novoAmbiente.status?.toUpperCase(),
+            equipamentos: equipamentosObjetos,
+          },
+        );
+
+        setAmbientes((prev) =>
+          prev.map((a) => (a.id === ambienteEditando.id ? atualizado : a)),
+        );
+
+        showToast({
+          type: "success",
+          message: "Ambiente atualizado com sucesso",
+        });
+      }
+
+      handleFecharModal();
+    } catch (err) {
+      showToast({
+        type: "error",
+        message: "Erro inesperado ao salvar ambiente",
+      });
     }
-
-    handleFecharModal();
   };
 
   const handleExcluirAmbiente = async (ambiente) => {
@@ -205,13 +233,25 @@ const Ambientes = () => {
 
     if (!confirmar) return;
 
-    await deletarAmbiente(corporationId, ambiente.id);
+    try {
+      await deletarAmbiente(corporationId, ambiente.id);
 
-    setAmbientes((prev) => prev.filter((a) => a.id !== ambiente.id));
+      setAmbientes((prev) => prev.filter((a) => a.id !== ambiente.id));
 
-    const ambienteAtivo = localStorage.getItem("agst_active_ambiente_id");
-    if (String(ambienteAtivo) === String(ambiente.id)) {
-      localStorage.removeItem("agst_active_ambiente_id");
+      const ambienteAtivo = localStorage.getItem("agst_active_ambiente_id");
+      if (String(ambienteAtivo) === String(ambiente.id)) {
+        localStorage.removeItem("agst_active_ambiente_id");
+      }
+
+      showToast({
+        type: "success",
+        message: "Ambiente excluído com sucesso",
+      });
+    } catch (err) {
+      showToast({
+        type: "error",
+        message: "Erro ao excluir ambiente",
+      });
     }
   };
 
@@ -426,20 +466,49 @@ const Ambientes = () => {
                     )}
                   </div>
 
-                  <button
-                    className="icon-btn"
-                    onClick={() => handleEditarAmbiente(ambiente)}
-                    title="Editar ambiente"
-                  >
-                    ⚙️
-                  </button>
-                  <button
-                    className="icon-btn btn-danger"
-                    onClick={() => handleExcluirAmbiente(ambiente)}
-                    title="Excluir ambiente"
-                  >
-                    🗑️
-                  </button>
+                  <div className="ambiente-menu-wrapper">
+                    <button
+                      className="icon-btn menu-trigger"
+                      onClick={() =>
+                        setAmbientes((prev) =>
+                          prev.map((a) =>
+                            a.id === ambiente.id
+                              ? { ...a, menuAberto: !a.menuAberto }
+                              : { ...a, menuAberto: false },
+                          ),
+                        )
+                      }
+                    >
+                      ⋮
+                    </button>
+
+                    {ambiente.menuAberto && (
+                      <div className="ambiente-dropdown">
+                        <button
+                          onClick={() => {
+                            handleEditarAmbiente(ambiente);
+                            setAmbientes((prev) =>
+                              prev.map((a) => ({ ...a, menuAberto: false })),
+                            );
+                          }}
+                        >
+                          ✏️ Editar
+                        </button>
+
+                        <button
+                          className="danger"
+                          onClick={() => {
+                            handleExcluirAmbiente(ambiente);
+                            setAmbientes((prev) =>
+                              prev.map((a) => ({ ...a, menuAberto: false })),
+                            );
+                          }}
+                        >
+                          🗑️ Excluir
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <p className="ambiente-tipo">{ambiente.tipo}</p>
