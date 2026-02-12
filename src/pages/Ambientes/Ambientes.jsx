@@ -474,7 +474,7 @@ const Ambientes = () => {
                         : ""
                   }
                 >
-                  Controlar 🔧
+                  Automatizar 🔧
                 </button>
               </div>
             ))}
