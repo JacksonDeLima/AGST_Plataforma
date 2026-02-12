@@ -45,8 +45,9 @@ export default function Login() {
           },
         });
       } catch (e) {
-        console.error("âŒ [Login] OAuth bootstrap error:", e);
-        if (alive) setErrorMsg("Falha ao iniciar sessÃ£o OAuth. Tente novamente.");
+        console.error("❌ [Login] Erro ao iniciar OAuth:", e);
+        if (alive)
+          setErrorMsg("Falha ao iniciar sessão OAuth. Tente novamente.");
       } finally {
         if (alive) setBooting(false);
       }
@@ -59,9 +60,9 @@ export default function Login() {
 
   function validate() {
     const errors = {};
-    if (!email.trim()) errors.email = "Email Ã© obrigatÃ³rio";
-    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email invÃ¡lido";
-    if (!password) errors.password = "Senha Ã© obrigatÃ³ria";
+    if (!email.trim()) errors.email = "E-mail é obrigatório";
+    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "E-mail inválido";
+    if (!password) errors.password = "Senha é obrigatória";
     return errors;
   }
 
@@ -78,19 +79,22 @@ export default function Login() {
     setIsLoading(true);
     setFieldErrors({});
 
-    // âœ… Agora autentica pelo AuthContext (nÃ£o pelo authService)
+    // ✅ Agora autentica pelo AuthContext (não pelo authService)
     const result = await loginWithPassword(email, password);
 
     setIsLoading(false);
 
     if (!result.ok) {
-      setErrorMsg(result.error?.data?.error || result.error?.message || "Erro ao autenticar.");
+      setErrorMsg(
+        result.error?.data?.error ||
+        result.error?.message ||
+        "Erro ao autenticar."
+      );
       return;
     }
 
     navigate("/ambientes", { replace: true });
   }
-
 
   const disabled = booting || isLoading;
 
@@ -103,42 +107,42 @@ export default function Login() {
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
 
-          <h2 className="auth-brand-title">Acesse o Brise Cloud</h2>
+          <h2 className="auth-brand-title">Bem-vindo ao Brise Cloud</h2>
 
           <p className="auth-brand-subtitle">
             {mode === "oauth"
-              ? "AutenticaÃ§Ã£o via OAuth2 (produÃ§Ã£o / same-origin)."
-              : "Modo DEV (localhost): login por e-mail/senha. OAuth fica pronto para testes futuros."}
+              ? "Faça login com sua conta para acessar seus ambientes e dispositivos."
+              : "Acesse sua conta com e-mail e senha para continuar."}
           </p>
 
           <ul className="auth-brand-list">
-            <li>
-              â€¢ Modo atual: <b>{mode}</b>
-            </li>
-            <li>â€¢ Tokens no localStorage</li>
-            <li>â€¢ Authorization: Bearer access_token</li>
+            <li>• Acesse seus ambientes com segurança</li>
+            <li>• Visualize e gerencie seus dispositivos</li>
+            <li>• Tenha seus dados sincronizados na nuvem</li>
           </ul>
 
           {DEBUG_AUTH && (
             <div style={{ marginTop: 10, fontSize: 12, opacity: 0.75 }}>
-              ðŸ”Ž DEBUG_AUTH ligado (tokens completos no console)
+              🔎 Modo de diagnóstico ativado
             </div>
           )}
         </div>
 
-        {/* Lado direito - formulÃ¡rio */}
+        {/* Lado direito - formulário */}
         <div className="auth-box">
           <div className="auth-header">
             <h1>Entrar</h1>
             <p>
               {mode === "oauth"
-                ? "Verificando sessÃ£o e redirecionando se necessÃ¡rio..."
-                : "Entre com seu usuÃ¡rio e senha (modo local)."}
+                ? "Preparando seu acesso... Se necessário, você será redirecionado para fazer login."
+                : "Informe seu e-mail e senha para acessar sua conta."}
             </p>
           </div>
 
           {booting && (
-            <div className="auth-info-banner">Verificando sessÃ£o OAuth...</div>
+            <div className="auth-info-banner">
+              Preparando seu acesso, aguarde...
+            </div>
           )}
 
           {errorMsg && <div className="auth-error-banner">{errorMsg}</div>}
@@ -150,17 +154,17 @@ export default function Login() {
               onClick={redirectToAuthorize}
               disabled={disabled}
             >
-              Entrar com Brise (OAuth)
+              Continuar
             </button>
           ) : (
             <>
               <form onSubmit={handleSubmit} className="auth-form">
                 <div className="input-group">
-                  <label htmlFor="email">Email</label>
+                  <label htmlFor="email">E-mail</label>
                   <input
                     id="email"
                     type="email"
-                    placeholder="seu.email@empresa.com"
+                    placeholder="seuemail@empresa.com"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -177,11 +181,8 @@ export default function Login() {
                 </div>
 
                 <div className="input-group">
-                  {/* âœ… label + link alinhados (mais profissional) */}
                   <div className="auth-label-row">
                     <label htmlFor="password">Senha</label>
-
-
                   </div>
 
                   <input
@@ -215,27 +216,11 @@ export default function Login() {
                   )}
                 </button>
               </form>
-
-              {/* <div style={{ marginTop: 12 }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() => {
-                    console.warn(
-                      "OAuth em localhost nÃ£o persiste tokens por origem. Para testar, rode o app no mesmo domÃ­nio do backend."
-                    );
-                    redirectToAuthorize();
-                  }}
-                  disabled={disabled}
-                >
-                  Testar OAuth (requer same-origin)
-                </button>
-              </div> */}
             </>
           )}
 
           <div className="auth-login-link">
-            <span>NÃ£o tem uma conta?</span>
+            <span>Não tem uma conta?</span>
             <button
               type="button"
               className="link-button"
@@ -254,18 +239,15 @@ export default function Login() {
               onClick={() => navigate("/EsqueciSenha")}
               disabled={disabled}
             >
-              Esqueci minha senha
+              Recuperar senha
             </button>
           </div>
         </div>
       </div>
 
       <footer className="auth-footer">
-        Â© {new Date().getFullYear()} Brise Cloud Â· AGST
+        © {new Date().getFullYear()} Brise Cloud · AGST
       </footer>
     </div>
   );
 }
-
-
-

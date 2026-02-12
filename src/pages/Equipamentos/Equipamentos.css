@@ -268,6 +268,7 @@
   border-radius: 10px;
   cursor: pointer;
 }
+
 /* ===== MINI DASHBOARD ===== */
 
 
@@ -288,6 +289,7 @@
   gap: 6px;
   min-width: 0;
 }
+
 @media (max-width: 900px) {
   .mini-dashboard {
     flex-direction: column;
@@ -331,6 +333,7 @@
 .dashboard-card.automacao .dash-number {
   color: #0284c7;
 }
+
 /* ===== CORREÇÃO DE LARGURA DA PÁGINA ===== */
 
 .equipamentos-page {
@@ -382,9 +385,12 @@
 
 .select-ambiente {
   height: 36px;
-  width: 220px;                /* 👈 menor e mais profissional */
-  padding: 0 12px 0 36px;      /* espaço para o ícone */
-  border-radius: 999px;        /* estilo AGST moderno */
+  width: 220px;
+  /* 👈 menor e mais profissional */
+  padding: 0 12px 0 36px;
+  /* espaço para o ícone */
+  border-radius: 999px;
+  /* estilo AGST moderno */
   border: 1px solid #e2e8f0;
   background: #ffffff;
   font-size: 13px;
@@ -431,11 +437,12 @@
 
 
 .select-ambiente {
-  padding-left: 34px; /* espaço pro ícone */
+  padding-left: 34px;
+  /* espaço pro ícone */
 }
 
 .device-card {
-  transition: 
+  transition:
     opacity 0.25s ease,
     transform 0.25s ease,
     box-shadow 0.2s ease;
@@ -454,3 +461,102 @@
   color: #0f172a;
   text-decoration: underline;
 }
+
+.device-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.device-title {
+  margin: 0;
+}
+
+.device-sub {
+  margin: 6px 0 0 0;
+  opacity: 0.8;
+}
+
+.device-info {
+  margin-top: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.92rem;
+}
+
+.info-label {
+  opacity: 0.75;
+}
+
+.info-value {
+  font-weight: 600;
+}
+
+.device-controls {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-power {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 0;
+  cursor: pointer;
+}
+
+.btn-power.on {
+  opacity: 0.95;
+}
+
+.btn-power:disabled,
+.btn-ctrl:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-ctrl {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 0;
+  cursor: pointer;
+}
+
+.device-footer {
+  margin-top: 10px;
+  opacity: 0.7;
+}
+.temp-badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  line-height: 1;
+  border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* Sem leitura */
+.temp-na { background: #f3f4f6; color: #6b7280; }
+
+/* Escalas */
+.temp-frio { background: #e0f2fe; color: #075985; }
+.temp-agradavel { background: #dcfce7; color: #166534; }
+.temp-morno { background: #fef9c3; color: #854d0e; }
+.temp-quente { background: #ffedd5; color: #9a3412; }
+.temp-muito-quente { background: #fee2e2; color: #991b1b; }
+
+/* (opcional) layout interno do card */
+.device-top { display: flex; justify-content: space-between; gap: 12px; }
+.device-info { margin-top: 12px; display: grid; gap: 8px; }
+.info-row { display: flex; justify-content: space-between; gap: 10px; }
+.info-label { opacity: 0.75; }
+.info-value { font-weight: 600; }
+.device-controls { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }

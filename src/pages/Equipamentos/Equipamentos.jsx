@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Equipamentos.css";
+
+const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
 const Equipamentos = () => {
   const navigate = useNavigate();
@@ -12,8 +14,10 @@ const Equipamentos = () => {
       status: "Ativo",
       local: "Escritório Gerência",
       capacidade: "12000 BTU",
-      temperaturaAtual: "23°C",
+      temperaturaAtual: "08°C",
       consumoAtual: "5000 W",
+      setpoint: 22,
+      modo: "cool",
     },
     {
       id: 2,
@@ -23,6 +27,8 @@ const Equipamentos = () => {
       capacidade: "16000 BTU",
       temperaturaAtual: "23°C",
       consumoAtual: "5000 W",
+      setpoint: 24,
+      modo: "auto",
     },
     {
       id: 3,
@@ -32,6 +38,8 @@ const Equipamentos = () => {
       capacidade: "9000 BTU",
       temperaturaAtual: "23°C",
       consumoAtual: "5000 W",
+      setpoint: 23,
+      modo: "fan",
     },
     {
       id: 4,
@@ -41,6 +49,8 @@ const Equipamentos = () => {
       capacidade: "9000 BTU",
       temperaturaAtual: "23°C",
       consumoAtual: "5000 W",
+      setpoint: 21,
+      modo: "cool",
     },
     {
       id: 5,
@@ -50,6 +60,8 @@ const Equipamentos = () => {
       capacidade: "12000 BTU",
       temperaturaAtual: "23°C",
       consumoAtual: "5000 W",
+      setpoint: 22,
+      modo: "dry",
     },
     {
       id: 6,
@@ -59,6 +71,8 @@ const Equipamentos = () => {
       capacidade: "16000 BTU",
       temperaturaAtual: "23°C",
       consumoAtual: "5000 W",
+      setpoint: 25,
+      modo: "heat",
     },
     {
       id: 7,
@@ -68,6 +82,8 @@ const Equipamentos = () => {
       capacidade: "9000 BTU",
       temperaturaAtual: "26°C",
       consumoAtual: "0 W",
+      setpoint: 24,
+      modo: "cool",
     },
     {
       id: 8,
@@ -77,6 +93,8 @@ const Equipamentos = () => {
       capacidade: "9000 BTU",
       temperaturaAtual: "-",
       consumoAtual: "-",
+      setpoint: null,
+      modo: null,
     },
   ]);
 
@@ -92,14 +110,20 @@ const Equipamentos = () => {
     capacidade: "",
   });
 
-  const ambientes = ["TODOS", ...new Set(equipamentos.map((e) => e.local))];
+  // ========= Helpers =========
+  const ambientes = useMemo(
+    () => ["TODOS", ...new Set(equipamentos.map((e) => e.local))],
+    [equipamentos]
+  );
 
-  const equipamentosFiltrados = equipamentos.filter((e) => {
-    const statusOk = filtroStatus === "TODOS" || e.status === filtroStatus;
-    const ambienteOk =
-      filtroAmbiente === "TODOS" || e.local === filtroAmbiente;
-    return statusOk && ambienteOk;
-  });
+  const equipamentosFiltrados = useMemo(() => {
+    return equipamentos.filter((e) => {
+      const statusOk = filtroStatus === "TODOS" || e.status === filtroStatus;
+      const ambienteOk =
+        filtroAmbiente === "TODOS" || e.local === filtroAmbiente;
+      return statusOk && ambienteOk;
+    });
+  }, [equipamentos, filtroStatus, filtroAmbiente]);
 
   const criarEquipamento = () => {
     if (
@@ -119,16 +143,12 @@ const Equipamentos = () => {
       capacidade: novoEquipamento.capacidade,
       temperaturaAtual: "-",
       consumoAtual: "-",
+      setpoint: null,
+      modo: null,
     };
 
-    setEquipamentos([...equipamentos, novo]);
-
-    setNovoEquipamento({
-      modelo: "",
-      local: "",
-      capacidade: "",
-    });
-
+    setEquipamentos((prev) => [...prev, novo]);
+    setNovoEquipamento({ modelo: "", local: "", capacidade: "" });
     setShowModal(false);
   };
 
@@ -144,6 +164,80 @@ const Equipamentos = () => {
     setFiltroAmbiente("TODOS");
   };
 
+  // ========= Escala de cores (Temperatura) =========
+  const parseTemp = (t) => {
+    if (t === null || t === undefined) return null;
+    if (typeof t === "number") return t;
+
+    const s = String(t).trim();
+    if (!s || s === "-") return null;
+
+    const n = parseFloat(s.replace("°C", "").replace(",", "."));
+    return Number.isNaN(n) ? null : n;
+  };
+
+  const getTempClass = (tempRaw) => {
+    const temp = parseTemp(tempRaw);
+    if (temp === null) return "temp-na";
+
+    if (temp <= 18) return "temp-frio";
+    if (temp <= 22) return "temp-agradavel";
+    if (temp <= 26) return "temp-morno";
+    if (temp <= 30) return "temp-quente";
+    return "temp-muito-quente";
+  };
+
+  // ========= Ações (mock UI) =========
+  const patchEquipamento = (id, patch) => {
+    setEquipamentos((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, ...patch } : e))
+    );
+  };
+
+  const togglePower = (id) => {
+    const eq = equipamentos.find((e) => e.id === id);
+    if (!eq || eq.status === "Offline") return;
+
+    if (eq.status === "Ativo") {
+      patchEquipamento(id, { status: "Inativo", consumoAtual: "0 W" });
+      return;
+    }
+
+    // ligando
+    const tempAtual =
+      eq.temperaturaAtual === "-" || eq.temperaturaAtual == null
+        ? "24°C"
+        : eq.temperaturaAtual;
+
+    patchEquipamento(id, {
+      status: "Ativo",
+      temperaturaAtual: tempAtual,
+      consumoAtual: "450 W",
+      modo: eq.modo || "cool",
+      setpoint: eq.setpoint ?? 24,
+    });
+  };
+
+  const changeSetpoint = (id, delta) => {
+    const eq = equipamentos.find((e) => e.id === id);
+    if (!eq || eq.status !== "Ativo") return;
+
+    const next = clamp((eq.setpoint ?? 24) + delta, 16, 30);
+    patchEquipamento(id, { setpoint: next });
+  };
+
+  const cycleModo = (id) => {
+    const eq = equipamentos.find((e) => e.id === id);
+    if (!eq || eq.status !== "Ativo") return;
+
+    const order = ["auto", "cool", "heat", "fan", "dry"];
+    const cur = eq.modo || "auto";
+    const idx = order.indexOf(cur);
+    const next = order[(idx + 1) % order.length];
+
+    patchEquipamento(id, { modo: next });
+  };
+
   return (
     <div className="app">
       <div className="equipamentos-page">
@@ -154,12 +248,13 @@ const Equipamentos = () => {
         >
           ← Voltar
         </button>
+
         {/* HEADER */}
         <div className="page-header">
-          <h1 className="page-title">Equipamentos</h1>
-          <p className="page-subtitle">
-            Adicione ou gerencie seus equipamentos
-          </p>
+          <div>
+            <h1 className="page-title">Equipamentos</h1>
+            <p className="page-subtitle">Adicione ou gerencie seus equipamentos</p>
+          </div>
         </div>
 
         {/* MINI DASHBOARD */}
@@ -219,59 +314,161 @@ const Equipamentos = () => {
 
         {/* GRID */}
         <div className="devices-grid">
-          {equipamentosFiltrados.map((equipamento) => (
-            <div className="device-card" key={equipamento.id}>
-              <h3>{equipamento.modelo}</h3>
-              <p>{equipamento.local}</p>
-              <span className={`status ${getStatusClass(equipamento.status)}`}>
-                {equipamento.status}
-              </span>
-            </div>
-          ))}
+          {equipamentosFiltrados.map((equipamento) => {
+            const isOffline = equipamento.status === "Offline";
+            const isActive = equipamento.status === "Ativo";
+
+            return (
+              <div className="device-card" key={equipamento.id}>
+                {/* Cabeçalho do card */}
+                <div className="device-header">
+                  <h3 className="device-title">{equipamento.modelo}</h3>
+                  <span className={`status ${getStatusClass(equipamento.status)}`}>
+                    {equipamento.status}
+                  </span>
+                </div>
+
+                <p className="device-local">{equipamento.local}</p>
+
+                {/* Info */}
+                <div className="device-info">
+                  <div className="info-row">
+                    <span className="info-label">Capacidade</span>
+                    <span className="info-value">{equipamento.capacidade}</span>
+                  </div>
+
+                  <div className="info-row">
+                    <span className="info-label">Temp. atual</span>
+
+                    {/* ✅ AQUI entra o badge colorido */}
+                    <span
+                      className={`temp-badge ${getTempClass(
+                        equipamento.temperaturaAtual
+                      )}`}
+                    >
+                      {equipamento.temperaturaAtual}
+                    </span>
+                  </div>
+
+                  <div className="info-row">
+                    <span className="info-label">Consumo</span>
+                    <span className="info-value">{equipamento.consumoAtual}</span>
+                  </div>
+
+                  <div className="info-row">
+                    <span className="info-label">Setpoint</span>
+                    <span className="info-value">
+                      {equipamento.setpoint !== null &&
+                      equipamento.setpoint !== undefined
+                        ? `${equipamento.setpoint}°C`
+                        : "-"}
+                    </span>
+                  </div>
+
+                  <div className="info-row">
+                    <span className="info-label">Modo</span>
+                    <span className="info-value">{equipamento.modo || "-"}</span>
+                  </div>
+                </div>
+
+                {/* Ações */}
+                <div className="device-controls">
+                  <button
+                    className={`btn-power ${isActive ? "on" : "off"}`}
+                    disabled={isOffline}
+                    onClick={() => togglePower(equipamento.id)}
+                    title={isOffline ? "Equipamento offline" : isActive ? "Desligar" : "Ligar"}
+                  >
+                    {isActive ? "Desligar" : "Ligar"}
+                  </button>
+
+                  <button
+                    className="btn-ctrl"
+                    disabled={!isActive}
+                    onClick={() => changeSetpoint(equipamento.id, -1)}
+                    title={!isActive ? "Ative o equipamento" : "Diminuir setpoint"}
+                  >
+                    −
+                  </button>
+
+                  <button
+                    className="btn-ctrl"
+                    disabled={!isActive}
+                    onClick={() => changeSetpoint(equipamento.id, +1)}
+                    title={!isActive ? "Ative o equipamento" : "Aumentar setpoint"}
+                  >
+                    +
+                  </button>
+
+                  <button
+                    className="btn-ctrl"
+                    disabled={!isActive}
+                    onClick={() => cycleModo(equipamento.id)}
+                    title={!isActive ? "Ative o equipamento" : "Trocar modo"}
+                  >
+                    Modo
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* MODAL */}
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h2>Novo Equipamento</h2>
+              <h2 className="modal-title">Novo Equipamento</h2>
 
-              <input
-                placeholder="Modelo"
-                value={novoEquipamento.modelo}
-                onChange={(e) =>
-                  setNovoEquipamento({
-                    ...novoEquipamento,
-                    modelo: e.target.value,
-                  })
-                }
-              />
+              <div className="modal-body">
+                <div className="form-group">
+                  <label>Modelo</label>
+                  <input
+                    placeholder="Modelo"
+                    value={novoEquipamento.modelo}
+                    onChange={(e) =>
+                      setNovoEquipamento({
+                        ...novoEquipamento,
+                        modelo: e.target.value,
+                      })
+                    }
+                  />
+                </div>
 
-              <input
-                placeholder="Ambiente"
-                value={novoEquipamento.local}
-                onChange={(e) =>
-                  setNovoEquipamento({
-                    ...novoEquipamento,
-                    local: e.target.value,
-                  })
-                }
-              />
+                <div className="form-group">
+                  <label>Ambiente</label>
+                  <input
+                    placeholder="Ambiente"
+                    value={novoEquipamento.local}
+                    onChange={(e) =>
+                      setNovoEquipamento({
+                        ...novoEquipamento,
+                        local: e.target.value,
+                      })
+                    }
+                  />
+                </div>
 
-              <input
-                placeholder="Capacidade"
-                value={novoEquipamento.capacidade}
-                onChange={(e) =>
-                  setNovoEquipamento({
-                    ...novoEquipamento,
-                    capacidade: e.target.value,
-                  })
-                }
-              />
+                <div className="form-group">
+                  <label>Capacidade</label>
+                  <input
+                    placeholder="Capacidade"
+                    value={novoEquipamento.capacidade}
+                    onChange={(e) =>
+                      setNovoEquipamento({
+                        ...novoEquipamento,
+                        capacidade: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+              </div>
 
-              <button className="btn-primary" onClick={criarEquipamento}>
-                Salvar
-              </button>
+              <div className="modal-footer">
+                <button className="btn-criar-equipamento" onClick={criarEquipamento}>
+                  Salvar
+                </button>
+              </div>
             </div>
           </div>
         )}
