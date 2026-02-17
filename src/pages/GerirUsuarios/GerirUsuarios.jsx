@@ -375,7 +375,7 @@ const GerirUsuarios = () => {
 
     try {
       await apiRequest(
-        /corporations//members/,
+        `/corporations/${selectedCorpId}/members/${selectedUser.id}`,
         {
           method: "DELETE",
           auth: true,
@@ -386,13 +386,13 @@ const GerirUsuarios = () => {
       await loadMembers();
       closeDrawer();
     } catch (e) {
-      setActionMsg(❌ Falha ao remover: );
+      setActionMsg(`❌ Falha ao remover: ${e?.message || "erro"}`);
     } finally {
       setActionLoading(false);
       setConfirmRemoveOpen(false);
     }
   };
-  // âœ… Adicionar membro (POST /corporations/:id/members)
+  // Adicionar membro (POST /corporations/:id/members)
   const onAddMember = async () => {
     if (!selectedCorpId) return;
 

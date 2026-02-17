@@ -802,3 +802,199 @@ button:disabled {
   background: #fee2e2;
   color: #b91c1c;
 }
+
+/* ============================= */
+/* DARK MODE */
+/* ============================= */
+
+html[data-theme="dark"] .automacoes-page {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .dashboard-card,
+html[data-theme="dark"] .automacao-card,
+html[data-theme="dark"] .templates-preview,
+html[data-theme="dark"] .template-card,
+html[data-theme="dark"] .impact-preview,
+html[data-theme="dark"] .resumo-box,
+html[data-theme="dark"] .ambiente-info-topo,
+html[data-theme="dark"] .empty-state,
+html[data-theme="dark"] .alerta-ambiente {
+  background: #1e293b;
+  border-color: rgba(100, 116, 139, 0.4);
+  color: #f1f5f9;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"] .template-card {
+  border-color: rgba(100, 116, 139, 0.5);
+}
+
+html[data-theme="dark"] .template-card:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 10px 24px rgba(56, 189, 248, 0.2);
+}
+
+html[data-theme="dark"] .template-card.selecionado {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: #38bdf8;
+}
+
+html[data-theme="dark"] .template-card.template-preview {
+  background: #0f172a;
+  border-color: rgba(100, 116, 139, 0.4);
+}
+
+html[data-theme="dark"] .filtros-box select,
+html[data-theme="dark"] .ambiente-picker-row select {
+  background: #0f172a;
+  border-color: rgba(100, 116, 139, 0.5);
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .checkbox-item {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .checkbox-item:hover {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: #38bdf8;
+}
+
+html[data-theme="dark"] .slider {
+  background: #334155;
+}
+
+html[data-theme="dark"] .switch input:checked + .slider {
+  background: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+html[data-theme="dark"] .texto-suave,
+html[data-theme="dark"] .horario-separador,
+html[data-theme="dark"] .automacao-regra,
+html[data-theme="dark"] .automacao-descricao,
+html[data-theme="dark"] .automacao-meta,
+html[data-theme="dark"] .dash-label,
+html[data-theme="dark"] .empty-state p,
+html[data-theme="dark"] .alerta-ambiente p {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .automacao-nome,
+html[data-theme="dark"] .ambiente-nome-topo,
+html[data-theme="dark"] .empty-state h3,
+html[data-theme="dark"] .impact-preview h3 {
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .automacao-perfil {
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+}
+
+html[data-theme="dark"] .perfil-economia {
+  background: rgba(14, 165, 233, 0.15);
+  color: #7dd3fc;
+}
+
+html[data-theme="dark"] .perfil-ocupacao {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+}
+
+html[data-theme="dark"] .perfil-economia-noturna {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+html[data-theme="dark"] .perfil-economia-por-inatividade {
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+}
+
+html[data-theme="dark"] .perfil-horario-comercial {
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .perfil-automacao-personalizada {
+  background: rgba(139, 92, 246, 0.18);
+  color: #c4b5fd;
+}
+
+html[data-theme="dark"] .automacao-economia {
+  background: rgba(14, 165, 233, 0.15);
+  border-color: rgba(14, 165, 233, 0.35);
+  color: #bae6fd;
+}
+
+html[data-theme="dark"] .automacao-economia strong {
+  color: #e0f2fe;
+}
+
+html[data-theme="dark"] .resumo-box p,
+html[data-theme="dark"] .resumo-box strong {
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .ambiente-info-topo {
+  border-color: rgba(100, 116, 139, 0.5);
+}
+
+html[data-theme="dark"] .status-online {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+html[data-theme="dark"] .status-parcial {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+}
+
+html[data-theme="dark"] .status-offline {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+html[data-theme="dark"] .status-manutencao {
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .status-pausado {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+}
+
+html[data-theme="dark"] .status-automacao {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .status-automacao.executando {
+  background: rgba(14, 165, 233, 0.2);
+  border-color: rgba(14, 165, 233, 0.4);
+  color: #7dd3fc;
+}
+
+html[data-theme="dark"] .status-automacao.sobreposta {
+  background: rgba(234, 179, 8, 0.2);
+  border-color: rgba(234, 179, 8, 0.4);
+  color: #fde047;
+}
+
+html[data-theme="dark"] .status-automacao.pausada {
+  background: rgba(148, 163, 184, 0.2);
+  border-color: rgba(100, 116, 139, 0.4);
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .status-automacao.bloqueada {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #f87171;
+}

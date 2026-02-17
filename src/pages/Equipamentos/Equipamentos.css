@@ -821,3 +821,121 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================= */
+/* DARK MODE */
+/* ============================= */
+
+html[data-theme="dark"] .equipamentos-page {
+  background: #0f172a;
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .device-card,
+html[data-theme="dark"] .dashboard-card,
+html[data-theme="dark"] .modal-content {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"] .device-card {
+  border: 1px solid #334155;
+}
+
+html[data-theme="dark"] .device-header h3,
+html[data-theme="dark"] .info-value,
+html[data-theme="dark"] .kpi-value,
+html[data-theme="dark"] .spec-value,
+html[data-theme="dark"] .page-title {
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .device-local,
+html[data-theme="dark"] .page-subtitle,
+html[data-theme="dark"] .device-info,
+html[data-theme="dark"] .info-label,
+html[data-theme="dark"] .kpi-label,
+html[data-theme="dark"] .spec,
+html[data-theme="dark"] .device-meta,
+html[data-theme="dark"] .device-footer,
+html[data-theme="dark"] .btn-clear {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .status-ativo {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+html[data-theme="dark"] .status-inativo {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+}
+
+html[data-theme="dark"] .status-offline {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+html[data-theme="dark"] .device-code,
+html[data-theme="dark"] .health-badge,
+html[data-theme="dark"] .spec-badge {
+  background: #0f172a;
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .device-capacity {
+  background: rgba(14, 165, 233, 0.15);
+  color: #7dd3fc;
+}
+
+html[data-theme="dark"] .device-kpis {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+html[data-theme="dark"] .device-specs {
+  border-color: #334155;
+}
+
+html[data-theme="dark"] .meta-divider {
+  color: #475569;
+}
+
+html[data-theme="dark"] .select-ambiente {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .select-icon {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .btn-power {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .btn-power.off {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .btn-ctrl {
+  background: #1f2937;
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .temp-badge {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .temp-na { background: #1f2937; color: #94a3b8; }
+html[data-theme="dark"] .temp-frio { background: rgba(14, 165, 233, 0.18); color: #7dd3fc; }
+html[data-theme="dark"] .temp-agradavel { background: rgba(34, 197, 94, 0.18); color: #86efac; }
+html[data-theme="dark"] .temp-morno { background: rgba(234, 179, 8, 0.18); color: #fde047; }
+html[data-theme="dark"] .temp-quente { background: rgba(249, 115, 22, 0.2); color: #fdba74; }
+html[data-theme="dark"] .temp-muito-quente { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }

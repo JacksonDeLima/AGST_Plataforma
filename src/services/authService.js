@@ -273,18 +273,41 @@ function pickApiMessage(err) {
   );
 }
 
-export async function registerUser({ name, email, password, captchaToken }) {
+export async function registerUser({
+  name,
+  email,
+  password,
+  captchaToken,
+  hCaptchaResponse,
+  turnstileResponse,
+  cfTurnstileResponse,
+}) {
+  const hToken = hCaptchaResponse || captchaToken;
+  const tToken = turnstileResponse || cfTurnstileResponse;
+
+  if (!hToken && !tToken) {
+    return {
+      success: false,
+      error: "Confirme o captcha (hCaptcha ou Cloudflare Turnstile).",
+    };
+  }
+
   const payload = {
     email,
     full_name: name,
     password,
-    "h-captcha-response": captchaToken,
+    ...(hToken
+      ? { "h-captcha-response": hToken }
+      : tToken
+        ? { "cf-turnstile-response": tToken }
+        : {}),
   };
 
   console.log("🧾 [registerUser] payload:", {
     email: payload.email,
     full_name: payload.full_name,
     "h-captcha-response": payload["h-captcha-response"] ? "OK" : "MISSING",
+    "cf-turnstile-response": payload["cf-turnstile-response"] ? "OK" : "MISSING",
     password: "******",
   });
 
@@ -383,10 +406,23 @@ export async function resendActivationLink({ email }) {
 }
 
 // Aliases p/ compatibilidade
-export async function createUser({ email, full_name, password }) {
-  return httpRequest(endpoints.users.create, {
-    method: "POST",
-    body: JSON.stringify({ email, full_name, password }),
+export async function createUser({
+  email,
+  full_name,
+  password,
+  captchaToken,
+  hCaptchaResponse,
+  turnstileResponse,
+  cfTurnstileResponse,
+}) {
+  return registerUser({
+    name: full_name,
+    email,
+    password,
+    captchaToken,
+    hCaptchaResponse,
+    turnstileResponse,
+    cfTurnstileResponse,
   });
 }
 export async function activateUser({ email, token }) {
@@ -444,8 +480,14 @@ export async function resetPassword({ email, recoveryToken, password }) {
 
 export async function changePassword({ password, new_password }) {
   try {
+    const { accessToken } = getStoredTokens();
+    if (!accessToken) {
+      return { success: false, error: "Não autorizado. Faça login novamente." };
+    }
+
     await httpRequest(endpoints.users.changePassword, {
       method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
       body: JSON.stringify({ password, new_password }),
     });
     return { success: true };

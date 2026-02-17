@@ -11,6 +11,9 @@ export const endpoints = {
     forgotPassword: "/users/forgot-password",
     resetPassword: "/users/reset-password",
     changePassword: "/users/me/change-password",
+
+    // ✅ Perfil (GET/PATCH/DELETE)
+    me: "/users/me",
   },
 
   oauth: {

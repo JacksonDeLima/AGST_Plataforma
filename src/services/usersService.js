@@ -1,4 +1,5 @@
-import { API_BASE_URL } from "../config/apiconfig"; // <- ajuste se necessário
+import { httpRequest } from "./httpClient";
+import { endpoints } from "../config/endpoints";
 
 const LS_ACCESS = "access_token";
 
@@ -6,85 +7,112 @@ function getAccessToken() {
   return localStorage.getItem(LS_ACCESS) || "";
 }
 
-function withAuth(headers = {}) {
+function authHeaders() {
   const token = getAccessToken();
-  return token ? { ...headers, Authorization: `Bearer ${token}` } : headers;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-async function http(path, { method = "GET", body, headers } = {}) {
-  const url = `${API_BASE_URL}${path}`;
-  const res = await fetch(url, {
-    method,
-    headers: {
-      ...(body ? { "Content-Type": "application/json" } : {}),
-      ...(headers || {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+function parseHttpError(err) {
+  const status = err?.status;
+  const apiMsg =
+    (typeof err?.data === "object" && err?.data
+      ? err.data.message || err.data.error || err.data.detail
+      : null) ||
+    (typeof err?.data === "string" && err.data.trim() ? err.data : null);
 
-  // 204 sem corpo
-  if (res.status === 204) return { ok: true, status: 204, data: null };
+  if (status === 400) return apiMsg || "Dados invalidos. Verifique os campos.";
+  if (status === 401) return apiMsg || "Nao autorizado. Token ausente ou invalido.";
+  if (status === 403) return apiMsg || "Acesso negado.";
+  if (status === 404) return apiMsg || "Recurso nao encontrado.";
+  if (status === 409) return apiMsg || "Conflito.";
+  if (status === 500) return apiMsg || "Erro interno na API (500).";
 
-  let data = null;
-  try {
-    data = await res.json();
-  } catch {
-    data = null;
-  }
-
-  if (!res.ok) {
-    return {
-      ok: false,
-      status: res.status,
-      data,
-      message: data?.message || data?.error || "REQUEST_FAILED",
-    };
-  }
-
-  return { ok: true, status: res.status, data };
+  return apiMsg || "Erro ao comunicar com a API.";
 }
 
-/** === Endpoints === */
+function pickEmail(input) {
+  if (typeof input === "string") return input;
+  if (input && typeof input === "object") return input.email;
+  return "";
+}
 
 // POST /users/forgot-password (sem auth)
-export function forgotPassword(email) {
-  return http("/users/forgot-password", {
-    method: "POST",
-    body: { email },
-  });
+export async function forgotPassword(emailOrObj) {
+  const email = pickEmail(emailOrObj);
+  if (!email) {
+    return { ok: false, message: "Informe um e-mail valido." };
+  }
+
+  try {
+    const data = await httpRequest(endpoints.users.forgotPassword, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, message: parseHttpError(err), error: err };
+  }
 }
 
 // GET /users/me (com auth)
-export function getMe() {
-  return http("/users/me", {
-    method: "GET",
-    headers: withAuth(),
-  });
+export async function getMe() {
+  try {
+    const data = await httpRequest(endpoints.users.me, {
+      method: "GET",
+      headers: { ...authHeaders() },
+    });
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, message: parseHttpError(err), error: err };
+  }
 }
 
 // PATCH /users/me (com auth)
-export function updateMe(payload) {
-  return http("/users/me", {
-    method: "PATCH",
-    headers: withAuth(),
-    body: payload,
-  });
+export async function updateMe(payload = {}) {
+  try {
+    const data = await httpRequest(endpoints.users.me, {
+      method: "PATCH",
+      headers: { ...authHeaders() },
+      body: JSON.stringify(payload),
+    });
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, message: parseHttpError(err), error: err };
+  }
 }
 
 // POST /users/me/change-password (com auth)
-export function changeMyPassword({ password, new_password }) {
-  return http("/users/me/change-password", {
-    method: "POST",
-    headers: withAuth(),
-    body: { password, new_password },
-  });
+export async function changeMyPassword({ password, new_password }) {
+  if (!password || !new_password) {
+    return { ok: false, message: "Informe a senha atual e a nova senha." };
+  }
+
+  try {
+    const data = await httpRequest(endpoints.users.changePassword, {
+      method: "POST",
+      headers: { ...authHeaders() },
+      body: JSON.stringify({ password, new_password }),
+    });
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, message: parseHttpError(err), error: err };
+  }
 }
 
 // DELETE /users/me?password=... (com auth)
-export function deleteMe(password) {
+export async function deleteMe(password) {
+  if (!password) {
+    return { ok: false, message: "Informe sua senha para confirmar." };
+  }
+
   const qp = `?password=${encodeURIComponent(password)}`;
-  return http(`/users/me${qp}`, {
-    method: "DELETE",
-    headers: withAuth(),
-  });
+  try {
+    const data = await httpRequest(`${endpoints.users.me}${qp}`, {
+      method: "DELETE",
+      headers: { ...authHeaders() },
+    });
+    return { ok: true, data };
+  } catch (err) {
+    return { ok: false, message: parseHttpError(err), error: err };
+  }
 }
