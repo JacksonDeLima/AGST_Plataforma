@@ -12,7 +12,7 @@ import {
   alterarStatusAutomacao,
   deletarAutomacao,
 } from "../../services/automacoesService";
-import { getAmbienteById } from "../../services/ambientesService";
+import { getAmbienteById, listarAmbientes } from "../../services/ambientesService";
 import { useAmbiente } from "../../context/AmbienteContext";
 import { useAuth } from "../../context/AuthContext";
 
@@ -107,6 +107,10 @@ const Automacoes = () => {
 
   const [ambienteAtivo, setAmbienteAtivo] = useState(null);
   const [loadingAmbiente, setLoadingAmbiente] = useState(true);
+  const [ambientesDisponiveis, setAmbientesDisponiveis] = useState([]);
+  const [loadingAmbientesDisponiveis, setLoadingAmbientesDisponiveis] =
+    useState(true);
+  const [ambienteSelecionadoId, setAmbienteSelecionadoId] = useState("");
 
   const [automacoes, setAutomacoes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -132,6 +136,31 @@ const Automacoes = () => {
       localStorage.setItem("agst_active_ambiente_id", ambienteIdUrl);
     }
   }, [ambienteIdUrl, ambienteAtivoId]);
+
+  useEffect(() => {
+    if (!corporationId) {
+      setAmbientesDisponiveis([]);
+      setLoadingAmbientesDisponiveis(false);
+      return;
+    }
+
+    setLoadingAmbientesDisponiveis(true);
+    listarAmbientes(corporationId)
+      .then((lista) => {
+        setAmbientesDisponiveis(Array.isArray(lista) ? lista : []);
+      })
+      .catch(() => {
+        setAmbientesDisponiveis([]);
+      })
+      .finally(() => {
+        setLoadingAmbientesDisponiveis(false);
+      });
+  }, [corporationId]);
+
+  const abrirAmbienteSelecionado = () => {
+    if (!ambienteSelecionadoId) return;
+    navigate(`/automacoes?ambienteId=${ambienteSelecionadoId}`);
+  };
 
   /* =========================
      BUSCAR AMBIENTE
@@ -399,10 +428,70 @@ const Automacoes = () => {
       <div className="automacoes-page">
         <div className="empty-state">
           <h2>Selecione um ambiente</h2>
-          <p>
-            Volte para <strong>Ambientes</strong> e escolha qual deseja
-            gerenciar.
+          <p>Escolha um ambiente para visualizar e criar automacoes.</p>
+
+          <div className="ambiente-picker">
+            <label className="form-label">Ambientes criados</label>
+
+            {loadingAmbientesDisponiveis && (
+              <p className="texto-suave">Carregando ambientes...</p>
+            )}
+
+            {!loadingAmbientesDisponiveis &&
+              ambientesDisponiveis.length === 0 && (
+                <p className="texto-suave">
+                  Nenhum ambiente criado ainda.
+                </p>
+              )}
+
+            {!loadingAmbientesDisponiveis &&
+              ambientesDisponiveis.length > 0 && (
+                <div className="ambiente-picker-row">
+                  <select
+                    value={ambienteSelecionadoId}
+                    onChange={(e) => setAmbienteSelecionadoId(e.target.value)}
+                  >
+                    <option value="">Selecione um ambiente</option>
+                    {ambientesDisponiveis.map((ambiente) => (
+                      <option key={ambiente.id} value={ambiente.id}>
+                        {ambiente.nome}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    className="btn-primary"
+                    disabled={!ambienteSelecionadoId}
+                    onClick={abrirAmbienteSelecionado}
+                  >
+                    Acessar ambiente
+                  </button>
+                </div>
+              )}
+          </div>
+        </div>
+
+        <div className="templates-preview">
+          <h3>Modelos de automacao</h3>
+          <p className="texto-suave">
+            Exemplos para configurar rapidamente suas automacoes.
           </p>
+
+          <div className="template-grid">
+            {AUTOMACAO_TEMPLATES.map((tpl) => (
+              <div key={tpl.id} className="template-card template-preview">
+                <h4>{tpl.nome}</h4>
+                <p>{tpl.descricao}</p>
+              </div>
+            ))}
+
+            <div className="template-card template-preview">
+              <h4>Personalizada (Manual)</h4>
+              <p>
+                Crie uma automacao totalmente personalizada, definindo
+                horarios, dias e configuracoes manualmente.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     );
