@@ -16,7 +16,7 @@ import "./Ambientes.css";
 import { useToast } from "../../context/ToastContext";
 
 const Ambientes = () => {
-  const { showToast } = useToast();
+  const { showToast, addNotification } = useToast();
 
   const [statusFiltro, setStatusFiltro] = useState("TODOS");
 
@@ -29,6 +29,7 @@ const Ambientes = () => {
   const [ambientes, setAmbientes] = useState(() => []);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [buscaAmbiente, setBuscaAmbiente] = useState("");
 
   useEffect(() => {
     if (!corporationId) {
@@ -88,8 +89,15 @@ const Ambientes = () => {
   /* =========================
      FILTRO
   ========================= */
+  const termoBusca = buscaAmbiente.trim().toLowerCase();
   const ambientesFiltrados = (Array.isArray(ambientes) ? ambientes : [])
     .filter((ambiente) => {
+      const nome = String(ambiente.nome || "").toLowerCase();
+      const tipo = String(ambiente.tipo || "").toLowerCase();
+      const buscaOk =
+        !termoBusca || nome.includes(termoBusca) || tipo.includes(termoBusca);
+      if (!buscaOk) return false;
+
       if (statusFiltro === "TODOS") return true;
       return ambiente.status?.toUpperCase() === statusFiltro;
     })
@@ -260,7 +268,22 @@ const Ambientes = () => {
   ========================= */
   const handleControlar = (ambiente) => {
     setActiveAmbiente(ambiente.id);
+    addNotification({
+      type: "info",
+      message: `Ambiente "${ambiente.nome}" enviado para automações.`,
+    });
     navigate("/automacoes");
+  };
+
+  const handleTogglePausa = (ambiente) => {
+    const pausado = !ambiente.pausado;
+    setAmbientes((prev) =>
+      prev.map((a) => (a.id === ambiente.id ? { ...a, pausado } : a)),
+    );
+    addNotification({
+      type: "info",
+      message: `Ambiente "${ambiente.nome}" ${pausado ? "pausado" : "ativado"}.`,
+    });
   };
 
   function getTextoStatus(ambiente) {
@@ -358,6 +381,15 @@ const Ambientes = () => {
           </div>
 
           <div className="header-actions">
+            <div className="search-ambientes">
+              <input
+                type="text"
+                placeholder="Buscar ambientes existentes"
+                value={buscaAmbiente}
+                onChange={(e) => setBuscaAmbiente(e.target.value)}
+              />
+            </div>
+
             <select
               value={statusFiltro}
               onChange={(e) => setStatusFiltro(e.target.value)}
@@ -437,15 +469,7 @@ const Ambientes = () => {
                           disabled={
                             ambiente.status?.toUpperCase() === "MANUTENCAO"
                           }
-                          onChange={() =>
-                            setAmbientes((prev) =>
-                              prev.map((a) =>
-                                a.id === ambiente.id
-                                  ? { ...a, pausado: !a.pausado }
-                                  : a,
-                              ),
-                            )
-                          }
+                          onChange={() => handleTogglePausa(ambiente)}
                         />
                         <span className="slider" />
                       </label>

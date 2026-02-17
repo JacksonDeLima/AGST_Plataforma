@@ -231,3 +231,36 @@
 .ambiente-dropdown button.danger:hover {
   background: #fee2e2;
 }
+
+/* ===== Header Actions ===== */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-ambientes input {
+  height: 36px;
+  min-width: 240px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 13px;
+  color: #0f172a;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-ambientes input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+@media (max-width: 640px) {
+  .search-ambientes input {
+    min-width: 180px;
+    width: 100%;
+  }
+}

@@ -9,7 +9,6 @@ import {
   Snowflake,
   BarChart3,
   Users,
-  Siren,
   Settings,
   UserCircle2,
   Loader2,
@@ -18,11 +17,13 @@ import {
   UserCog,
   Trash2,
   Mail,
+  Bell,
 } from "lucide-react";
 import "./NavBar.css";
 
 import { useAuth } from "../context/AuthContext.jsx";
 import { useLanguage } from "../context/LanguageContext.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 import {
   createCorporation,
   listCorporationMembers,
@@ -95,6 +96,13 @@ const NavBar = () => {
   const [showAddCorp, setShowAddCorp] = useState(false);
 
   const { t } = useLanguage();
+  const {
+    notifications,
+    unreadCount,
+    markAllRead,
+    markAsRead,
+    clearNotifications,
+  } = useToast();
 
   const [createState, setCreateState] = useState({
     loading: false,
@@ -105,6 +113,8 @@ const NavBar = () => {
   const [newCorp, setNewCorp] = useState({ name: "", tax_id: "" });
 
   const wsRef = useRef(null);
+  const notifRef = useRef(null);
+  const [notifOpen, setNotifOpen] = useState(false);
 
   // âœ… corp ativa (vem do /corporations, sem role)
   const activeCorp = useMemo(() => {
@@ -277,6 +287,15 @@ const NavBar = () => {
 
   const userName = user?.full_name || user?.name || user?.email || "UsuÃ¡rio";
 
+  function formatarDataHora(iso) {
+    if (!iso) return "";
+    try {
+      return new Date(iso).toLocaleString("pt-BR");
+    } catch {
+      return "";
+    }
+  }
+
   // =========================
   // ===== Menu do usuÃ¡rio ===
   // =========================
@@ -368,6 +387,15 @@ const NavBar = () => {
     if (userMenuOpen) document.addEventListener("mousedown", handleOutside);
     return () => document.removeEventListener("mousedown", handleOutside);
   }, [userMenuOpen]);
+
+  useEffect(() => {
+    function handleOutside(e) {
+      if (!notifRef.current) return;
+      if (!notifRef.current.contains(e.target)) setNotifOpen(false);
+    }
+    if (notifOpen) document.addEventListener("mousedown", handleOutside);
+    return () => document.removeEventListener("mousedown", handleOutside);
+  }, [notifOpen]);
 
   async function handleForgotPassword() {
     const email = String(forgotEmail || "").trim();
@@ -682,16 +710,6 @@ const NavBar = () => {
         )}
 
         <Link
-          to="/alarmes"
-          className={`nav-item ${isActive("/alarmes") ? "active" : ""}`}
-        >
-          <span className="nav-ico">
-            <Siren size={18} />
-          </span>
-          {t('nav.alarmes')}
-        </Link>
-
-        <Link
           to="/configuracoes"
           className={`nav-item ${isActive("/configuracoes") ? "active" : ""
             }`}
@@ -702,6 +720,65 @@ const NavBar = () => {
           {t('nav.configuracoes')}
         </Link>
       </nav>
+
+      <div className="sidebar-actions">
+        <div className="notif-wrapper" ref={notifRef}>
+          <button
+            className="notif-btn"
+            type="button"
+            onClick={() => setNotifOpen((v) => !v)}
+            title="Notificações"
+            aria-haspopup="menu"
+            aria-expanded={notifOpen}
+          >
+            <Bell size={18} />
+            {unreadCount > 0 && (
+              <span className="notif-badge">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {notifOpen && (
+            <div className="notif-panel" role="menu" aria-label="Notificações">
+              <div className="notif-header">
+                <strong>Notificações</strong>
+                <div className="notif-actions">
+                  <button type="button" onClick={markAllRead}>
+                    Marcar lidas
+                  </button>
+                  <button type="button" onClick={clearNotifications}>
+                    Limpar
+                  </button>
+                </div>
+              </div>
+
+              <div className="notif-list">
+                {notifications.length === 0 && (
+                  <p className="notif-empty">Sem notificações.</p>
+                )}
+
+                {notifications.map((n) => (
+                  <button
+                    key={n.id}
+                    className={`notif-item ${n.read ? "read" : "unread"}`}
+                    type="button"
+                    onClick={() => markAsRead(n.id)}
+                  >
+                    <div className="notif-message">{n.message}</div>
+                    <div className="notif-meta">
+                      <span className={`notif-type ${n.type || "info"}`}>
+                        {n.type || "info"}
+                      </span>
+                      <span>{formatarDataHora(n.createdAt)}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* =======================
           ===== User menu =======

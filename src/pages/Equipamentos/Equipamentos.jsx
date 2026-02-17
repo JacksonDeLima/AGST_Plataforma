@@ -1,11 +1,13 @@
 ﻿import React, { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Equipamentos.css";
+import { useToast } from "../../context/ToastContext";
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
 const Equipamentos = () => {
   const navigate = useNavigate();
+  const { addNotification } = useToast();
 
   const [equipamentos, setEquipamentos] = useState([
     {
@@ -182,6 +184,10 @@ const Equipamentos = () => {
     };
 
     setEquipamentos((prev) => [...prev, novo]);
+    addNotification({
+      type: "success",
+      message: `Equipamento "${novo.modelo}" adicionado em ${novo.local}.`,
+    });
     setNovoEquipamento({ modelo: "", local: "", capacidade: "" });
     setShowModal(false);
   };
@@ -301,6 +307,10 @@ const Equipamentos = () => {
 
     if (eq.status === "Ativo") {
       patchEquipamento(id, { status: "Inativo", consumoAtual: "0 W" });
+      addNotification({
+        type: "info",
+        message: `Equipamento "${eq.modelo}" desligado (${eq.local}).`,
+      });
       return;
     }
 
@@ -317,6 +327,10 @@ const Equipamentos = () => {
       modo: eq.modo || "cool",
       setpoint: eq.setpoint ?? 24,
     });
+    addNotification({
+      type: "info",
+      message: `Equipamento "${eq.modelo}" ligado (${eq.local}).`,
+    });
   };
 
   const changeSetpoint = (id, delta) => {
@@ -325,6 +339,10 @@ const Equipamentos = () => {
 
     const next = clamp((eq.setpoint ?? 24) + delta, 16, 30);
     patchEquipamento(id, { setpoint: next });
+    addNotification({
+      type: "info",
+      message: `Setpoint de "${eq.modelo}" ajustado para ${next}°C.`,
+    });
   };
 
   const cycleModo = (id) => {
@@ -337,6 +355,10 @@ const Equipamentos = () => {
     const next = order[(idx + 1) % order.length];
 
     patchEquipamento(id, { modo: next });
+    addNotification({
+      type: "info",
+      message: `Modo de "${eq.modelo}" alterado para ${formatModo(next)}.`,
+    });
   };
 
   return (
@@ -659,5 +681,3 @@ const Equipamentos = () => {
 };
 
 export default Equipamentos;
-
-
