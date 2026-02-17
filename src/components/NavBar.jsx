@@ -243,7 +243,7 @@ const NavBar = () => {
     if (taxDigits.length !== 14) {
       setCreateState({
         loading: false,
-        error: "CNPJ deve conter 14 dÃ­gitos.",
+        error: "CNPJ deve conter 14 dígitos.",
         success: "",
       });
       return;
@@ -255,7 +255,7 @@ const NavBar = () => {
     if (!res.ok) {
       setCreateState({
         loading: false,
-        error: res.message || "Erro ao criar corporaÃ§Ã£o.",
+        error: res.message || "Erro ao criar corporação.",
         success: "",
       });
       return;
@@ -269,7 +269,7 @@ const NavBar = () => {
       setCreateState({
         loading: false,
         error: "",
-        success: "âœ… CorporaÃ§Ã£o criada com sucesso!",
+        success: "✅ Corporação criada com sucesso!",
       });
       setShowAddCorp(false);
 
@@ -280,12 +280,12 @@ const NavBar = () => {
     setCreateState({
       loading: false,
       error: "",
-      success: "âœ… CorporaÃ§Ã£o criada com sucesso!",
+      success: "✅ Corporação criada com sucesso!",
     });
     setShowAddCorp(false);
   };
 
-  const userName = user?.full_name || user?.name || user?.email || "UsuÃ¡rio";
+  const userName = user?.full_name || user?.name || user?.email || "Usuário";
 
   function formatarDataHora(iso) {
     if (!iso) return "";
@@ -297,7 +297,7 @@ const NavBar = () => {
   }
 
   // =========================
-  // ===== Menu do usuÃ¡rio ===
+  // ===== Menu do usuário ===
   // =========================
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const userMenuRef = useRef(null);
@@ -409,16 +409,16 @@ const NavBar = () => {
     try {
       const res = await forgotPassword(email);
 
-      // resposta genÃ©rica (nÃ£o revelar se existe)
+      // resposta genérica (não revelar se existe)
       if (!res.ok) {
         setUiMsg({
           type: "success",
-          text: "Se o e-mail existir, um link serÃ¡ enviado.",
+          text: "Se o e-mail existir, um link será enviado.",
         });
       } else {
         setUiMsg({
           type: "success",
-          text: "Se o e-mail existir, um link serÃ¡ enviado.",
+          text: "Se o e-mail existir, um link será enviado.",
         });
       }
     } finally {
@@ -447,7 +447,7 @@ const NavBar = () => {
 
       setUiMsg({ type: "success", text: "Perfil atualizado!" });
 
-      // âœ… atualiza contexto
+      // ✅ atualiza contexto
       await bootstrap();
       closeAllModals();
     } finally {
@@ -470,14 +470,14 @@ const NavBar = () => {
       return;
     }
     if (next !== confirm) {
-      setUiMsg({ type: "error", text: "As novas senhas nÃ£o conferem." });
+      setUiMsg({ type: "error", text: "As novas senhas não conferem." });
       return;
     }
     if (!isStrongPass(next)) {
       setUiMsg({
         type: "error",
         text:
-          "Nova senha fraca. Use 8+ caracteres com maiÃºscula, minÃºscula, nÃºmero e especial.",
+          "Nova senha fraca. Use 8+ caracteres com maiúscula, minúscula, número e especial.",
       });
       return;
     }
@@ -517,7 +517,7 @@ const NavBar = () => {
       if (!res.ok) {
         setUiMsg({
           type: "error",
-          text: res.message || "NÃ£o foi possÃ­vel excluir a conta.",
+          text: res.message || "Não foi possível excluir a conta.",
         });
         return;
       }
@@ -585,7 +585,7 @@ const NavBar = () => {
             <span className="workspace-name" title={activeCorp?.name}>
               {loadingCorps
                 ? t('nav.carregando')
-                : activeCorp?.name || "Sem corporaÃ§Ã£o"}
+                : activeCorp?.name || "Sem corporação"}
             </span>
             <span className="workspace-hint">
               {loadingCorps
@@ -606,7 +606,7 @@ const NavBar = () => {
           <div
             className="workspace-menu"
             role="menu"
-            aria-label="Selecionar corporaÃ§Ã£o"
+            aria-label="Selecionar corporação"
           >
             <div className="workspace-menu-head">
               <span>{t('nav.minhasCorporacoes')}</span>
@@ -643,7 +643,7 @@ const NavBar = () => {
                         {c.name}
                       </span>
                       {selected && (
-                        <span className="workspace-item-check">âœ“</span>
+                        <span className="workspace-item-check">✓</span>
                       )}
                     </button>
                   );
@@ -695,7 +695,7 @@ const NavBar = () => {
           {t('nav.relatorios')}
         </Link>
 
-        {/* âœ… Agora funciona: owner_id OU role admin vindo do /members */}
+        {/* ✅ Agora funciona: owner_id OU role admin vindo do /members */}
         {canManageUsers && (
           <Link
             to="/gerir-usuarios"
@@ -803,7 +803,7 @@ const NavBar = () => {
         </button>
 
         {userMenuOpen && (
-          <div className="user-menu" role="menu" aria-label="Menu do usuÃ¡rio">
+          <div className="user-menu" role="menu" aria-label="Menu do usuário">
             <button
               className="user-menu-item"
               role="menuitem"
@@ -862,9 +862,9 @@ const NavBar = () => {
           <div className="ws-modal" onClick={(e) => e.stopPropagation()}>
             <div className="ws-modal-head">
               <div>
-                <h3>Criar corporaÃ§Ã£o</h3>
+                <h3>Criar corporação</h3>
                 <p>
-                  Ao criar, vocÃª vira owner automaticamente (API define owner_id).
+                  Ao criar, você vira owner automaticamente (API define owner_id).
                 </p>
               </div>
               <button
@@ -873,7 +873,7 @@ const NavBar = () => {
                 onClick={handleCloseAdd}
                 aria-label="Fechar"
               >
-                âœ•
+                ✕
               </button>
             </div>
 
@@ -929,7 +929,7 @@ const NavBar = () => {
       , portalRoot)}
 
       {/* ============================
-          ===== Modais do usuÃ¡rio ====
+          ===== Modais do usuário ====
           ============================ */}
       {(modalForgot || modalProfile || modalChangePass || modalDelete) &&
         portalRoot &&
@@ -944,14 +944,14 @@ const NavBar = () => {
             <div className="ws-modal-head">
               <div>
                 <h3>
-                  {modalForgot && "Solicitar redefiniÃ§Ã£o de senha"}
+                  {modalForgot && "Solicitar redefinição de senha"}
                   {modalProfile && "Atualizar perfil"}
                   {modalChangePass && "Alterar senha"}
-                  {modalDelete && "Excluir usuÃ¡rio"}
+                  {modalDelete && "Excluir usuário"}
                 </h3>
 
                 {modalDelete ? (
-                  <p>Esta aÃ§Ã£o Ã© irreversÃ­vel. Confirme com sua senha atual.</p>
+                  <p>Esta ação é irreversível. Confirme com sua senha atual.</p>
                 ) : modalForgot ? (
                   <p>Enviaremos um link se o e-mail existir e estiver ativo.</p>
                 ) : null}
@@ -964,7 +964,7 @@ const NavBar = () => {
                 aria-label="Fechar"
                 disabled={actionLoading}
               >
-                âœ•
+                ✕
               </button>
             </div>
 
