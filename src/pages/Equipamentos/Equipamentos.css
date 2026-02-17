@@ -852,6 +852,10 @@ html[data-theme="dark"] .page-title {
   color: #f1f5f9;
 }
 
+html[data-theme="dark"] .dashboard-card.total .dash-number {
+  color: #94a3b8;
+}
+
 html[data-theme="dark"] .device-local,
 html[data-theme="dark"] .page-subtitle,
 html[data-theme="dark"] .device-info,

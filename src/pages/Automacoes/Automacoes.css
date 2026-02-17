@@ -808,8 +808,8 @@ button:disabled {
 /* ============================= */
 
 html[data-theme="dark"] .automacoes-page {
-  background: #0f172a;
-  color: #f1f5f9;
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
 }
 
 html[data-theme="dark"] .dashboard-card,
