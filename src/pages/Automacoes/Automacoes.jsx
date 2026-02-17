@@ -16,6 +16,7 @@ import { getAmbienteById, listarAmbientes } from "../../services/ambientesServic
 import { useAmbiente } from "../../context/AmbienteContext";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 import { AUTOMACAO_TEMPLATES } from "../../constants/automacaoTemplates";
 
@@ -128,6 +129,8 @@ const Automacoes = () => {
   const [novaAutomacao, setNovaAutomacao] = useState(estadoInicialAutomacao);
   const [filtroStatus, setFiltroStatus] = useState("TODAS");
   const [filtroPerfil, setFiltroPerfil] = useState("TODOS");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmTarget, setConfirmTarget] = useState(null);
 
   const ambientePausado = ambienteAtivo ? ambienteAtivo.pausado : false;
   const isPersonalizada = novaAutomacao.tipo === "PERSONALIZADA";
@@ -202,27 +205,28 @@ const Automacoes = () => {
     });
   }, [corporationId, ambienteIdFinal]);
 
-  const excluirAutomacao = async (automacaoId) => {
-    const confirmar = window.confirm(
-      "Deseja realmente excluir esta automaÃ§Ã£o?",
-    );
-    if (!confirmar) return;
-
-    await deletarAutomacao(automacaoId, corporationId, ambienteIdFinal);
-
-    const alvo = automacoes.find((a) => a.id === automacaoId);
-    if (alvo) {
-      addNotification({
-        type: "info",
-        message: `AutomaÃ§Ã£o "${gerarNomeAutomacao(alvo)}" excluÃ­da.`,
-      });
-    }
-
-    setAutomacoes((prev) =>
-      prev.filter((a) => String(a.id) !== String(automacaoId)),
-    );
+  const excluirAutomacao = (automacao) => {
+    setConfirmTarget(automacao);
+    setConfirmOpen(true);
   };
 
+  const confirmarExclusaoAutomacao = async () => {
+    if (!confirmTarget) return;
+
+    await deletarAutomacao(confirmTarget.id, corporationId, ambienteIdFinal);
+
+    addNotification({
+      type: "info",
+      message: `AutomaÃ§Ã£o "${gerarNomeAutomacao(confirmTarget)}" excluÃ­da.`,
+    });
+
+    setAutomacoes((prev) =>
+      prev.filter((a) => String(a.id) !== String(confirmTarget.id)),
+    );
+
+    setConfirmOpen(false);
+    setConfirmTarget(null);
+  };
   /* =========================
      STATUS
   ========================= */
@@ -768,7 +772,7 @@ const Automacoes = () => {
                   </button>
                   <button
                     className="btn-danger"
-                    onClick={() => excluirAutomacao(a.id)}
+                    onClick={() => excluirAutomacao(a)}
                   >
                     Excluir
                   </button>
@@ -993,11 +997,31 @@ const Automacoes = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Excluir automaÃ§Ã£o"
+        message={
+          confirmTarget
+            ? `Tem certeza que deseja excluir a automaÃ§Ã£o \"${gerarNomeAutomacao(
+                confirmTarget,
+              )}\"?`
+            : "Tem certeza que deseja excluir esta automaÃ§Ã£o?"
+        }
+        confirmText="Excluir"
+        cancelText="Cancelar"
+        onConfirm={confirmarExclusaoAutomacao}
+        onCancel={() => {
+          setConfirmOpen(false);
+          setConfirmTarget(null);
+        }}
+      />
     </div>
   );
 };
 
 export default Automacoes;
+
 
 
 

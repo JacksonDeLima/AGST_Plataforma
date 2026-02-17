@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { Wrench } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../../components/NavBar";
@@ -11,6 +11,7 @@ import {
 } from "../../services/ambientesService";
 import { useAuth } from "../../context/AuthContext";
 import { useAmbiente } from "../../context/AmbienteContext";
+import ConfirmDialog from "../../components/ConfirmDialog";
 
 import "./Ambientes.css";
 import { useToast } from "../../context/ToastContext";
@@ -30,6 +31,8 @@ const Ambientes = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [buscaAmbiente, setBuscaAmbiente] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmTarget, setConfirmTarget] = useState(null);
 
   useEffect(() => {
     if (!corporationId) {
@@ -234,20 +237,21 @@ const Ambientes = () => {
     }
   };
 
-  const handleExcluirAmbiente = async (ambiente) => {
-    const confirmar = window.confirm(
-      `Tem certeza que deseja excluir o ambiente "${ambiente.nome}"?`,
-    );
+  const handleExcluirAmbiente = (ambiente) => {
+    setConfirmTarget(ambiente);
+    setConfirmOpen(true);
+  };
 
-    if (!confirmar) return;
+  const confirmarExclusaoAmbiente = async () => {
+    if (!confirmTarget) return;
 
     try {
-      await deletarAmbiente(corporationId, ambiente.id);
+      await deletarAmbiente(corporationId, confirmTarget.id);
 
-      setAmbientes((prev) => prev.filter((a) => a.id !== ambiente.id));
+      setAmbientes((prev) => prev.filter((a) => a.id !== confirmTarget.id));
 
       const ambienteAtivo = localStorage.getItem("agst_active_ambiente_id");
-      if (String(ambienteAtivo) === String(ambiente.id)) {
+      if (String(ambienteAtivo) === String(confirmTarget.id)) {
         localStorage.removeItem("agst_active_ambiente_id");
       }
 
@@ -260,9 +264,11 @@ const Ambientes = () => {
         type: "error",
         message: "Erro ao excluir ambiente",
       });
+    } finally {
+      setConfirmOpen(false);
+      setConfirmTarget(null);
     }
   };
-
   /* =========================
      NAVEGAÇÃO
   ========================= */
@@ -503,7 +509,7 @@ const Ambientes = () => {
                         )
                       }
                     >
-                      ⋮
+                    ⋮
                     </button>
 
                     {ambiente.menuAberto && (
@@ -663,9 +669,27 @@ const Ambientes = () => {
             </div>
           </div>
         )}
+
+        <ConfirmDialog
+          open={confirmOpen}
+          title="Excluir ambiente"
+          message={
+            confirmTarget
+              ? `Tem certeza que deseja excluir o ambiente "${confirmTarget.nome}"?`
+              : "Tem certeza que deseja excluir este ambiente?"
+          }
+          confirmText="Excluir"
+          cancelText="Cancelar"
+          onConfirm={confirmarExclusaoAmbiente}
+          onCancel={() => {
+            setConfirmOpen(false);
+            setConfirmTarget(null);
+          }}
+        />
       </main>
     </div>
   );
 };
 
 export default Ambientes;
+
