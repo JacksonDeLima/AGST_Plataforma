@@ -57,9 +57,9 @@ async function apiRequest(path, { method = "GET", body, auth = true } = {}) {
 }
 
 function formatDateBR(iso) {
-  if (!iso) return "â€”";
+  if (!iso) return "—";
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "â€”";
+  if (Number.isNaN(d.getTime())) return "—";
   return d.toLocaleDateString("pt-BR");
 }
 
@@ -67,7 +67,7 @@ const GerirUsuarios = () => {
   const navigate = useNavigate();
   const [busca, setBusca] = useState("");
 
-  // âœ… Workspace do NavBar
+  // ✅ Workspace do NavBar
   const {
     user,
     corporations: corporationsCtx,
@@ -83,21 +83,21 @@ const GerirUsuarios = () => {
   const [loadingMembers, setLoadingMembers] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // âœ… sÃ³ mostrar corporaÃ§Ãµes onde o usuÃ¡rio Ã© admin/owner
+  // ✅ só mostrar corporações onde o usuário é admin/owner
   const [manageableMap, setManageableMap] = useState({}); // { [corpId]: true }
   const [loadingManageable, setLoadingManageable] = useState(true);
 
-  // Drawer/Modal aÃ§Ãµes do usuÃ¡rio
+  // Drawer/Modal ações do usuário
   const [selectedUser, setSelectedUser] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
 
-  // Form ativaÃ§Ã£o
+  // Form ativação
   const [activationToken, setActivationToken] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMsg, setActionMsg] = useState("");
 
-  // âœ… Modal adicionar membro
+  // ✅ Modal adicionar membro
   const [addOpen, setAddOpen] = useState(false);
   const [addForm, setAddForm] = useState({
     full_name: "",
@@ -141,7 +141,7 @@ const GerirUsuarios = () => {
     setLoadingCorps(false);
   }, []);
 
-  // âœ… resolve quais corporaÃ§Ãµes podem ser geridas (admin/owner)
+  // ✅ resolve quais corporações podem ser geridas (admin/owner)
   useEffect(() => {
     let alive = true;
 
@@ -161,10 +161,10 @@ const GerirUsuarios = () => {
         corporations.map(async (c) => {
           const cid = String(c.id);
 
-          // owner_id jÃ¡ libera
+          // owner_id já libera
           if (String(c.owner_id) === uid) return [cid, true];
 
-          // senÃ£o, consulta /members e pega role do usuÃ¡rio
+          // senão, consulta /members e pega role do usuário
           const res = await listCorporationMembers(cid);
           if (!res?.ok) return [cid, false];
 
@@ -195,7 +195,7 @@ const GerirUsuarios = () => {
     return corporations.filter((c) => manageableMap[String(c.id)]);
   }, [corporations, manageableMap]);
 
-  // âœ… se corp atual nÃ£o Ã© gerenciÃ¡vel, troca para a primeira gerenciÃ¡vel
+  // ✅ se corp atual não é gerenciável, troca para a primeira gerenciável
   useEffect(() => {
     if (loadingManageable) return;
     if (manageableCorps.length === 0) return;
@@ -221,7 +221,7 @@ const GerirUsuarios = () => {
 
     if (!selectedCorpId || !manageableMap[selectedCorpId]) {
       setUsuarios([]);
-      setErrorMsg("VocÃª nÃ£o tem permissÃ£o para gerir usuÃ¡rios nesta corporaÃ§Ã£o.");
+      setErrorMsg("Você não tem permissão para gerir usuários nesta corporação.");
       return;
     }
 
@@ -233,7 +233,7 @@ const GerirUsuarios = () => {
 
       if (!res?.ok) {
         setUsuarios([]);
-        setErrorMsg(res?.message || "NÃ£o foi possÃ­vel carregar os usuÃ¡rios desta corporaÃ§Ã£o.");
+        setErrorMsg(res?.message || "Não foi possível carregar os usuários desta corporação.");
         return;
       }
 
@@ -241,8 +241,8 @@ const GerirUsuarios = () => {
 
       const list = members.map((m) => ({
         id: m.user_id,
-        nome: m.full_name || "â€”",
-        email: m.email || "â€”",
+        nome: m.full_name || "—",
+        email: m.email || "—",
         perfil: m.role || "user",
         ultimoAcesso: formatDateBR(m.created_at),
         member_status: m.member_status,
@@ -253,8 +253,8 @@ const GerirUsuarios = () => {
     } catch (e) {
       setErrorMsg(
         e?.status === 403
-          ? "VocÃª nÃ£o tem permissÃ£o para listar membros desta corporaÃ§Ã£o (apenas administradores)."
-          : e?.message || "NÃ£o foi possÃ­vel carregar os usuÃ¡rios desta corporaÃ§Ã£o."
+          ? "Você não tem permissão para listar membros desta corporação (apenas administradores)."
+          : e?.message || "Não foi possível carregar os usuários desta corporação."
       );
       setUsuarios([]);
     } finally {
@@ -292,7 +292,7 @@ const GerirUsuarios = () => {
     setActivationToken("");
   };
 
-  // ------------------ AÃ‡Ã•ES ADMIN ------------------
+  // ------------------ AÇÕES ADMIN ------------------
 
   const onResendActivation = async () => {
     if (!selectedUser?.email) return;
@@ -305,9 +305,9 @@ const GerirUsuarios = () => {
         auth: false,
         body: { email: selectedUser.email },
       });
-      setActionMsg("âœ… Token de ativaÃ§Ã£o reenviado com sucesso (verifique o e-mail do usuÃ¡rio).");
+      setActionMsg("✅ Token de ativação reenviado com sucesso (verifique o e-mail do usuário).");
     } catch (e) {
-      setActionMsg(`âŒ Falha ao reenviar token: ${e?.message || "erro"}`);
+      setActionMsg(`❌ Falha ao reenviar token: ${e?.message || "erro"}`);
     } finally {
       setActionLoading(false);
     }
@@ -318,7 +318,7 @@ const GerirUsuarios = () => {
 
     const token = activationToken.trim();
     if (!token) {
-      setActionMsg("âš ï¸ Informe o token de ativaÃ§Ã£o.");
+      setActionMsg("⚠️ Informe o token de ativação.");
       return;
     }
 
@@ -332,10 +332,10 @@ const GerirUsuarios = () => {
         body: { email: selectedUser.email, token },
       });
 
-      setActionMsg("âœ… UsuÃ¡rio ativado com sucesso.");
+      setActionMsg("✅ Usuário ativado com sucesso.");
       await loadMembers();
     } catch (e) {
-      setActionMsg(`âŒ Falha ao ativar: ${e?.message || "erro"}`);
+      setActionMsg(`❌ Falha ao ativar: ${e?.message || "erro"}`);
     } finally {
       setActionLoading(false);
     }
@@ -353,10 +353,10 @@ const GerirUsuarios = () => {
         body: { email: selectedUser.email },
       });
       setActionMsg(
-        "âœ… SolicitaÃ§Ã£o enviada. Se o usuÃ¡rio existir e estiver ativo, ele receberÃ¡ o e-mail de redefiniÃ§Ã£o."
+        "✅ Solicitação enviada. Se o usuário existir e estiver ativo, ele receberá o e-mail de redefinição."
       );
     } catch (e) {
-      setActionMsg(`âŒ Falha ao solicitar redefiniÃ§Ã£o: ${e?.message || "erro"}`);
+      setActionMsg(`❌ Falha ao solicitar redefinição: ${e?.message || "erro"}`);
     } finally {
       setActionLoading(false);
     }
@@ -408,17 +408,17 @@ const GerirUsuarios = () => {
       return;
     }
     if (!isValidEmail(email)) {
-      setAddState({ loading: false, error: "Informe um e-mail vÃ¡lido.", success: "" });
+      setAddState({ loading: false, error: "Informe um e-mail válido.", success: "" });
       return;
     }
     if (role !== "user" && role !== "admin") {
-      setAddState({ loading: false, error: "Perfil invÃ¡lido.", success: "" });
+      setAddState({ loading: false, error: "Perfil inválido.", success: "" });
       return;
     }
     if (password.length < 6) {
       setAddState({
         loading: false,
-        error: "A senha deve ter no mÃ­nimo 6 caracteres.",
+        error: "A senha deve ter no mínimo 6 caracteres.",
         success: "",
       });
       return;
@@ -431,7 +431,7 @@ const GerirUsuarios = () => {
         body: { email, full_name, role, password },
       });
 
-      setAddState({ loading: false, error: "", success: "âœ… Membro adicionado com sucesso!" });
+      setAddState({ loading: false, error: "", success: "✅ Membro adicionado com sucesso!" });
       await loadMembers();
 
       setTimeout(() => {
@@ -440,7 +440,7 @@ const GerirUsuarios = () => {
     } catch (e) {
       setAddState({
         loading: false,
-        error: e?.message || "NÃ£o foi possÃ­vel adicionar o membro.",
+        error: e?.message || "Não foi possível adicionar o membro.",
         success: "",
       });
     }
@@ -455,16 +455,16 @@ const GerirUsuarios = () => {
             style={{ marginBottom: "20px" }}
             onClick={() => navigate(-1)}
           >
-            â† Voltar
+            ← Voltar
           </button>
           {/* HEADER */}
           <div className="page-header">
             <div className="header-left">
-              <h1 className="page-title">Gerir UsuÃ¡rios</h1>
-              <p className="page-subtitle">Gerencie usuÃ¡rios e permissÃµes de acesso</p>
+              <h1 className="page-title">Gerir Usuários</h1>
+              <p className="page-subtitle">Gerencie usuários e permissões de acesso</p>
 
               <div style={{ marginTop: 10, display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 12, opacity: 0.8 }}>CorporaÃ§Ã£o:</span>
+                <span style={{ fontSize: 12, opacity: 0.8 }}>Corporação:</span>
 
                 <select
                   value={selectedCorpId}
@@ -480,9 +480,9 @@ const GerirUsuarios = () => {
                   }}
                 >
                   {loadingManageable ? (
-                    <option value="">Carregando permissÃµes...</option>
+                    <option value="">Carregando permissões...</option>
                   ) : manageableCorps.length === 0 ? (
-                    <option value="">Sem permissÃ£o em nenhuma corporaÃ§Ã£o</option>
+                    <option value="">Sem permissão em nenhuma corporação</option>
                   ) : (
                     manageableCorps.map((c) => (
                       <option key={c.id} value={String(c.id)}>
@@ -502,7 +502,7 @@ const GerirUsuarios = () => {
                     ? "Carregando..."
                     : canManageThisCorp
                       ? `Ativos: ${ativos}/${total}`
-                      : "Sem permissÃ£o"}
+                      : "Sem permissão"}
                 </span>
               </div>
 
@@ -511,11 +511,11 @@ const GerirUsuarios = () => {
                 disabled={!selectedCorpId || !canManageThisCorp}
                 onClick={openAddModal}
               >
-                + Adicionar UsuÃ¡rio
+                + Adicionar Usuário
               </button>
 
               <button className="btn-filtros" disabled={!canManageThisCorp}>
-                <span className="filtros-icon">â˜°</span>
+                <span className="filtros-icon">☰</span>
                 Filtros
               </button>
             </div>
@@ -561,12 +561,12 @@ const GerirUsuarios = () => {
             <table className="gerir-usuarios-table">
               <thead>
                 <tr>
-                  <th>UsuÃ¡rio</th>
+                  <th>Usuário</th>
                   <th>Email</th>
                   <th>Perfil</th>
                   <th>Status</th>
-                  <th>VÃ­nculo</th>
-                  <th>Ãšltimo Acesso</th>
+                  <th>Vínculo</th>
+                  <th>Último Acesso</th>
                   <th></th>
                 </tr>
               </thead>
@@ -575,19 +575,19 @@ const GerirUsuarios = () => {
                 {loadingMembers ? (
                   <tr>
                     <td colSpan={7} style={{ padding: 16, opacity: 0.8 }}>
-                      Carregando usuÃ¡rios...
+                      Carregando usuários...
                     </td>
                   </tr>
                 ) : !canManageThisCorp ? (
                   <tr>
                     <td colSpan={7} style={{ padding: 16, opacity: 0.8 }}>
-                      VocÃª nÃ£o tem permissÃ£o para visualizar os membros desta corporaÃ§Ã£o.
+                      Você não tem permissão para visualizar os membros desta corporação.
                     </td>
                   </tr>
                 ) : usuariosFiltrados.length === 0 ? (
                   <tr>
                     <td colSpan={7} style={{ padding: 16, opacity: 0.8 }}>
-                      Nenhum usuÃ¡rio encontrado.
+                      Nenhum usuário encontrado.
                     </td>
                   </tr>
                 ) : (
@@ -596,15 +596,15 @@ const GerirUsuarios = () => {
                       key={u.id}
                       onClick={() => openUserActions(u)}
                       style={{ cursor: "pointer" }}
-                      title="Clique para aÃ§Ãµes"
+                      title="Clique para ações"
                     >
                       <td className="usuario-cell">{u.nome}</td>
                       <td className="email-cell">{u.email}</td>
                       <td>
                         <span className="perfil-badge">{u.perfil}</span>
                       </td>
-                      <td>{u.user_status || "â€”"}</td>
-                      <td>{u.member_status || "â€”"}</td>
+                      <td>{u.user_status || "—"}</td>
+                      <td>{u.member_status || "—"}</td>
                       <td>{u.ultimoAcesso}</td>
                       <td onClick={(e) => e.stopPropagation()}>
                         <button
@@ -612,7 +612,7 @@ const GerirUsuarios = () => {
                           onClick={() => openUserActions(u)}
                           disabled={!canManageThisCorp}
                         >
-                          <span className="editar-icon">âœï¸</span> AÃ§Ãµes
+                          <span className="editar-icon">✏️</span> Ações
                         </button>
                       </td>
                     </tr>
@@ -622,18 +622,18 @@ const GerirUsuarios = () => {
             </table>
           </div>
 
-          {/* âœ… MODAL ADICIONAR MEMBRO */}
+          {/* ✅ MODAL ADICIONAR MEMBRO */}
           {addOpen ? (
             <div className="gu-modal-backdrop" onClick={closeAddModal}>
               <div className="gu-modal-card" onClick={(e) => e.stopPropagation()}>
                 <div className="gu-modal-head">
                   <div>
                     <h3 className="gu-modal-title">Adicionar membro</h3>
-                    <p className="gu-modal-subtitle">CorporaÃ§Ã£o #{selectedCorpId}</p>
+                    <p className="gu-modal-subtitle">Corporação #{selectedCorpId}</p>
                   </div>
 
                   <button className="gu-modal-close" onClick={closeAddModal} title="Fechar">
-                    âœ•
+                    ✕
                   </button>
                 </div>
 
@@ -677,7 +677,7 @@ const GerirUsuarios = () => {
                         type="password"
                         value={addForm.password}
                         onChange={(e) => setAddForm((s) => ({ ...s, password: e.target.value }))}
-                        placeholder="mÃ­n. 6 caracteres"
+                        placeholder="mín. 6 caracteres"
                         disabled={addState.loading}
                       />
                     </div>
@@ -706,7 +706,7 @@ const GerirUsuarios = () => {
           ) : null}
 
 
-          {/* DRAWER/MODAL DE AÃ‡Ã•ES */}
+          {/* DRAWER/MODAL DE AÇÕES */}
           {drawerOpen && selectedUser ? (
             <div
               className="user-actions-overlay"
@@ -740,7 +740,7 @@ const GerirUsuarios = () => {
                     <div style={{ fontSize: 18, fontWeight: 700 }}>{selectedUser.nome}</div>
                     <div style={{ opacity: 0.85, marginTop: 4 }}>{selectedUser.email}</div>
                     <div style={{ opacity: 0.75, marginTop: 6, fontSize: 12 }}>
-                      Perfil: <b>{selectedUser.perfil}</b> â€¢ Status: <b>{selectedUser.user_status}</b> â€¢ VÃ­nculo:{" "}
+                      Perfil: <b>{selectedUser.perfil}</b> • Status: <b>{selectedUser.user_status}</b> • Vínculo:{" "}
                       <b>{selectedUser.member_status}</b>
                     </div>
                   </div>
@@ -757,7 +757,7 @@ const GerirUsuarios = () => {
                     }}
                     title="Fechar"
                   >
-                    âœ•
+                    ✕
                   </button>
                 </div>
 
@@ -765,13 +765,13 @@ const GerirUsuarios = () => {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <button className="btn-primary" disabled={actionLoading} onClick={onSendResetPassword}>
-                    ðŸ” Enviar e-mail de redefiniÃ§Ã£o de senha
+                    🔐 Enviar e-mail de redefinição de senha
                   </button>
 
                   {selectedUser.user_status === "pending" ? (
                     <>
                       <button className="btn-primary" disabled={actionLoading} onClick={onResendActivation}>
-                        âœ‰ï¸ Reenviar token de ativaÃ§Ã£o
+                        ✉️ Reenviar token de ativação
                       </button>
 
                       <div
@@ -782,7 +782,7 @@ const GerirUsuarios = () => {
                           background: "rgba(255,255,255,0.04)",
                         }}
                       >
-                        <div style={{ fontWeight: 700, marginBottom: 8 }}>Ativar usuÃ¡rio (informar token)</div>
+                        <div style={{ fontWeight: 700, marginBottom: 8 }}>Ativar usuário (informar token)</div>
                         <input
                           value={activationToken}
                           onChange={(e) => setActivationToken(e.target.value)}
@@ -804,10 +804,10 @@ const GerirUsuarios = () => {
                           disabled={actionLoading}
                           onClick={onActivateUser}
                         >
-                          âœ… Ativar agora
+                          ✅ Ativar agora
                         </button>
                         <div style={{ fontSize: 12, opacity: 0.75, marginTop: 8 }}>
-                          * O token expira em 7 dias. Use â€œReenviar tokenâ€ se necessÃ¡rio.
+                          * O token expira em 7 dias. Use “Reenviar token” se necessário.
                         </div>
                       </div>
                     </>
@@ -826,7 +826,7 @@ const GerirUsuarios = () => {
                       cursor: "pointer",
                     }}
                   >
-                    ðŸ—‘ï¸ Remover usuÃ¡rio da corporaÃ§Ã£o
+                    🗑️ Remover usuário da corporação
                   </button>
                 </div>
 
@@ -871,4 +871,6 @@ const GerirUsuarios = () => {
 };
 
 export default GerirUsuarios;
+
+
 

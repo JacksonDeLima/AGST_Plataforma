@@ -12,7 +12,11 @@ import {
   alterarStatusAutomacao,
   deletarAutomacao,
 } from "../../services/automacoesService";
-import { getAmbienteById, listarAmbientes } from "../../services/ambientesService";
+import {
+  getAmbienteById,
+  listarAmbientes,
+  listarTodosAmbientes,
+} from "../../services/ambientesService";
 import { useAmbiente } from "../../context/AmbienteContext";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
@@ -35,10 +39,10 @@ const DESCRICOES_PERFIL = {
   "Economia Noturna":
     "Reduz o consumo desligando equipamentos automaticamente durante a noite.",
   "Economia por Inatividade":
-    "Desliga os equipamentos quando nÃ£o hÃ¡ pessoas no ambiente.",
-  "HorÃ¡rio Comercial":
-    "MantÃ©m os equipamentos ativos apenas durante o horÃ¡rio de funcionamento.",
-  "AutomaÃ§Ã£o Personalizada":
+    "Desliga os equipamentos quando não há pessoas no ambiente.",
+  "Horário Comercial":
+    "Mantém os equipamentos ativos apenas durante o horário de funcionamento.",
+  "Automação Personalizada":
     "Regra criada manualmente conforme a necessidade do ambiente.",
 };
 
@@ -70,13 +74,13 @@ const gerarRegraAutomacao = (dados) => {
   switch (dados.tipo) {
     case "HORARIO":
       if (!dados.inicio || !dados.fim || !dados.dias.length) return "";
-      return `${dados.dias.join(", ")} Â· ${dados.inicio} â†’ ${dados.fim}`;
+      return `${dados.dias.join(", ")} · ${dados.inicio} → ${dados.fim}`;
 
     case "OCUPACAO":
       return dados.regra || "";
 
     case "PERSONALIZADA":
-      // nÃ£o define nada automaticamente
+      // não define nada automaticamente
       return dados.regra || "";
 
     default:
@@ -86,7 +90,7 @@ const gerarRegraAutomacao = (dados) => {
 
 const calcularImpactoAutomacao = (equipamentos = []) => {
   if (equipamentos.length >= 5) return "Alto impacto";
-  if (equipamentos.length >= 3) return "Impacto mÃ©dio";
+  if (equipamentos.length >= 3) return "Impacto médio";
   if (equipamentos.length > 0) return "Baixo impacto";
   return "Nenhum equipamento selecionado";
 };
@@ -151,8 +155,16 @@ const Automacoes = () => {
 
     setLoadingAmbientesDisponiveis(true);
     listarAmbientes(corporationId)
-      .then((lista) => {
-        setAmbientesDisponiveis(Array.isArray(lista) ? lista : []);
+      .then(async (lista) => {
+        const base = Array.isArray(lista) ? lista : [];
+
+        if (base.length > 0) {
+          setAmbientesDisponiveis(base);
+          return;
+        }
+
+        const todos = await listarTodosAmbientes();
+        setAmbientesDisponiveis(Array.isArray(todos) ? todos : []);
       })
       .catch(() => {
         setAmbientesDisponiveis([]);
@@ -196,7 +208,7 @@ const Automacoes = () => {
       });
   }, [ambienteIdFinal]);
   /* =========================
-     BUSCAR AUTOMAÃ‡Ã•ES
+     BUSCAR AUTOMAÇÕES
   ========================= */
   useEffect(() => {
     listarAutomacoes(corporationId, ambienteIdFinal).then((dados) => {
@@ -217,7 +229,7 @@ const Automacoes = () => {
 
     addNotification({
       type: "info",
-      message: `AutomaÃ§Ã£o "${gerarNomeAutomacao(confirmTarget)}" excluÃ­da.`,
+      message: `Automação "${gerarNomeAutomacao(confirmTarget)}" excluída.`,
     });
 
     setAutomacoes((prev) =>
@@ -248,7 +260,7 @@ const Automacoes = () => {
 
     addNotification({
       type: "info",
-      message: `AutomaÃ§Ã£o "${gerarNomeAutomacao(automacao)}" ${
+      message: `Automação "${gerarNomeAutomacao(automacao)}" ${
         novoStatus === "ATIVA" ? "ativada" : "pausada"
       }.`,
     });
@@ -291,7 +303,7 @@ const Automacoes = () => {
     setNovaAutomacao({
       templateId: automacao.templateId || null,
       tipo: automacao.tipo,
-      ambiente: "", // ForÃ§a o usuÃ¡rio a definir o novo ambiente
+      ambiente: "", // Força o usuário a definir o novo ambiente
       dias: automacao.dias || [],
       inicio: automacao.inicio || "",
       fim: automacao.fim || "",
@@ -315,12 +327,12 @@ const Automacoes = () => {
     const tempoInatividade = null; // Campo futuro
 
     if (!nomeAutomacao || nomeAutomacao.trim() === "") {
-      alert("Informe um nome para a automaÃ§Ã£o.");
+      alert("Informe um nome para a automação.");
       return false;
     }
 
     if (!acaoSelecionada) {
-      alert("Selecione uma aÃ§Ã£o para a automaÃ§Ã£o.");
+      alert("Selecione uma ação para a automação.");
       return false;
     }
 
@@ -328,7 +340,7 @@ const Automacoes = () => {
       horarioInicio || diasSelecionados?.length > 0 || tempoInatividade;
 
     if (!temCondicao) {
-      alert("Defina pelo menos uma condiÃ§Ã£o para a automaÃ§Ã£o.");
+      alert("Defina pelo menos uma condição para a automação.");
       return false;
     }
 
@@ -339,16 +351,16 @@ const Automacoes = () => {
     if (ambientePausado) {
       return {
         titulo: "Pausada",
-        descricao: "AutomaÃ§Ãµes pausadas manualmente",
+        descricao: "Automações pausadas manualmente",
         tipo: "pausada",
       };
     }
 
-    // Ambiente em manutenÃ§Ã£o
+    // Ambiente em manutenção
     if (ambienteAtivo.status === "MANUTENCAO") {
       return {
         titulo: "Bloqueada",
-        descricao: "Ambiente em manutenÃ§Ã£o",
+        descricao: "Ambiente em manutenção",
         tipo: "bloqueada",
       };
     }
@@ -362,7 +374,7 @@ const Automacoes = () => {
       };
     }
 
-    // AutomaÃ§Ã£o que estÃ¡ mandando agora
+    // Automação que está mandando agora
     if (automacao.id === automacaoExecutando?.id) {
       return {
         titulo: "Executando agora",
@@ -371,12 +383,12 @@ const Automacoes = () => {
       };
     }
 
-    // AutomaÃ§Ã£o ativa, mas perdeu prioridade
+    // Automação ativa, mas perdeu prioridade
     return {
-      titulo: "Ativa, mas nÃ£o executando",
+      titulo: "Ativa, mas não executando",
       descricao: automacaoExecutando
         ? `Sobreposta por: ${automacaoExecutando.nome}`
-        : "Aguardando condiÃ§Ã£o de maior prioridade",
+        : "Aguardando condição de maior prioridade",
       tipo: "sobreposta",
     };
   }
@@ -392,7 +404,7 @@ const Automacoes = () => {
       !novaAutomacao.regra ||
       !novaAutomacao.equipamentos.length
     ) {
-      setErroForm("Preencha todos os campos obrigatÃ³rios.");
+      setErroForm("Preencha todos os campos obrigatórios.");
       return;
     }
 
@@ -414,7 +426,7 @@ const Automacoes = () => {
 
       addNotification({
         type: "success",
-        message: `AutomaÃ§Ã£o "${gerarNomeAutomacao(novaAutomacao)}" atualizada.`,
+        message: `Automação "${gerarNomeAutomacao(novaAutomacao)}" atualizada.`,
       });
     } else {
       const criada = await criarAutomacao(corporationId, ambienteIdFinal, {
@@ -428,7 +440,7 @@ const Automacoes = () => {
 
       addNotification({
         type: "success",
-        message: `AutomaÃ§Ã£o "${gerarNomeAutomacao(novaAutomacao)}" criada.`,
+        message: `Automação "${gerarNomeAutomacao(novaAutomacao)}" criada.`,
       });
     }
 
@@ -447,8 +459,8 @@ const Automacoes = () => {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
-          <h2>Selecione uma corporaÃ§Ã£o</h2>
-          <p>Escolha uma corporaÃ§Ã£o ativa para visualizar as automaÃ§Ãµes.</p>
+          <h2>Selecione uma corporação</h2>
+          <p>Escolha uma corporação ativa para visualizar as automações.</p>
         </div>
       </div>
     );
@@ -459,7 +471,7 @@ const Automacoes = () => {
       <div className="automacoes-page">
         <div className="empty-state">
           <h2>Selecione um ambiente</h2>
-          <p>Escolha um ambiente para visualizar e criar automacoes.</p>
+          <p>Escolha um ambiente para visualizar e criar automações.</p>
 
           <div className="ambiente-picker">
             <label className="form-label">Ambientes criados</label>
@@ -471,7 +483,7 @@ const Automacoes = () => {
             {!loadingAmbientesDisponiveis &&
               ambientesDisponiveis.length === 0 && (
                 <p className="texto-suave">
-                  Nenhum ambiente criado ainda.
+                  Nenhum ambiente encontrado para esta corporação.
                 </p>
               )}
 
@@ -502,9 +514,9 @@ const Automacoes = () => {
         </div>
 
         <div className="templates-preview">
-          <h3>Modelos de automacao</h3>
+          <h3>Modelos de automação</h3>
           <p className="texto-suave">
-            Exemplos para configurar rapidamente suas automacoes.
+            Exemplos para configurar rapidamente suas automações.
           </p>
 
           <div className="template-grid">
@@ -518,8 +530,8 @@ const Automacoes = () => {
             <div className="template-card template-preview">
               <h4>Personalizada (Manual)</h4>
               <p>
-                Crie uma automacao totalmente personalizada, definindo
-                horarios, dias e configuracoes manualmente.
+                Crie uma automação totalmente personalizada, definindo
+                horários, dias e configurações manualmente.
               </p>
             </div>
           </div>
@@ -532,14 +544,14 @@ const Automacoes = () => {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
-          <h3>Carregando automacoes...</h3>
+          <h3>Carregando automações...</h3>
           <p>Aguarde alguns instantes.</p>
         </div>
       </div>
     );
   }
 
-  // ðŸ”’ SeguranÃ§a extra: ambiente invÃ¡lido
+  // 🔒 Segurança extra: ambiente inválido
   if (ambienteIdFinal && !ambienteAtivo && !loadingAmbiente) {
     localStorage.removeItem("agst_active_ambiente_id");
   }
@@ -548,8 +560,8 @@ const Automacoes = () => {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
-          <h2>Ambiente nÃƒÂ£o encontrado</h2>
-          <p>Esse ambiente nÃƒÂ£o existe ou foi removido.</p>
+          <h2>Ambiente não encontrado</h2>
+          <p>Esse ambiente não existe ou foi removido.</p>
         </div>
       </div>
     );
@@ -561,11 +573,11 @@ const Automacoes = () => {
         style={{ marginBottom: "20px" }}
         onClick={() => navigate(-1)}
       >
-        â† Voltar
+        ← Voltar
       </button>
       <header className="page-header">
         <div>
-          <h1>AutomaÃ§Ãµes</h1>
+          <h1>Automações</h1>
           <div className="ambiente-info-topo">
             <h2 className="ambiente-nome-topo">{ambienteAtivo.nome}</h2>
 
@@ -581,11 +593,11 @@ const Automacoes = () => {
               )}
             </div>
           </div>
-          <p>Gerencie regras automÃ¡ticas dos equipamentos</p>
+          <p>Gerencie regras automáticas dos equipamentos</p>
         </div>
 
         <button className="btn-primary" onClick={abrirModalCriar}>
-          Criar AutomaÃ§Ã£o
+          Criar Automação
         </button>
       </header>
 
@@ -610,9 +622,9 @@ const Automacoes = () => {
             <option value="Economia por Inatividade">
               Economia por Inatividade
             </option>
-            <option value="HorÃ¡rio Comercial">HorÃ¡rio Comercial</option>
-            <option value="AutomaÃ§Ã£o Personalizada">
-              AutomaÃ§Ã£o Personalizada
+            <option value="Horário Comercial">Horário Comercial</option>
+            <option value="Automação Personalizada">
+              Automação Personalizada
             </option>
             <option value="PERSONALIZADA">Personalizada (Manual)</option>
           </select>
@@ -622,11 +634,11 @@ const Automacoes = () => {
       {(ambienteAtivo.status === "OFFLINE" ||
         ambienteAtivo.status === "MANUTENCAO") && (
         <div className="alerta-ambiente">
-          <strong>AutomaÃ§Ãµes indisponÃ­veis</strong>
+          <strong>Automações indisponíveis</strong>
           <p>
             {ambienteAtivo.status === "OFFLINE"
-              ? "O ambiente estÃ¡ offline e nÃ£o pode executar automaÃ§Ãµes."
-              : "O ambiente estÃ¡ em manutenÃ§Ã£o e as automaÃ§Ãµes estÃ£o bloqueadas."}
+              ? "O ambiente está offline e não pode executar automações."
+              : "O ambiente está em manutenção e as automações estão bloqueadas."}
           </p>
         </div>
       )}
@@ -641,7 +653,7 @@ const Automacoes = () => {
 
           // filtro por perfil
           const perfil =
-            identificarPerfilAutomacao(a)?.perfil || "AutomaÃ§Ã£o Personalizada";
+            identificarPerfilAutomacao(a)?.perfil || "Automação Personalizada";
 
           if (filtroPerfil !== "TODOS" && perfil !== filtroPerfil) {
             return false;
@@ -650,11 +662,11 @@ const Automacoes = () => {
           return true;
         }).length === 0 && (
           <div className="empty-state">
-            <h3>Nenhuma automaÃ§Ã£o encontrada</h3>
+            <h3>Nenhuma automação encontrada</h3>
             <p>
               {filtroStatus !== "TODAS" || filtroPerfil !== "TODOS"
-                ? "Tente ajustar os filtros ou criar uma nova automaÃ§Ã£o."
-                : "Crie sua primeira automaÃ§Ã£o para este ambiente."}
+                ? "Tente ajustar os filtros ou criar uma nova automação."
+                : "Crie sua primeira automação para este ambiente."}
             </p>
           </div>
         )}
@@ -669,7 +681,7 @@ const Automacoes = () => {
             // filtro por perfil
             const perfil =
               identificarPerfilAutomacao(a)?.perfil ||
-              "AutomaÃ§Ã£o Personalizada";
+              "Automação Personalizada";
 
             if (filtroPerfil !== "TODOS" && perfil !== filtroPerfil) {
               return false;
@@ -679,11 +691,11 @@ const Automacoes = () => {
           })
           .map((a) => {
             const perfil = identificarPerfilAutomacao(a) || {};
-            const perfilNome = perfil.perfil || "AutomaÃ§Ã£o Personalizada";
+            const perfilNome = perfil.perfil || "Automação Personalizada";
             const perfilClass = perfilNome.toLowerCase().replace(/\s+/g, "-");
             const descricaoPerfil =
               DESCRICOES_PERFIL[perfilNome] ||
-              "AutomaÃ§Ã£o configurada manualmente.";
+              "Automação configurada manualmente.";
 
             const economia = estimarEconomiaAutomacao(a);
 
@@ -730,7 +742,7 @@ const Automacoes = () => {
 
                 <div className={`status-automacao ${statusInfo.tipo}`}>
                   <strong>
-                    {statusInfo.tipo === "executando" && "âš¡ "}
+                    {statusInfo.tipo === "executando" && "⚡ "}
                     {statusInfo.titulo}
                   </strong>
                   {statusInfo.descricao && (
@@ -745,7 +757,7 @@ const Automacoes = () => {
                     Economia estimada:
                     <strong>
                       {" "}
-                      {economia.kwh} kWh / mÃªs Â· R$ {economia.valor}
+                      {economia.kwh} kWh / mês · R$ {economia.valor}
                     </strong>
                   </div>
                 )}
@@ -790,7 +802,7 @@ const Automacoes = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h2>Criar AutomaÃ§Ã£o</h2>
+              <h2>Criar Automação</h2>
               <p>Passo {passo + 1} de 5</p>
             </div>
 
@@ -840,8 +852,8 @@ const Automacoes = () => {
                     >
                       <h4>Personalizada (Manual)</h4>
                       <p>
-                        Crie uma automaÃ§Ã£o totalmente personalizada, definindo
-                        horÃ¡rios, dias e configuraÃ§Ãµes manualmente.
+                        Crie uma automação totalmente personalizada, definindo
+                        horários, dias e configurações manualmente.
                       </p>
                     </div>
                   </div>
@@ -849,7 +861,7 @@ const Automacoes = () => {
               )}
 
               {passo === 1 && <></>}
-              {/* PASSO 2 â€” DIAS E HORÃRIO */}
+              {/* PASSO 2 — DIAS E HORÁRIO */}
               {passo === 2 && (
                 <>
                   <label className="form-label">Dias da semana</label>
@@ -878,7 +890,7 @@ const Automacoes = () => {
                     ))}
                   </div>
 
-                  <label className="form-label">HorÃ¡rio</label>
+                  <label className="form-label">Horário</label>
 
                   <div className="horario-grid">
                     <input
@@ -894,7 +906,7 @@ const Automacoes = () => {
                       }
                     />
 
-                    <span className="horario-separador">atÃ©</span>
+                    <span className="horario-separador">até</span>
 
                     <input
                       type="time"
@@ -912,7 +924,7 @@ const Automacoes = () => {
                 </>
               )}
 
-              {/* PASSO 3 â€” EQUIPAMENTOS */}
+              {/* PASSO 3 — EQUIPAMENTOS */}
               {passo === 3 && (
                 <>
                   <h3>Equipamentos</h3>
@@ -978,7 +990,7 @@ const Automacoes = () => {
                   className="btn-primary"
                   onClick={() => setPasso(passo + 1)}
                 >
-                  PrÃ³ximo
+                  Próximo
                 </button>
               )}
 
@@ -989,8 +1001,8 @@ const Automacoes = () => {
                   onClick={salvarAutomacao}
                 >
                   {modoModal === "EDITAR"
-                    ? "Salvar AlteraÃ§Ãµes"
-                    : "Criar AutomaÃ§Ã£o"}
+                    ? "Salvar Alterações"
+                    : "Criar Automação"}
                 </button>
               )}
             </div>
@@ -1000,13 +1012,13 @@ const Automacoes = () => {
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Excluir automaÃ§Ã£o"
+        title="Excluir automação"
         message={
           confirmTarget
-            ? `Tem certeza que deseja excluir a automaÃ§Ã£o \"${gerarNomeAutomacao(
+            ? `Tem certeza que deseja excluir a automação \"${gerarNomeAutomacao(
                 confirmTarget,
               )}\"?`
-            : "Tem certeza que deseja excluir esta automaÃ§Ã£o?"
+            : "Tem certeza que deseja excluir esta automação?"
         }
         confirmText="Excluir"
         cancelText="Cancelar"

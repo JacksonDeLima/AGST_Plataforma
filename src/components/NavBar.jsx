@@ -29,10 +29,10 @@ import {
   listCorporationMembers,
 } from "../services/corporationsService";
 
-// âœ… Logo (ajuste o caminho se necessÃ¡rio)
+// ✅ Logo (ajuste o caminho se necessário)
 import AppLogo from "../assets/logo.svg";
 
-// âœ… User endpoints
+// ✅ User endpoints
 import {
   forgotPassword,
   updateMe,
@@ -116,7 +116,7 @@ const NavBar = () => {
   const notifRef = useRef(null);
   const [notifOpen, setNotifOpen] = useState(false);
 
-  // âœ… corp ativa (vem do /corporations, sem role)
+  // ✅ corp ativa (vem do /corporations, sem role)
   const activeCorp = useMemo(() => {
     const cid = String(corporationId ?? "");
     return (
@@ -126,21 +126,21 @@ const NavBar = () => {
     );
   }, [corporations, corporationId]);
 
-  // âœ… cache de roles por corp: { [corpId]: "admin" | "user" | ... }
+  // ✅ cache de roles por corp: { [corpId]: "admin" | "user" | ... }
   const [corpRoles, setCorpRoles] = useState({});
   const [roleLoading, setRoleLoading] = useState(false);
 
-  // âœ… resolve role do usuÃ¡rio na corp ativa
+  // ✅ resolve role do usuário na corp ativa
   useEffect(() => {
     const cid = String(corporationId ?? "");
     const uid = getUserId(user);
 
     if (!cid || !uid) return;
 
-    // 1) cache jÃ¡ tem role
+    // 1) cache já tem role
     if (corpRoles[cid] !== undefined) return;
 
-    // 2) se Ã© owner_id da corp ativa, jÃ¡ libera sem bater em /members
+    // 2) se é owner_id da corp ativa, já libera sem bater em /members
     if (String(activeCorp?.owner_id) === uid) {
       setCorpRoles((prev) => ({ ...prev, [cid]: "owner" }));
       return;
@@ -153,7 +153,7 @@ const NavBar = () => {
         const res = await listCorporationMembers(cid);
 
         if (!res?.ok) {
-          // cacheia como null pra nÃ£o ficar chamando infinito
+          // cacheia como null pra não ficar chamando infinito
           setCorpRoles((prev) => ({ ...prev, [cid]: null }));
           return;
         }
@@ -173,9 +173,9 @@ const NavBar = () => {
 
   const activeRole = corpRoles[String(corporationId ?? "")];
 
-  // âœ… Pode gerir usuÃ¡rios se:
+  // ✅ Pode gerir usuários se:
   // - role == admin/owner/super_admin (vem do /members)
-  // - OU Ã© owner_id (vem do /corporations)
+  // - OU é owner_id (vem do /corporations)
   const canManageUsers = useMemo(() => {
     const uid = getUserId(user);
     const isOwner = uid && String(activeCorp?.owner_id) === uid;
@@ -196,7 +196,7 @@ const NavBar = () => {
     return location.pathname === path;
   }
 
-  // âœ… Seleciona corp (sem navegar)
+  // ✅ Seleciona corp (sem navegar)
   const handleSelectCorp = async (id) => {
     const nextId = String(id);
     setWsOpen(false);
@@ -555,13 +555,13 @@ const NavBar = () => {
 
   return (
     <aside className="navbar">
-      {/* âœ… Brand com logo */}
+      {/* ✅ Brand com logo */}
       <Link to="/ambientes" className="brand" aria-label="Ir para o Dashboard">
         <img src={AppLogo} alt="Logo" className="brand-logo" />
 
       </Link>
 
-      {/* Workspace / CorporaÃ§Ã£o */}
+      {/* Workspace / Corporação */}
       <div className="workspace" ref={wsRef}>
         <div className="workspace-label">{t('nav.workspace')}</div>
 
@@ -1109,4 +1109,6 @@ const NavBar = () => {
 };
 
 export default NavBar;
+
+
 

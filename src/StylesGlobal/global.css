@@ -1,5 +1,5 @@
 ﻿/* ===========================
-   Design Tokens / VariÃ¡veis
+   Design Tokens / Variáveis
    =========================== */
 
 :root {
@@ -623,7 +623,7 @@ html[data-theme="dark"] .auth-form label {
   background: linear-gradient(135deg, #1e3a5f, #2d4a6f);
 }
 
-/* Reset bÃ¡sico */
+/* Reset básico */
 *,
 *::before,
 *::after {
@@ -675,7 +675,7 @@ body.ws-modal-open .app-main {
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-/* Lado esquerdo - brand / informaÃ§Ãµes */
+/* Lado esquerdo - brand / informações */
 
 .auth-brand,
 .register-brand {
@@ -686,7 +686,7 @@ body.ws-modal-open .app-main {
   justify-content: center;
 }
 
-/* Logo/Ã­cone genÃ©rico */
+/* Logo/ícone genérico */
 
 .login-logo {
   margin-bottom: 14px;
@@ -739,7 +739,7 @@ body.ws-modal-open .app-main {
   color: var(--text-soft);
 }
 
-/* Lado direito - box de conteÃºdo (forms, mensagens, etc.) */
+/* Lado direito - box de conteúdo (forms, mensagens, etc.) */
 
 .auth-box,
 .register-box {
@@ -751,7 +751,7 @@ body.ws-modal-open .app-main {
   border-left: 1px solid rgba(226, 232, 240, 0.9);
 }
 
-/* CabeÃ§alho do conteÃºdo */
+/* Cabeçalho do conteúdo */
 
 .auth-header,
 .register-header {
@@ -796,7 +796,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===========================
-   FormulÃ¡rio / Inputs
+   Formulário / Inputs
    =========================== */
 
 .auth-form,
@@ -955,10 +955,10 @@ body.ws-modal-open .app-main {
 }
 
 /* ===========================
-   BotÃµes
+   Botões
    =========================== */
 
-/* BotÃ£o Register (Auth) */
+/* Botão Register (Auth) */
 .register-button {
   margin-top: 4px;
   width: 100%;
@@ -999,7 +999,7 @@ body.ws-modal-open .app-main {
   box-shadow: none;
 }
 
-/* BotÃµes PadrÃ£o Sistema (AutomaÃ§Ãµes/ambientes) */
+/* Botões Padrão Sistema (Automações/ambientes) */
 .btn-primary {
   background-color: #0ea5e9;
   color: white;
@@ -1049,7 +1049,7 @@ body.ws-modal-open .app-main {
   width: 100%;
 }
 
-/* BotÃ£o de link (secundÃ¡rio) */
+/* Botão de link (secundário) */
 
 .link-button {
   border: none;
@@ -1095,7 +1095,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===========================
-   Links / rodapÃ© / textos auxiliares
+   Links / rodapé / textos auxiliares
    =========================== */
 
 .auth-login-link,
@@ -1118,10 +1118,10 @@ body.ws-modal-open .app-main {
 }
 
 /* ===========================
-   Estados e variaÃ§Ãµes especÃ­ficas
+   Estados e variações específicas
    =========================== */
 
-/* Exemplo para textos auxiliares em pÃ¡ginas como "esqueci senha" */
+/* Exemplo para textos auxiliares em páginas como "esqueci senha" */
 .forgot-instructions {
   font-size: 12px;
   color: var(--text-soft);
@@ -1165,7 +1165,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===========================
-   Layout geral do sistema (Dashboard + PÃ¡ginas Internas)
+   Layout geral do sistema (Dashboard + Páginas Internas)
    =========================== */
 
 .app {
@@ -1175,7 +1175,7 @@ body.ws-modal-open .app-main {
   background: var(--bg-body);
 }
 
-/* EspaÃ§o reservado para a sidebar fixa */
+/* Espaço reservado para a sidebar fixa */
 .sidebar-space {
   width: 250px;
   /* mesmo tamanho da sua sidebar */
@@ -1185,7 +1185,7 @@ body.ws-modal-open .app-main {
   min-height: 100vh;
 }
 
-/* Ãrea principal das pÃ¡ginas */
+/* Área principal das páginas */
 .main-content {
   flex: 1;
   padding: 24px;
@@ -1195,7 +1195,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===========================
-   PÃ¡gina Gerir UsuÃ¡rios
+   Página Gerir Usuários
    =========================== */
 
 .gerir-usuarios-page {
@@ -1247,7 +1247,7 @@ body.ws-modal-open .app-main {
   font-size: 14px;
 }
 
-/* Cards de usuÃ¡rio (caso ainda use) */
+/* Cards de usuário (caso ainda use) */
 .usuario-card {
   background: white;
   padding: 16px;
@@ -1312,7 +1312,7 @@ body.ws-modal-open .app-main {
   gap: 12px;
 }
 
-/* Deixa o link mais â€œdiscretoâ€ e alinhado */
+/* Deixa o link mais “discreto” e alinhado */
 .auth-forgot-link {
   font-size: 0.9rem;
   padding: 0;
@@ -1326,7 +1326,7 @@ body.ws-modal-open .app-main {
   text-decoration: underline;
 }
 
-/* Quando desabilitado, nÃ£o parece clicÃ¡vel */
+/* Quando desabilitado, não parece clicável */
 .auth-forgot-link:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -1334,7 +1334,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===========================
-   CorporaÃ§Ãµes (Lista + Detalhe)
+   Corporações (Lista + Detalhe)
    =========================== */
 
 .corporations-page {
@@ -1363,7 +1363,7 @@ body.ws-modal-open .app-main {
   color: var(--text-main);
 }
 
-/* BotÃ£o danger (Excluir) */
+/* Botão danger (Excluir) */
 .btn-danger {
   background: var(--danger);
   color: white;
@@ -1384,7 +1384,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===========================
-   Modal genÃ©rico (pÃ¡ginas internas)
+   Modal genérico (páginas internas)
    =========================== */
 
 .modal-backdrop {
@@ -1444,13 +1444,13 @@ body.ws-modal-open .app-main {
   margin-top: 12px;
 }
 
-/* Dentro do modal, o btn-primary nÃ£o fica 100% */
+/* Dentro do modal, o btn-primary não fica 100% */
 .modal-actions .btn-primary {
   width: auto;
   min-width: 160px;
 }
 
-/* Link-button â€œviraâ€ botÃ£o discreto no modal */
+/* Link-button “vira” botão discreto no modal */
 .modal-actions .link-button {
   padding: 8px 10px;
   border-radius: 10px;
@@ -1480,7 +1480,7 @@ body.ws-modal-open .app-main {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.55);
-  /* igual ao seu modal genÃ©rico */
+  /* igual ao seu modal genérico */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1498,7 +1498,7 @@ body.ws-modal-open .app-main {
   overflow: hidden;
 }
 
-/* CabeÃ§alho */
+/* Cabeçalho */
 .gu-modal-head {
   display: flex;
   justify-content: space-between;
@@ -1632,7 +1632,7 @@ body.ws-modal-open .app-main {
   color: #166534;
 }
 
-/* RodapÃ© */
+/* Rodapé */
 .gu-modal-footer {
   display: flex;
   gap: 10px;
@@ -1665,7 +1665,7 @@ body.ws-modal-open .app-main {
   cursor: not-allowed;
 }
 
-/* No modal, btn-primary nÃ£o precisa ser 100% */
+/* No modal, btn-primary não precisa ser 100% */
 .gu-modal-footer .btn-primary {
   width: auto;
   min-width: 160px;
@@ -1740,7 +1740,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===============================
-   HEADER (PADRÃƒO AUTOMAÃ‡Ã•ES)
+   HEADER (PADRÃO AUTOMAÇÕES)
 =============================== */
 .page-header {
   display: flex;
@@ -1872,7 +1872,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===============================
-   MODAL (PADRÃƒO AUTOMAÃ‡Ã•ES)
+   MODAL (PADRÃO AUTOMAÇÕES)
 =============================== */
 .modal-overlay {
   position: fixed;
@@ -1924,7 +1924,7 @@ body.ws-modal-open .app-main {
 }
 
 /* ===============================
-   FORM / INPUTS (PADRÃƒO AUTOMAÃ‡Ã•ES)
+   FORM / INPUTS (PADRÃO AUTOMAÇÕES)
 =============================== */
 .form-label {
   display: block;
@@ -1988,3 +1988,5 @@ body.ws-modal-open .app-main {
   font-weight: 600;
   color: var(--text-main);
 }
+
+

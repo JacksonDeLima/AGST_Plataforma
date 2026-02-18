@@ -22,16 +22,16 @@ export default function ChangePassword() {
 
   function validate() {
     const errors = {};
-    if (!currentPassword) errors.currentPassword = "Senha atual Ã© obrigatÃ³ria";
+    if (!currentPassword) errors.currentPassword = "Senha atual é obrigatória";
 
-    if (!newPassword) errors.newPassword = "Nova senha Ã© obrigatÃ³ria";
+    if (!newPassword) errors.newPassword = "Nova senha é obrigatória";
     else if (!PASSWORD_REGEX.test(newPassword)) {
       errors.newPassword =
-        "Senha fraca. Use 8+ caracteres, maiÃºscula, minÃºscula, nÃºmero e sÃ­mbolo.";
+        "Senha fraca. Use 8+ caracteres, maiúscula, minúscula, número e símbolo.";
     }
 
     if (!confirm) errors.confirm = "Confirme a nova senha";
-    else if (confirm !== newPassword) errors.confirm = "As senhas nÃ£o coincidem";
+    else if (confirm !== newPassword) errors.confirm = "As senhas não coincidem";
 
     return errors;
   }
@@ -58,7 +58,7 @@ export default function ChangePassword() {
     setIsLoading(false);
 
     if (!res.success) {
-      setErrorMsg(res.error || "NÃ£o foi possÃ­vel alterar a senha.");
+      setErrorMsg(res.error || "Não foi possível alterar a senha.");
       return;
     }
 
@@ -75,13 +75,13 @@ export default function ChangePassword() {
           <div className="login-logo">
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
-          <h2 className="auth-brand-title">SeguranÃ§a</h2>
-          <p className="auth-brand-subtitle">Altere sua senha com seguranÃ§a.</p>
+          <h2 className="auth-brand-title">Segurança</h2>
+          <p className="auth-brand-subtitle">Altere sua senha com segurança.</p>
           <ul className="auth-brand-list">
             <li>
-              â€¢ Modo atual: <b>{mode}</b>
+              • Modo atual: <b>{mode}</b>
             </li>
-            <li>â€¢ Requer usuÃ¡rio logado (Bearer token)</li>
+            <li>• Requer usuário logado (Bearer token)</li>
           </ul>
         </div>
 
@@ -165,8 +165,10 @@ export default function ChangePassword() {
         </div>
       </div>
 
-      <footer className="auth-footer">Â© {new Date().getFullYear()} Brise Cloud Â· AGST</footer>
+      <footer className="auth-footer">© {new Date().getFullYear()} Brise Cloud · AGST</footer>
     </div>
   );
 }
+
+
 

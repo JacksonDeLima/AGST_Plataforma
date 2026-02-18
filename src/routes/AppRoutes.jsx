@@ -29,10 +29,10 @@ import OAuthCallback from "../pages/OAuthCallback/OAuthCallback";
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* ===== Callback OAuth (pÃºblica) ===== */}
+      {/* ===== Callback OAuth (pública) ===== */}
       <Route path="/oauth/callback" element={<OAuthCallback />} />
 
-      {/* ===== Rotas pÃºblicas ===== */}
+      {/* ===== Rotas públicas ===== */}
       <Route
         path="/"
         element={
@@ -81,10 +81,11 @@ export default function AppRoutes() {
         <Route path="/configuracoes" element={<Configuracoes />} />
       </Route>
 
-      <Route path="*" element={<h1>404 - PÃ¡gina nÃ£o encontrada</h1>} />
+      <Route path="*" element={<h1>404 - Página não encontrada</h1>} />
     </Routes>
   );
 }
+
 
 
 

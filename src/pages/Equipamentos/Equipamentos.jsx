@@ -130,12 +130,54 @@ const Equipamentos = () => {
   const [busca, setBusca] = useState("");
 
   const [showModal, setShowModal] = useState(false);
+  const [modoEdicao, setModoEdicao] = useState(false);
+  const [equipamentoEditandoId, setEquipamentoEditandoId] = useState(null);
 
-  const [novoEquipamento, setNovoEquipamento] = useState({
-    modelo: "",
+  const [formEquipamento, setFormEquipamento] = useState({
+    nome: "",
     local: "",
+    modelo: "",
     capacidade: "",
+    numeroSerie: "",
+    tipoIntegracao: "BRISE",
+    token: "",
   });
+
+  const abrirModalCriacao = () => {
+    setModoEdicao(false);
+    setEquipamentoEditandoId(null);
+    setFormEquipamento({
+      nome: "",
+      local: "",
+      modelo: "",
+      capacidade: "",
+      numeroSerie: "",
+      tipoIntegracao: "BRISE",
+      token: "",
+    });
+    setShowModal(true);
+  };
+
+  const abrirModalEdicao = (equipamento) => {
+    setModoEdicao(true);
+    setEquipamentoEditandoId(equipamento.id);
+    setFormEquipamento({
+      nome: equipamento.nome || "",
+      local: equipamento.local || "",
+      modelo: equipamento.modelo || "",
+      capacidade: equipamento.capacidade || "",
+      numeroSerie: equipamento.numeroSerie || "",
+      tipoIntegracao: equipamento.tipoIntegracao || "BRISE",
+      token: equipamento.token || "",
+    });
+    setShowModal(true);
+  };
+
+  const formatarCapacidade = (valor) => {
+    const texto = String(valor || "").trim();
+    if (!texto) return "";
+    return /btu/i.test(texto) ? texto : `${texto} BTU`;
+  };
 
   // ========= Helpers =========
   const ambientes = useMemo(
@@ -158,22 +200,58 @@ const Equipamentos = () => {
     });
   }, [equipamentos, filtroStatus, filtroAmbiente, busca]);
 
-  const criarEquipamento = () => {
+  const salvarEquipamento = () => {
     if (
-      !novoEquipamento.modelo ||
-      !novoEquipamento.local ||
-      !novoEquipamento.capacidade
+      !formEquipamento.nome ||
+      !formEquipamento.local ||
+      !formEquipamento.modelo ||
+      !formEquipamento.capacidade ||
+      !formEquipamento.numeroSerie
     ) {
-      alert("Preencha todos os campos");
+      addNotification({
+        type: "error",
+        message: "Preencha todos os campos obrigatórios.",
+      });
+      return;
+    }
+
+    const capacidadeFinal = formatarCapacidade(formEquipamento.capacidade);
+
+    if (modoEdicao && equipamentoEditandoId) {
+      setEquipamentos((prev) =>
+        prev.map((e) =>
+          e.id === equipamentoEditandoId
+            ? {
+                ...e,
+                nome: formEquipamento.nome,
+                local: formEquipamento.local,
+                modelo: formEquipamento.modelo,
+                capacidade: capacidadeFinal,
+                numeroSerie: formEquipamento.numeroSerie,
+                tipoIntegracao: formEquipamento.tipoIntegracao,
+                token: formEquipamento.token,
+              }
+            : e,
+        ),
+      );
+      addNotification({
+        type: "success",
+        message: `Equipamento "${formEquipamento.modelo}" atualizado com sucesso.`,
+      });
+      setShowModal(false);
       return;
     }
 
     const novo = {
       id: equipamentos.length + 1,
-      modelo: novoEquipamento.modelo,
+      nome: formEquipamento.nome,
+      modelo: formEquipamento.modelo,
       status: "Offline",
-      local: novoEquipamento.local,
-      capacidade: novoEquipamento.capacidade,
+      local: formEquipamento.local,
+      capacidade: capacidadeFinal,
+      numeroSerie: formEquipamento.numeroSerie,
+      tipoIntegracao: formEquipamento.tipoIntegracao,
+      token: formEquipamento.token,
       temperaturaAtual: "-",
       consumoAtual: "-",
       setpoint: null,
@@ -188,7 +266,6 @@ const Equipamentos = () => {
       type: "success",
       message: `Equipamento "${novo.modelo}" adicionado em ${novo.local}.`,
     });
-    setNovoEquipamento({ modelo: "", local: "", capacidade: "" });
     setShowModal(false);
   };
 
@@ -237,9 +314,7 @@ const Equipamentos = () => {
     const s = String(t).trim();
     if (!s || s === "-") return null;
 
-    const n = parseFloat(
-      s.replace("Â°C", "").replace("°C", "").replace(",", "."),
-    );
+    const n = parseFloat(s.replace("°C", "").replace(",", "."));
     return Number.isNaN(n) ? null : n;
   };
 
@@ -473,7 +548,7 @@ const Equipamentos = () => {
           </div>
 
           <div className="toolbar-right">
-            <button className="btn-primary" onClick={() => setShowModal(true)}>
+            <button className="btn-primary" onClick={abrirModalCriacao}>
               + Adicionar Equipamento
             </button>
           </div>
@@ -571,6 +646,12 @@ const Equipamentos = () => {
 
                 <div className="device-controls">
                   <button
+                    className="btn-ctrl"
+                    onClick={() => abrirModalEdicao(equipamento)}
+                  >
+                    Editar
+                  </button>
+                  <button
                     className={`btn-power ${isActive ? "on" : "off"}`}
                     disabled={isOffline}
                     onClick={() => togglePower(equipamento.id)}
@@ -620,56 +701,145 @@ const Equipamentos = () => {
         {/* MODAL */}
         {showModal && (
           <div className="modal-overlay" onClick={() => setShowModal(false)}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h2 className="modal-title">Novo Equipamento</h2>
+            <div
+              className="modal-content modal-lg"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h2 className="modal-title">
+                  {modoEdicao ? "Editar Equipamento" : "Adicionar Novo Equipamento"}
+                </h2>
+                <button
+                  className="modal-close"
+                  onClick={() => setShowModal(false)}
+                  aria-label="Fechar modal"
+                >
+                  ×
+                </button>
+              </div>
 
               <div className="modal-body">
-                <div className="form-group">
-                  <label>Modelo</label>
-                  <input
-                    placeholder="Modelo"
-                    value={novoEquipamento.modelo}
-                    onChange={(e) =>
-                      setNovoEquipamento({
-                        ...novoEquipamento,
-                        modelo: e.target.value,
-                      })
-                    }
-                  />
-                </div>
+                <p className="modal-description">
+                  Preencha as informações do equipamento de climatização.
+                </p>
 
-                <div className="form-group">
-                  <label>Ambiente</label>
-                  <input
-                    placeholder="Ambiente"
-                    value={novoEquipamento.local}
-                    onChange={(e) =>
-                      setNovoEquipamento({
-                        ...novoEquipamento,
-                        local: e.target.value,
-                      })
-                    }
-                  />
-                </div>
+                <div className="modal-grid">
+                  <div className="form-group">
+                    <label>Nome do Equipamento</label>
+                    <input
+                      placeholder="Ex: Sala de Reuniões A"
+                      value={formEquipamento.nome}
+                      onChange={(e) =>
+                        setFormEquipamento({
+                          ...formEquipamento,
+                          nome: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
 
-                <div className="form-group">
-                  <label>Capacidade</label>
-                  <input
-                    placeholder="Capacidade"
-                    value={novoEquipamento.capacidade}
-                    onChange={(e) =>
-                      setNovoEquipamento({
-                        ...novoEquipamento,
-                        capacidade: e.target.value,
-                      })
-                    }
-                  />
+                  <div className="form-group">
+                    <label>Localização</label>
+                    <input
+                      placeholder="Ex: Térreo - Ala Norte"
+                      value={formEquipamento.local}
+                      onChange={(e) =>
+                        setFormEquipamento({
+                          ...formEquipamento,
+                          local: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Modelo</label>
+                    <input
+                      placeholder="Ex: Samsung AR12345"
+                      value={formEquipamento.modelo}
+                      onChange={(e) =>
+                        setFormEquipamento({
+                          ...formEquipamento,
+                          modelo: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Capacidade (BTU/h)</label>
+                    <input
+                      placeholder="Ex: 12000"
+                      value={formEquipamento.capacidade}
+                      onChange={(e) =>
+                        setFormEquipamento({
+                          ...formEquipamento,
+                          capacidade: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Número de Série</label>
+                    <input
+                      placeholder="Ex: SN123456789"
+                      value={formEquipamento.numeroSerie}
+                      onChange={(e) =>
+                        setFormEquipamento({
+                          ...formEquipamento,
+                          numeroSerie: e.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Tipo de Integração</label>
+                    <select
+                      value={formEquipamento.tipoIntegracao}
+                      onChange={(e) =>
+                        setFormEquipamento({
+                          ...formEquipamento,
+                          tipoIntegracao: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="BRISE">BRISE</option>
+                      <option value="SMART">SMART</option>
+                    </select>
+                  </div>
+
+                  {formEquipamento.tipoIntegracao === "SMART" && (
+                    <>
+                      <div className="smart-info full-width">
+                        Insira o token gerado na plataforma SmartThings através
+                        do site oficial.
+                      </div>
+                      <div className="form-group full-width">
+                        <label>Token SmartThings</label>
+                        <input
+                          placeholder="Cole aqui o token"
+                          value={formEquipamento.token}
+                          onChange={(e) =>
+                            setFormEquipamento({
+                              ...formEquipamento,
+                              token: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
               <div className="modal-footer">
-                <button className="btn-criar-equipamento" onClick={criarEquipamento}>
-                  Salvar
+                <button
+                  className="btn-criar-equipamento"
+                  onClick={salvarEquipamento}
+                >
+                  {modoEdicao ? "Salvar Alterações" : "Cadastrar Equipamento"}
                 </button>
               </div>
             </div>
@@ -681,3 +851,4 @@ const Equipamentos = () => {
 };
 
 export default Equipamentos;
+

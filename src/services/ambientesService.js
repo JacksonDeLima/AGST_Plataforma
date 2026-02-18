@@ -18,6 +18,32 @@ export async function listarAmbientes(corporationId) {
   return Array.isArray(data) ? data : [];
 }
 
+export async function listarTodosAmbientes() {
+  const map = new Map();
+
+  try {
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (!key || !key.startsWith("agst_mock_ambientes_")) continue;
+
+      const raw = localStorage.getItem(key);
+      const list = raw ? JSON.parse(raw) : [];
+
+      if (Array.isArray(list)) {
+        list.forEach((ambiente) => {
+          if (!ambiente || ambiente.id == null) return;
+          const id = String(ambiente.id);
+          if (!map.has(id)) {
+            map.set(id, ambiente);
+          }
+        });
+      }
+    }
+  } catch {}
+
+  return Array.from(map.values());
+}
+
 export async function listAmbientes(corporationId) {
   return listarAmbientes(corporationId);
 }

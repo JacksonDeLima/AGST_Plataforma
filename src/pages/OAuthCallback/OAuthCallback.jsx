@@ -26,18 +26,18 @@ export default function OAuthCallback() {
         setMsg("Trocando code por tokens...");
         await exchangeCodeForTokens({ code, state });
 
-        setMsg("Validando sessÃ£o...");
+        setMsg("Validando sessão...");
         const b = await bootstrap();
 
         if (!alive) return;
 
         if (b?.ok) {
-          // tenta respeitar redirect salvo, senÃ£o /ambientes
+          // tenta respeitar redirect salvo, senão /ambientes
           const post = sessionStorage.getItem("post_auth_redirect") || "/ambientes";
           sessionStorage.removeItem("post_auth_redirect");
           navigate(post, { replace: true });
         } else {
-          setMsg("NÃ£o foi possÃ­vel validar a sessÃ£o apÃ³s o login.");
+          setMsg("Não foi possível validar a sessão após o login.");
           navigate("/login", { replace: true });
         }
       } catch (e) {
@@ -60,4 +60,5 @@ export default function OAuthCallback() {
     </div>
   );
 }
+
 
