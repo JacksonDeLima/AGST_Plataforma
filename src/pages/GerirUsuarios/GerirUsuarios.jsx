@@ -643,7 +643,7 @@ const GerirUsuarios = () => {
                     <input
                       value={addForm.full_name}
                       onChange={(e) => setAddForm((s) => ({ ...s, full_name: e.target.value }))}
-                      placeholder="Ex: Douglas Mello"
+                      placeholder="Nome completo"
                       disabled={addState.loading}
                     />
                   </div>
