@@ -264,3 +264,119 @@
     width: 100%;
   }
 }
+
+/* ============================= */
+/* DARK MODE                     */
+/* ============================= */
+
+html[data-theme="dark"] .ambiente-card {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+html[data-theme="dark"] .ambiente-card:hover {
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="dark"] .ambiente-pausa-texto {
+  color: #94a3b8;
+}
+
+html[data-theme="dark"] .modal-section-title {
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+html[data-theme="dark"] .form-error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+html[data-theme="dark"] .status-selector .status-option {
+  background: #1e293b;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .status-selector .status-option:hover {
+  border-color: #38bdf8;
+}
+
+html[data-theme="dark"] .status-selector .status-option.selected {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+html[data-theme="dark"] .status.online {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+}
+
+html[data-theme="dark"] .status.offline {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+html[data-theme="dark"] .status.parcial {
+  background: rgba(234, 179, 8, 0.15);
+  color: #fde047;
+}
+
+html[data-theme="dark"] .status.manutencao {
+  background: rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .ambiente-dropdown {
+  background: #1e293b;
+  border: 1px solid #334155;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] .ambiente-dropdown button {
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .ambiente-dropdown button:hover {
+  background: rgba(51, 65, 85, 0.5);
+}
+
+html[data-theme="dark"] .ambiente-dropdown button.danger {
+  color: #f87171;
+}
+
+html[data-theme="dark"] .ambiente-dropdown button.danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+html[data-theme="dark"] .search-ambientes input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f1f5f9;
+}
+
+html[data-theme="dark"] .search-ambientes input::placeholder {
+  color: #64748b;
+}
+
+html[data-theme="dark"] .search-ambientes input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+html[data-theme="dark"] .btn-controlar:disabled {
+  background: linear-gradient(135deg, #334155, #475569);
+}

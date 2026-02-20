@@ -4,11 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo.svg";
 import { registerUser } from "../../services/authService";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
-const HCAPTCHA_SITEKEY = "ddda0de4-7a3a-4124-a9b8-a81a47321aa2"; // troque se te passarem outro
+const HCAPTCHA_SITEKEY = "ddda0de4-7a3a-4124-a9b8-a81a47321aa2";
 
 export default function Register() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -22,7 +24,6 @@ export default function Register() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // hCaptcha (estável, sem sumir por re-render/StrictMode)
   const captchaContainerRef = useRef(null);
   const captchaWidgetIdRef = useRef(null);
   const renderedRef = useRef(false);
@@ -39,7 +40,6 @@ export default function Register() {
       captchaWidgetIdRef.current = window.hcaptcha.render(container, {
         sitekey: HCAPTCHA_SITEKEY,
         callback: (token) => {
-          console.log("✅ hCaptcha token recebido:", token);
           setCaptchaToken(token);
           setErrors((prev) => ({ ...prev, captcha: "" }));
         },
@@ -47,23 +47,21 @@ export default function Register() {
           setCaptchaToken("");
           setErrors((prev) => ({
             ...prev,
-            captcha: "Captcha expirou, resolva novamente.",
+            captcha: t('auth.register.captchaExpirou'),
           }));
         },
         "error-callback": () => {
           setCaptchaToken("");
           setErrors((prev) => ({
             ...prev,
-            captcha: "Falha ao carregar o captcha. Recarregue a página.",
+            captcha: t('auth.register.captchaErro'),
           }));
         },
       });
 
       renderedRef.current = true;
-      console.log("hCaptcha widget renderizado. ID:", captchaWidgetIdRef.current);
     }
 
-    // 1) Garante script (apenas 1x na página)
     const existing = document.querySelector(
       'script[src^="https://js.hcaptcha.com/1/api.js"]'
     );
@@ -79,7 +77,6 @@ export default function Register() {
       renderCaptcha();
     }
 
-    // 2) Fallback: tenta por um tempo caso window.hcaptcha demore
     const intervalId = setInterval(renderCaptcha, 200);
 
     return () => {
@@ -88,7 +85,7 @@ export default function Register() {
         if (window.hcaptcha && captchaWidgetIdRef.current != null) {
           window.hcaptcha.remove(captchaWidgetIdRef.current);
         }
-      } catch {}
+      } catch { }
       captchaWidgetIdRef.current = null;
       renderedRef.current = false;
     };
@@ -103,29 +100,28 @@ export default function Register() {
   function validateForm() {
     const newErrors = {};
 
-    if (!formData.name.trim()) newErrors.name = "Nome é obrigatório";
+    if (!formData.name.trim()) newErrors.name = t('auth.register.nomeObrigatorio');
 
-    if (!formData.email.trim()) newErrors.email = "Email é obrigatório";
+    if (!formData.email.trim()) newErrors.email = t('auth.register.emailObrigatorio');
     else if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = "Email inválido";
+      newErrors.email = t('auth.register.emailInvalido');
 
     const strongPass =
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
 
     if (!formData.password) {
-      newErrors.password = "Senha é obrigatória";
+      newErrors.password = t('auth.register.senhaObrigatoria');
     } else if (!strongPass.test(formData.password)) {
-      newErrors.password =
-        "Senha fraca. Use 8+ caracteres com maiúscula, minúscula, número e especial.";
+      newErrors.password = t('auth.register.senhaFraca');
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Confirme sua senha";
+      newErrors.confirmPassword = t('auth.register.confirmarObrigatorio');
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "As senhas não coincidem";
+      newErrors.confirmPassword = t('auth.register.senhasNaoCoincidem');
     }
 
-    if (!acceptTerms) newErrors.terms = "Você deve aceitar os termos";
+    if (!acceptTerms) newErrors.terms = t('auth.register.aceitarTermos');
 
     return newErrors;
   }
@@ -136,19 +132,13 @@ export default function Register() {
     const newErrors = validateForm();
 
     if (!captchaToken) {
-      newErrors.captcha = "Confirme que você não é um robô.";
+      newErrors.captcha = t('auth.register.captchaObrigatorio');
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
-    console.log("✅ Dados do formulário validados:", {
-      ...formData,
-      acceptTerms,
-      captchaToken,
-    });
 
     setIsLoading(true);
     setErrors({});
@@ -162,24 +152,20 @@ export default function Register() {
       });
 
       if (result.success) {
-        console.log("🎉 Usuário criado com sucesso:", result.data);
-
         alert(
-          `Conta criada com sucesso! Enviamos um e-mail com um link de ativação para ${formData.email}. ` +
-            "Clique no link recebido para confirmar seu cadastro."
+          `${t('auth.register.contaCriada')} ${formData.email}. ` +
+          t('auth.register.cliqueLink')
         );
 
         navigate("/activation", {
           state: { email: formData.email, userId: result.data.id },
         });
       } else {
-        console.warn("⚠️ Erro ao criar usuário:", result.error);
         setErrors({ submit: result.error });
       }
     } catch (error) {
-      console.error("⚠️ Erro inesperado ao criar usuário:", error);
       setErrors({
-        submit: "Erro inesperado ao criar usuário. Tente novamente.",
+        submit: t('auth.register.erroInesperado'),
       });
     } finally {
       setIsLoading(false);
@@ -188,7 +174,6 @@ export default function Register() {
         try {
           window.hcaptcha.reset(captchaWidgetIdRef.current);
           setCaptchaToken("");
-          console.log("hCaptcha resetado.");
         } catch (err) {
           console.warn("Falha ao resetar hCaptcha", err);
         }
@@ -203,31 +188,28 @@ export default function Register() {
   return (
     <div className="register-container">
       <div className="register-card">
-        {/* Lado esquerdo - informações / branding */}
         <div className="register-brand">
           <div className="login-logo">
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
 
-          <h2 className="register-brand-title">Crie sua conta Brise Cloud</h2>
+          <h2 className="register-brand-title">{t('auth.register.brandTitle')}</h2>
 
           <p className="register-brand-subtitle">
-            Centralize o acesso às integrações e dispositivos com segurança e
-            controle.
+            {t('auth.register.brandSubtitle')}
           </p>
 
           <ul className="register-brand-list">
-            <li>• Gestão unificada de dispositivos</li>
-            <li>• Acesso seguro com API 3.0</li>
-            <li>• Ativação via token enviado por e-mail</li>
+            <li>• {t('auth.register.brandList1')}</li>
+            <li>• {t('auth.register.brandList2')}</li>
+            <li>• {t('auth.register.brandList3')}</li>
           </ul>
         </div>
 
-        {/* Lado direito - formulário */}
         <div className="register-box">
           <div className="register-header">
-            <h1>Criar conta</h1>
-            <p>Preencha os dados para iniciar o acesso ao Brise Cloud.</p>
+            <h1>{t('auth.register.title')}</h1>
+            <p>{t('auth.register.subtitle')}</p>
           </div>
 
           {errors.submit && (
@@ -236,11 +218,11 @@ export default function Register() {
 
           <form onSubmit={handleSubmit} className="register-form">
             <div className="input-group">
-              <label>Nome Completo</label>
+              <label>{t('auth.register.nomeCompleto')}</label>
               <input
                 type="text"
                 name="name"
-                placeholder="Nome completo"
+                placeholder={t('auth.register.nomePlaceholder')}
                 value={formData.name}
                 onChange={handleChange}
                 className={errors.name ? "error" : ""}
@@ -252,11 +234,11 @@ export default function Register() {
             </div>
 
             <div className="input-group">
-              <label>Email</label>
+              <label>{t('auth.register.email')}</label>
               <input
                 type="email"
                 name="email"
-                placeholder="seu@email.com"
+                placeholder={t('auth.register.emailPlaceholder')}
                 value={formData.email}
                 onChange={handleChange}
                 className={errors.email ? "error" : ""}
@@ -268,7 +250,7 @@ export default function Register() {
             </div>
 
             <div className="input-group">
-              <label>Senha</label>
+              <label>{t('auth.register.senha')}</label>
               <div className="password-input">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -311,11 +293,11 @@ export default function Register() {
               {errors.password && (
                 <span className="error-message">{errors.password}</span>
               )}
-              <span className="input-hint">Mínimo de 8 caracteres</span>
+              <span className="input-hint">{t('auth.register.minCaracteres')}</span>
             </div>
 
             <div className="input-group">
-              <label>Confirmar Senha</label>
+              <label>{t('auth.register.confirmarSenha')}</label>
               <input
                 type={showPassword ? "text" : "password"}
                 name="confirmPassword"
@@ -331,7 +313,7 @@ export default function Register() {
             </div>
 
             <div className="input-group">
-              <label>Validação de segurança</label>
+              <label>{t('auth.register.validacao')}</label>
               <div ref={captchaContainerRef} className="captcha-container" />
               {errors.captcha && (
                 <span className="error-message">{errors.captcha}</span>
@@ -347,8 +329,8 @@ export default function Register() {
                   disabled={isLoading}
                 />
                 <span>
-                  Aceito os <a href="/terms">Termos de Uso</a> e a{" "}
-                  <a href="/privacy">Política de Privacidade</a>
+                  {t('auth.register.aceito')} <a href="/terms">{t('auth.register.termos')}</a> {t('auth.register.ea')}{" "}
+                  <a href="/privacy">{t('auth.register.politica')}</a>
                 </span>
               </label>
               {errors.terms && (
@@ -361,22 +343,22 @@ export default function Register() {
               className="register-button"
               disabled={isLoading}
             >
-              {isLoading ? "Criando conta..." : "Criar conta"}
+              {isLoading ? t('auth.register.criando') : t('auth.register.criar')}
             </button>
           </form>
 
           <div className="register-divider">
-            <span>ou</span>
+            <span>{t('auth.register.ou')}</span>
           </div>
 
           <div className="register-login-link">
-            <p>Já tem uma conta?</p>
+            <p>{t('auth.register.jaConta')}</p>
             <button
               onClick={handleBackToLogin}
               className="link-button"
               disabled={isLoading}
             >
-              Fazer login
+              {t('auth.register.fazerLogin')}
             </button>
           </div>
         </div>

@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo.svg";
 import { forgotPassword } from "../../services/authService";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [emailSent, setEmailSent] = useState(false);
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -18,27 +20,23 @@ export default function ForgotPassword() {
     setErrors({});
 
     if (!email.trim()) {
-      setErrors({ email: "Informe o e-mail cadastrado." });
+      setErrors({ email: t('auth.forgotPassword.emailObrigatorio') });
       return;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setErrors({ email: "E-mail inválido." });
+      setErrors({ email: t('auth.forgotPassword.emailInvalido') });
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // TODO: chamada real para API de recuperação de senha
       await forgotPassword({ email });
-
-
       setEmailSent(true);
     } catch (error) {
       setErrors({
-        submit:
-          "Não foi possível enviar o e-mail de recuperação. Tente novamente em alguns instantes.",
+        submit: t('auth.forgotPassword.erroEnvio'),
       });
     } finally {
       setIsLoading(false);
@@ -54,43 +52,37 @@ export default function ForgotPassword() {
     setErrors({});
   }
 
-
-
   return (
     <div className="register-container">
       <div className="register-card">
-        {/* Lado esquerdo - branding / informações */}
         <div className="register-brand">
           <div className="login-logo">
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
 
-          <h2 className="register-brand-title">Recupere o acesso à sua conta</h2>
+          <h2 className="register-brand-title">{t('auth.forgotPassword.brandTitle')}</h2>
           <p className="register-brand-subtitle">
-            Enviaremos um link de recuperação para o e-mail cadastrado para que
-            você possa definir uma nova senha com segurança.
+            {t('auth.forgotPassword.brandSubtitle')}
           </p>
 
           <ul className="register-brand-list">
-            <li>• Processo simples e seguro</li>
-            <li>• Link com tempo limitado de uso</li>
-            <li>• Sem alterar suas configurações de conta</li>
+            <li>• {t('auth.forgotPassword.brandList1')}</li>
+            <li>• {t('auth.forgotPassword.brandList2')}</li>
+            <li>• {t('auth.forgotPassword.brandList3')}</li>
           </ul>
         </div>
 
-        {/* Lado direito - conteúdo principal */}
         <div className="register-box">
           {emailSent ? (
             <>
               <div className="register-header">
-                <h1>Email enviado!</h1>
+                <h1>{t('auth.forgotPassword.emailSentTitle')}</h1>
                 <p>
-                  Enviamos um link de recuperação para{" "}
+                  {t('auth.forgotPassword.emailSentDesc')}{" "}
                   <strong>{email}</strong>.
                 </p>
                 <p className="forgot-instructions">
-                  Verifique sua caixa de entrada e também a pasta de spam.
-                  O link é válido por tempo limitado.
+                  {t('auth.forgotPassword.emailSentInstructions')}
                 </p>
               </div>
 
@@ -98,27 +90,26 @@ export default function ForgotPassword() {
                 onClick={handleBackToLogin}
                 className="register-button"
               >
-                Voltar para login
+                {t('auth.forgotPassword.voltarLogin')}
               </button>
 
               <div className="register-login-link" style={{ marginTop: "16px" }}>
-                <p>Não recebeu o e-mail?</p>
+                <p>{t('auth.forgotPassword.naoRecebeu')}</p>
                 <button
                   type="button"
                   onClick={handleTryAgain}
                   className="link-button"
                 >
-                  Tentar novamente
+                  {t('auth.forgotPassword.tentarNovamente')}
                 </button>
               </div>
             </>
           ) : (
             <>
               <div className="register-header">
-                <h1>Esqueceu a senha?</h1>
+                <h1>{t('auth.forgotPassword.title')}</h1>
                 <p>
-                  Informe o e-mail cadastrado para enviarmos um link de
-                  recuperação de acesso.
+                  {t('auth.forgotPassword.subtitle')}
                 </p>
               </div>
 
@@ -128,10 +119,10 @@ export default function ForgotPassword() {
 
               <form onSubmit={handleSubmit} className="register-form">
                 <div className="input-group">
-                  <label>Email</label>
+                  <label>{t('auth.forgotPassword.email')}</label>
                   <input
                     type="email"
-                    placeholder="seu@email.com"
+                    placeholder={t('auth.forgotPassword.emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={errors.email ? "error" : ""}
@@ -141,7 +132,7 @@ export default function ForgotPassword() {
                     <span className="error-message">{errors.email}</span>
                   )}
                   <span className="input-hint">
-                    Use o mesmo e-mail utilizado no cadastro da sua conta.
+                    {t('auth.forgotPassword.emailHint')}
                   </span>
                 </div>
 
@@ -150,19 +141,19 @@ export default function ForgotPassword() {
                   className="register-button"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Enviando..." : "Enviar link de recuperação"}
+                  {isLoading ? t('auth.forgotPassword.enviando') : t('auth.forgotPassword.enviarLink')}
                 </button>
               </form>
 
               <div className="register-login-link">
-                <p>Lembrou da senha?</p>
+                <p>{t('auth.forgotPassword.lembrouSenha')}</p>
                 <button
                   type="button"
                   onClick={handleBackToLogin}
                   className="link-button"
                   disabled={isLoading}
                 >
-                  Voltar para login
+                  {t('auth.forgotPassword.voltarLogin')}
                 </button>
               </div>
             </>

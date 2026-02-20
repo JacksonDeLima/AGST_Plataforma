@@ -2,12 +2,14 @@
 import { useNavigate } from "react-router-dom";
 import "./Equipamentos.css";
 import { useToast } from "../../context/ToastContext";
+import { useLanguage } from "../../context/LanguageContext";
 
 const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
 const Equipamentos = () => {
   const navigate = useNavigate();
   const { addNotification } = useToast();
+  const { t } = useLanguage();
 
   const [equipamentos, setEquipamentos] = useState([
     {
@@ -210,7 +212,7 @@ const Equipamentos = () => {
     ) {
       addNotification({
         type: "error",
-        message: "Preencha todos os campos obrigatórios.",
+        message: t('equipamentosPage.camposObrigatorios'),
       });
       return;
     }
@@ -222,21 +224,21 @@ const Equipamentos = () => {
         prev.map((e) =>
           e.id === equipamentoEditandoId
             ? {
-                ...e,
-                nome: formEquipamento.nome,
-                local: formEquipamento.local,
-                modelo: formEquipamento.modelo,
-                capacidade: capacidadeFinal,
-                numeroSerie: formEquipamento.numeroSerie,
-                tipoIntegracao: formEquipamento.tipoIntegracao,
-                token: formEquipamento.token,
-              }
+              ...e,
+              nome: formEquipamento.nome,
+              local: formEquipamento.local,
+              modelo: formEquipamento.modelo,
+              capacidade: capacidadeFinal,
+              numeroSerie: formEquipamento.numeroSerie,
+              tipoIntegracao: formEquipamento.tipoIntegracao,
+              token: formEquipamento.token,
+            }
             : e,
         ),
       );
       addNotification({
         type: "success",
-        message: `Equipamento "${formEquipamento.modelo}" atualizado com sucesso.`,
+        message: t('equipamentosPage.equipamentoAtualizado').replace('{model}', formEquipamento.modelo),
       });
       setShowModal(false);
       return;
@@ -264,7 +266,7 @@ const Equipamentos = () => {
     setEquipamentos((prev) => [...prev, novo]);
     addNotification({
       type: "success",
-      message: `Equipamento "${novo.modelo}" adicionado em ${novo.local}.`,
+      message: t('equipamentosPage.equipamentoAdicionado').replace('{model}', novo.modelo).replace('{location}', novo.local),
     });
     setShowModal(false);
   };
@@ -276,19 +278,19 @@ const Equipamentos = () => {
     return "";
   };
   const getHealthInfo = (status) => {
-    if (status === "Ativo") return { label: "Operando", cls: "health-ok" };
-    if (status === "Inativo") return { label: "Em espera", cls: "health-standby" };
-    if (status === "Offline") return { label: "Sem sinal", cls: "health-offline" };
+    if (status === "Ativo") return { label: t('equipamentosPage.operando'), cls: "health-ok" };
+    if (status === "Inativo") return { label: t('equipamentosPage.emEspera'), cls: "health-standby" };
+    if (status === "Offline") return { label: t('equipamentosPage.semSinal'), cls: "health-offline" };
     return { label: "-", cls: "" };
   };
   const formatModo = (modo) => {
     if (!modo) return "-";
     const mapa = {
-      auto: "Automático",
-      cool: "Frio",
-      heat: "Aquecimento",
-      fan: "Ventilação",
-      dry: "Seco",
+      auto: t('equipamentosPage.automatico'),
+      cool: t('equipamentosPage.frio'),
+      heat: t('equipamentosPage.aquecimento'),
+      fan: t('equipamentosPage.ventilacao'),
+      dry: t('equipamentosPage.seco'),
     };
     return mapa[modo] || modo;
   };
@@ -356,8 +358,8 @@ const Equipamentos = () => {
     const mediaTemp =
       tempsAtivas.length > 0
         ? Math.round(
-            tempsAtivas.reduce((a, b) => a + b, 0) / tempsAtivas.length
-          )
+          tempsAtivas.reduce((a, b) => a + b, 0) / tempsAtivas.length
+        )
         : null;
 
     return {
@@ -384,7 +386,7 @@ const Equipamentos = () => {
       patchEquipamento(id, { status: "Inativo", consumoAtual: "0 W" });
       addNotification({
         type: "info",
-        message: `Equipamento "${eq.modelo}" desligado (${eq.local}).`,
+        message: t('equipamentosPage.equipamentoDesligado').replace('{model}', eq.modelo).replace('{location}', eq.local),
       });
       return;
     }
@@ -404,7 +406,7 @@ const Equipamentos = () => {
     });
     addNotification({
       type: "info",
-      message: `Equipamento "${eq.modelo}" ligado (${eq.local}).`,
+      message: t('equipamentosPage.equipamentoLigado').replace('{model}', eq.modelo).replace('{location}', eq.local),
     });
   };
 
@@ -416,7 +418,7 @@ const Equipamentos = () => {
     patchEquipamento(id, { setpoint: next });
     addNotification({
       type: "info",
-      message: `Setpoint de "${eq.modelo}" ajustado para ${next}°C.`,
+      message: t('equipamentosPage.setpointAjustado').replace('{model}', eq.modelo).replace('{value}', next),
     });
   };
 
@@ -432,7 +434,7 @@ const Equipamentos = () => {
     patchEquipamento(id, { modo: next });
     addNotification({
       type: "info",
-      message: `Modo de "${eq.modelo}" alterado para ${formatModo(next)}.`,
+      message: t('equipamentosPage.modoAlterado').replace('{model}', eq.modelo).replace('{mode}', formatModo(next)),
     });
   };
 
@@ -444,63 +446,59 @@ const Equipamentos = () => {
           style={{ marginBottom: "20px" }}
           onClick={() => navigate(-1)}
         >
-          ← Voltar
-        
+          {t('equipamentosPage.voltar')}
+
         </button>
 
         {/* HEADER */}
         <div className="page-header">
           <div>
-            <h1 className="page-title">Equipamentos</h1>
-            <p className="page-subtitle">Adicione ou gerencie seus equipamentos</p>
+            <h1 className="page-title">{t('equipamentosPage.title')}</h1>
+            <p className="page-subtitle">{t('equipamentosPage.subtitle')}</p>
           </div>
         </div>
 
         {/* MINI DASHBOARD */}
         <div className="mini-dashboard">
           <div
-            className={`dashboard-card total ${
-              filtroStatus === "TODOS" ? "selecionado" : ""
-            }`}
+            className={`dashboard-card total ${filtroStatus === "TODOS" ? "selecionado" : ""
+              }`}
             onClick={() => setFiltroStatus("TODOS")}
           >
             <span className="dash-number">{resumo.total}</span>
-            <span className="dash-label">Total</span>
+            <span className="dash-label">{t('equipamentosPage.total')}</span>
           </div>
           <div
-            className={`dashboard-card ativo ${
-              filtroStatus === "Ativo" ? "selecionado" : ""
-            }`}
+            className={`dashboard-card ativo ${filtroStatus === "Ativo" ? "selecionado" : ""
+              }`}
             onClick={() => setFiltroStatus("Ativo")}
           >
             <span className="dash-number">{resumo.ativos}</span>
-            <span className="dash-label">Ativos</span>
+            <span className="dash-label">{t('equipamentosPage.ativos')}</span>
           </div>
           <div
-            className={`dashboard-card inativo ${
-              filtroStatus === "Inativo" ? "selecionado" : ""
-            }`}
+            className={`dashboard-card inativo ${filtroStatus === "Inativo" ? "selecionado" : ""
+              }`}
             onClick={() => setFiltroStatus("Inativo")}
           >
             <span className="dash-number">{resumo.inativos}</span>
-            <span className="dash-label">Inativos</span>
+            <span className="dash-label">{t('equipamentosPage.inativos')}</span>
           </div>
           <div
-            className={`dashboard-card offline ${
-              filtroStatus === "Offline" ? "selecionado" : ""
-            }`}
+            className={`dashboard-card offline ${filtroStatus === "Offline" ? "selecionado" : ""
+              }`}
             onClick={() => setFiltroStatus("Offline")}
           >
             <span className="dash-number">{resumo.offline}</span>
-            <span className="dash-label">Offline</span>
+            <span className="dash-label">{t('equipamentosPage.offline')}</span>
           </div>
           <div className="dashboard-card consumo">
             <span className="dash-number">{resumo.consumo}</span>
-            <span className="dash-label">Consumo atual</span>
+            <span className="dash-label">{t('equipamentosPage.consumoAtual')}</span>
           </div>
           <div className="dashboard-card temperatura">
             <span className="dash-number">{resumo.tempMedia}</span>
-            <span className="dash-label">Temp. média</span>
+            <span className="dash-label">{t('equipamentosPage.tempMedia')}</span>
           </div>
         </div>
 
@@ -511,7 +509,7 @@ const Equipamentos = () => {
               className="btn-filtros"
               onClick={() => setMostrarFiltros(!mostrarFiltros)}
             >
-              Filtros
+              {t('equipamentosPage.filtros')}
             </button>
 
             {mostrarFiltros && (
@@ -519,7 +517,7 @@ const Equipamentos = () => {
                 <div className="search-box">
                   <input
                     type="text"
-                    placeholder="Buscar por modelo, ambiente ou capacidade"
+                    placeholder={t('equipamentosPage.buscarPlaceholder')}
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
                   />
@@ -541,7 +539,7 @@ const Equipamentos = () => {
                 </div>
 
                 <button className="btn-clear" onClick={limparFiltros}>
-                  Limpar
+                  {t('equipamentosPage.limpar')}
                 </button>
               </>
             )}
@@ -549,7 +547,7 @@ const Equipamentos = () => {
 
           <div className="toolbar-right">
             <button className="btn-primary" onClick={abrirModalCriacao}>
-              + Adicionar Equipamento
+              {t('equipamentosPage.adicionarEquipamento')}
             </button>
           </div>
         </div>
@@ -585,13 +583,13 @@ const Equipamentos = () => {
                   <span className="meta-item">{equipamento.local}</span>
                   <span className="meta-divider">•</span>
                   <span className="meta-item">
-                    {`Modo ${formatModo(equipamento.modo)}`}
+                    {`${t('equipamentosPage.modoLabel')} ${formatModo(equipamento.modo)}`}
                   </span>
                 </div>
 
                 <div className="device-kpis">
                   <div className="kpi">
-                    <span className="kpi-label">Temp. atual</span>
+                    <span className="kpi-label">{t('equipamentosPage.tempAtual')}</span>
                     <span
                       className={`temp-badge ${getTempClass(
                         equipamento.temperaturaAtual
@@ -601,39 +599,39 @@ const Equipamentos = () => {
                     </span>
                   </div>
                   <div className="kpi">
-                    <span className="kpi-label">Setpoint</span>
+                    <span className="kpi-label">{t('equipamentosPage.setpoint')}</span>
                     <span className="kpi-value">
                       {equipamento.setpoint !== null &&
-                      equipamento.setpoint !== undefined
+                        equipamento.setpoint !== undefined
                         ? `${equipamento.setpoint}°C`
                         : "-"}
                     </span>
                   </div>
                   <div className="kpi">
-                    <span className="kpi-label">Consumo</span>
+                    <span className="kpi-label">{t('equipamentosPage.consumo')}</span>
                     <span className="kpi-value">{equipamento.consumoAtual}</span>
                   </div>
                   <div className="kpi">
-                    <span className="kpi-label">Capacidade</span>
+                    <span className="kpi-label">{t('equipamentosPage.capacidade')}</span>
                     <span className="kpi-value">{equipamento.capacidade}</span>
                   </div>
                 </div>
 
                 <div className="device-specs">
                   <div className="spec">
-                    <span className="spec-label">Firmware</span>
+                    <span className="spec-label">{t('equipamentosPage.firmware')}</span>
                     <span className="spec-value">
                       {equipamento.firmware || "-"}
                     </span>
                   </div>
                   <div className="spec">
-                    <span className="spec-label">Último ping</span>
+                    <span className="spec-label">{t('equipamentosPage.ultimoPing')}</span>
                     <span className="spec-value">
                       {equipamento.ultimoPing || "-"}
                     </span>
                   </div>
                   <div className="spec">
-                    <span className="spec-label">Sensor</span>
+                    <span className="spec-label">{t('equipamentosPage.sensor')}</span>
                     <span
                       className={`spec-badge ${getSensorClass(
                         equipamento.saudeSensor,
@@ -649,7 +647,7 @@ const Equipamentos = () => {
                     className="btn-ctrl"
                     onClick={() => abrirModalEdicao(equipamento)}
                   >
-                    Editar
+                    {t('equipamentosPage.editar')}
                   </button>
                   <button
                     className={`btn-power ${isActive ? "on" : "off"}`}
@@ -657,20 +655,20 @@ const Equipamentos = () => {
                     onClick={() => togglePower(equipamento.id)}
                     title={
                       isOffline
-                        ? "Equipamento offline"
+                        ? t('equipamentosPage.equipamentoOffline')
                         : isActive
-                        ? "Desligar"
-                        : "Ligar"
+                          ? t('equipamentosPage.desligar')
+                          : t('equipamentosPage.ligar')
                     }
                   >
-                    {isActive ? "Desligar" : "Ligar"}
+                    {isActive ? t('equipamentosPage.desligar') : t('equipamentosPage.ligar')}
                   </button>
 
                   <button
                     className="btn-ctrl"
                     disabled={!isActive}
                     onClick={() => changeSetpoint(equipamento.id, -1)}
-                    title={!isActive ? "Ative o equipamento" : "Diminuir setpoint"}
+                    title={!isActive ? t('equipamentosPage.ativeEquipamento') : t('equipamentosPage.diminuirSetpoint')}
                   >
                     -
                   </button>
@@ -679,7 +677,7 @@ const Equipamentos = () => {
                     className="btn-ctrl"
                     disabled={!isActive}
                     onClick={() => changeSetpoint(equipamento.id, +1)}
-                    title={!isActive ? "Ative o equipamento" : "Aumentar setpoint"}
+                    title={!isActive ? t('equipamentosPage.ativeEquipamento') : t('equipamentosPage.aumentarSetpoint')}
                   >
                     +
                   </button>
@@ -688,9 +686,9 @@ const Equipamentos = () => {
                     className="btn-ctrl"
                     disabled={!isActive}
                     onClick={() => cycleModo(equipamento.id)}
-                    title={!isActive ? "Ative o equipamento" : "Trocar modo"}
+                    title={!isActive ? t('equipamentosPage.ativeEquipamento') : t('equipamentosPage.trocarModo')}
                   >
-                    Modo
+                    {t('equipamentosPage.modo')}
                   </button>
                 </div>
               </div>
@@ -707,12 +705,12 @@ const Equipamentos = () => {
             >
               <div className="modal-header">
                 <h2 className="modal-title">
-                  {modoEdicao ? "Editar Equipamento" : "Adicionar Novo Equipamento"}
+                  {modoEdicao ? t('equipamentosPage.editarEquipamento') : t('equipamentosPage.adicionarNovo')}
                 </h2>
                 <button
                   className="modal-close"
                   onClick={() => setShowModal(false)}
-                  aria-label="Fechar modal"
+                  aria-label={t('equipamentosPage.fecharModal')}
                 >
                   ×
                 </button>
@@ -720,14 +718,14 @@ const Equipamentos = () => {
 
               <div className="modal-body">
                 <p className="modal-description">
-                  Preencha as informações do equipamento de climatização.
+                  {t('equipamentosPage.descricaoModal')}
                 </p>
 
                 <div className="modal-grid">
                   <div className="form-group">
-                    <label>Nome do Equipamento</label>
+                    <label>{t('equipamentosPage.nomeEquipamento')}</label>
                     <input
-                      placeholder="Ex: Sala de Reuniões A"
+                      placeholder={t('equipamentosPage.nomePlaceholder')}
                       value={formEquipamento.nome}
                       onChange={(e) =>
                         setFormEquipamento({
@@ -739,9 +737,9 @@ const Equipamentos = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Localização</label>
+                    <label>{t('equipamentosPage.localizacao')}</label>
                     <input
-                      placeholder="Ex: Térreo - Ala Norte"
+                      placeholder={t('equipamentosPage.localPlaceholder')}
                       value={formEquipamento.local}
                       onChange={(e) =>
                         setFormEquipamento({
@@ -753,9 +751,9 @@ const Equipamentos = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Modelo</label>
+                    <label>{t('equipamentosPage.modeloLabel')}</label>
                     <input
-                      placeholder="Ex: Samsung AR12345"
+                      placeholder={t('equipamentosPage.modeloPlaceholder')}
                       value={formEquipamento.modelo}
                       onChange={(e) =>
                         setFormEquipamento({
@@ -767,9 +765,9 @@ const Equipamentos = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Capacidade (BTU/h)</label>
+                    <label>{t('equipamentosPage.capacidadeBTU')}</label>
                     <input
-                      placeholder="Ex: 12000"
+                      placeholder={t('equipamentosPage.capacidadePlaceholder')}
                       value={formEquipamento.capacidade}
                       onChange={(e) =>
                         setFormEquipamento({
@@ -781,9 +779,9 @@ const Equipamentos = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Número de Série</label>
+                    <label>{t('equipamentosPage.numeroSerie')}</label>
                     <input
-                      placeholder="Ex: SN123456789"
+                      placeholder={t('equipamentosPage.seriePlaceholder')}
                       value={formEquipamento.numeroSerie}
                       onChange={(e) =>
                         setFormEquipamento({
@@ -795,7 +793,7 @@ const Equipamentos = () => {
                   </div>
 
                   <div className="form-group">
-                    <label>Tipo de Integração</label>
+                    <label>{t('equipamentosPage.tipoIntegracao')}</label>
                     <select
                       value={formEquipamento.tipoIntegracao}
                       onChange={(e) =>
@@ -813,13 +811,12 @@ const Equipamentos = () => {
                   {formEquipamento.tipoIntegracao === "SMART" && (
                     <>
                       <div className="smart-info full-width">
-                        Insira o token gerado na plataforma SmartThings através
-                        do site oficial.
+                        {t('equipamentosPage.smartInfo')}
                       </div>
                       <div className="form-group full-width">
-                        <label>Token SmartThings</label>
+                        <label>{t('equipamentosPage.tokenSmartThings')}</label>
                         <input
-                          placeholder="Cole aqui o token"
+                          placeholder={t('equipamentosPage.tokenPlaceholder')}
                           value={formEquipamento.token}
                           onChange={(e) =>
                             setFormEquipamento({
@@ -839,7 +836,7 @@ const Equipamentos = () => {
                   className="btn-criar-equipamento"
                   onClick={salvarEquipamento}
                 >
-                  {modoEdicao ? "Salvar Alterações" : "Cadastrar Equipamento"}
+                  {modoEdicao ? t('equipamentosPage.salvarAlteracoes') : t('equipamentosPage.cadastrarEquipamento')}
                 </button>
               </div>
             </div>

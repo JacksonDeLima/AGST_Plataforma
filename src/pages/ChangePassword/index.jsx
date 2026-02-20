@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "../../assets/logo.svg";
 import { changePassword, resolveAuthMode } from "../../services/authService";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
@@ -10,6 +11,7 @@ const PASSWORD_REGEX =
 export default function ChangePassword() {
   const navigate = useNavigate();
   const mode = useMemo(() => resolveAuthMode(), []);
+  const { t } = useLanguage();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -22,16 +24,15 @@ export default function ChangePassword() {
 
   function validate() {
     const errors = {};
-    if (!currentPassword) errors.currentPassword = "Senha atual é obrigatória";
+    if (!currentPassword) errors.currentPassword = t('auth.changePassword.senhaAtualObrigatoria');
 
-    if (!newPassword) errors.newPassword = "Nova senha é obrigatória";
+    if (!newPassword) errors.newPassword = t('auth.changePassword.novaSenhaObrigatoria');
     else if (!PASSWORD_REGEX.test(newPassword)) {
-      errors.newPassword =
-        "Senha fraca. Use 8+ caracteres, maiúscula, minúscula, número e símbolo.";
+      errors.newPassword = t('auth.changePassword.senhaFraca');
     }
 
-    if (!confirm) errors.confirm = "Confirme a nova senha";
-    else if (confirm !== newPassword) errors.confirm = "As senhas não coincidem";
+    if (!confirm) errors.confirm = t('auth.changePassword.confirmarObrigatorio');
+    else if (confirm !== newPassword) errors.confirm = t('auth.changePassword.senhasNaoCoincidem');
 
     return errors;
   }
@@ -58,11 +59,11 @@ export default function ChangePassword() {
     setIsLoading(false);
 
     if (!res.success) {
-      setErrorMsg(res.error || "Não foi possível alterar a senha.");
+      setErrorMsg(res.error || t('auth.changePassword.erroAlterar'));
       return;
     }
 
-    setSuccessMsg("Senha alterada com sucesso!");
+    setSuccessMsg(t('auth.changePassword.sucesso'));
     setCurrentPassword("");
     setNewPassword("");
     setConfirm("");
@@ -75,20 +76,20 @@ export default function ChangePassword() {
           <div className="login-logo">
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
-          <h2 className="auth-brand-title">Segurança</h2>
-          <p className="auth-brand-subtitle">Altere sua senha com segurança.</p>
+          <h2 className="auth-brand-title">{t('auth.changePassword.brandTitle')}</h2>
+          <p className="auth-brand-subtitle">{t('auth.changePassword.brandSubtitle')}</p>
           <ul className="auth-brand-list">
             <li>
-              • Modo atual: <b>{mode}</b>
+              • {t('auth.changePassword.modoAtual')}: <b>{mode}</b>
             </li>
-            <li>• Requer usuário logado (Bearer token)</li>
+            <li>• {t('auth.changePassword.requerLogado')}</li>
           </ul>
         </div>
 
         <div className="auth-box">
           <div className="auth-header">
-            <h1>Alterar senha</h1>
-            <p>Informe a senha atual e a nova senha.</p>
+            <h1>{t('auth.changePassword.title')}</h1>
+            <p>{t('auth.changePassword.subtitle')}</p>
           </div>
 
           {errorMsg && <div className="auth-error-banner">{errorMsg}</div>}
@@ -96,7 +97,7 @@ export default function ChangePassword() {
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="input-group">
-              <label htmlFor="currentPassword">Senha atual</label>
+              <label htmlFor="currentPassword">{t('auth.changePassword.senhaAtual')}</label>
               <input
                 id="currentPassword"
                 type="password"
@@ -111,7 +112,7 @@ export default function ChangePassword() {
             </div>
 
             <div className="input-group">
-              <label htmlFor="newPassword">Nova senha</label>
+              <label htmlFor="newPassword">{t('auth.changePassword.novaSenha')}</label>
               <input
                 id="newPassword"
                 type="password"
@@ -126,7 +127,7 @@ export default function ChangePassword() {
             </div>
 
             <div className="input-group">
-              <label htmlFor="confirm">Confirmar nova senha</label>
+              <label htmlFor="confirm">{t('auth.changePassword.confirmarNovaSenha')}</label>
               <input
                 id="confirm"
                 type="password"
@@ -144,10 +145,10 @@ export default function ChangePassword() {
               {isLoading ? (
                 <>
                   <span className="spinner" />
-                  Alterando...
+                  {t('auth.changePassword.alterando')}
                 </>
               ) : (
-                "Alterar senha"
+                t('auth.changePassword.alterar')
               )}
             </button>
           </form>
@@ -159,7 +160,7 @@ export default function ChangePassword() {
               onClick={() => navigate("/ambientes")}
               disabled={isLoading}
             >
-              Voltar
+              {t('auth.changePassword.voltar')}
             </button>
           </div>
         </div>
@@ -169,6 +170,3 @@ export default function ChangePassword() {
     </div>
   );
 }
-
-
-

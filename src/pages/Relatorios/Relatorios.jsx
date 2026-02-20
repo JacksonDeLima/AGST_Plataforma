@@ -5,12 +5,12 @@ import { getUsersByCorporation, getEnergyConsumptionReport } from "../../service
 import { useLanguage } from "../../context/LanguageContext";
 import * as XLSX from "xlsx";
 
-import {LineChart,Line,XAxis,YAxis,Tooltip,ResponsiveContainer,BarChart,Bar,PieChart,Pie,Cell} from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from "recharts";
 
 /* CORES DO GRÁFICO DE PIZZA */
 const COLORS = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#7c3aed"];
 
-function EnergyReport({ data }) {
+function EnergyReport({ data, t }) {
   return (
     <div className="energy-report">
 
@@ -18,26 +18,26 @@ function EnergyReport({ data }) {
           VISÃO GERAL
       ===================== */}
       <section className="energy-section">
-        <h2 className="section-title">Visão Geral</h2>
+        <h2 className="section-title">{t('relatoriosPage.visaoGeral')}</h2>
 
         <div className="kpi-grid">
           <div className="kpi-card">
-            <span>Total consumido</span>
+            <span>{t('relatoriosPage.totalConsumido')}</span>
             <strong>{data.summary.totalKwh} kWh</strong>
           </div>
 
           <div className="kpi-card">
-            <span>Média por dispositivo</span>
+            <span>{t('relatoriosPage.mediaPorDispositivo')}</span>
             <strong>{data.summary.avgPerDevice} kWh</strong>
           </div>
 
           <div className="kpi-card">
-            <span>Eficiência média</span>
+            <span>{t('relatoriosPage.eficienciaMedia')}</span>
             <strong>{data.summary.avgEfficiency} kWh/h</strong>
           </div>
 
           <div className="kpi-card warning">
-            <span>Fora do horário</span>
+            <span>{t('relatoriosPage.foraHorario')}</span>
             <strong>{data.summary.outOfScheduleDevices}</strong>
           </div>
         </div>
@@ -47,7 +47,7 @@ function EnergyReport({ data }) {
           EVOLUÇÃO TEMPORAL
       ===================== */}
       <section className="energy-section">
-        <h2 className="section-title">Evolução do consumo</h2>
+        <h2 className="section-title">{t('relatoriosPage.evolucaoConsumo')}</h2>
 
         <div className="chart-card">
           <ResponsiveContainer width="100%" height={300}>
@@ -70,11 +70,11 @@ function EnergyReport({ data }) {
           DISTRIBUIÇÃO
       ===================== */}
       <section className="energy-section">
-        <h2 className="section-title">Distribuição do consumo</h2>
+        <h2 className="section-title">{t('relatoriosPage.distribuicaoConsumo')}</h2>
 
         <div className="charts-grid">
           <div className="chart-card">
-            <h4>Por dispositivo</h4>
+            <h4>{t('relatoriosPage.porDispositivo')}</h4>
             <ResponsiveContainer width="100%" height={260}>
               <BarChart data={data.byDevice}>
                 <XAxis dataKey="name" />
@@ -86,12 +86,12 @@ function EnergyReport({ data }) {
           </div>
 
           <div className="chart-card">
-            <h4>Consumo por ambiente</h4>
+            <h4>{t('relatoriosPage.consumoPorAmbiente')}</h4>
             <ResponsiveContainer width="100%" height={260}>
-             <BarChart data={data.byEnvironment}
+              <BarChart data={data.byEnvironment}
                 layout="vertical"
                 margin={{ left: 40 }}
-                >
+              >
                 <XAxis type="number" />
                 <YAxis
                   type="category"
@@ -110,11 +110,11 @@ function EnergyReport({ data }) {
           RANKINGS
       ===================== */}
       <section className="energy-section">
-        <h2 className="section-title">Performance dos dispositivos</h2>
+        <h2 className="section-title">{t('relatoriosPage.performanceDispositivos')}</h2>
 
         <div className="ranking-grid">
           <div className="ranking-card">
-            <h4>Maior consumo</h4>
+            <h4>{t('relatoriosPage.maiorConsumo')}</h4>
             {data.byDevice
               .slice()
               .sort((a, b) => b.kwh - a.kwh)
@@ -128,7 +128,7 @@ function EnergyReport({ data }) {
           </div>
 
           <div className="ranking-card">
-            <h4>Mais eficientes</h4>
+            <h4>{t('relatoriosPage.maisEficientes')}</h4>
             {data.byDevice
               .slice()
               .sort((a, b) => a.efficiency - b.efficiency)
@@ -148,7 +148,7 @@ function EnergyReport({ data }) {
       ===================== */}
       {data.alerts?.length > 0 && (
         <section className="energy-section">
-          <h2 className="section-title">Alertas operacionais</h2>
+          <h2 className="section-title">{t('relatoriosPage.alertasOperacionais')}</h2>
 
           <div className="alert-card">
             {data.alerts.map((a, i) => (
@@ -186,7 +186,7 @@ export default function Relatorios() {
       setCorporations(response);
     } catch (err) {
       console.error(err);
-      setError("Erro ao carregar relatório");
+      setError(t('relatoriosPage.erroCarregar'));
     } finally {
       setLoading(false);
     }
@@ -202,7 +202,7 @@ export default function Relatorios() {
       setData(response);
     } catch (err) {
       console.error(err);
-      setError("Erro ao carregar relatório");
+      setError(t('relatoriosPage.erroCarregar'));
     } finally {
       setLoading(false);
     }
@@ -234,7 +234,7 @@ export default function Relatorios() {
         style={{ marginBottom: "20px" }}
         onClick={() => navigate(-1)}
       >
-        ← Voltar
+        {t('relatoriosPage.voltar')}
       </button>
       <div className="page-header">
         <h1>{t("relatorios.title")}</h1>
@@ -253,8 +253,8 @@ export default function Relatorios() {
           </div>
 
           <div className="relatorio-card" onClick={openEnergyReport}>
-            <h3>Consumo de Energia</h3>
-            <p>Visão analítica por dispositivos, ambientes e eficiência</p>
+            <h3>{t('relatoriosPage.consumoEnergia')}</h3>
+            <p>{t('relatoriosPage.consumoEnergiaDesc')}</p>
           </div>
         </div>
       )}
@@ -280,13 +280,13 @@ export default function Relatorios() {
                 <button
                   className="btn-export"
                   onClick={() => exportCorporationToExcel(corp)}
-                  title="Exportar para Excel"
+                  title={t('relatoriosPage.exportarExcel')}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-down-icon lucide-file-down">
-                    <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/>
-                    <path d="M14 2v5a1 1 0 0 0 1 1h5"/>
-                    <path d="M12 18v-6"/>
-                    <path d="m9 15 3 3 3-3"/>
+                    <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+                    <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                    <path d="M12 18v-6" />
+                    <path d="m9 15 3 3 3-3" />
                   </svg>
                 </button>
               </div>
@@ -350,7 +350,7 @@ export default function Relatorios() {
       {/* RELATÓRIO: ENERGIA */}
       {activeReport === "ENERGY" && data && (
         <div className="report-container">
-          <EnergyReport data={data} />
+          <EnergyReport data={data} t={t} />
         </div>
       )}
     </div>

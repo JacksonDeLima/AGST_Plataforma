@@ -1,6 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import "./GerirUsuarios.css";
+import { useLanguage } from "../../context/LanguageContext";
 import { API_BASE_URL } from "../../config/apiConfig";
 
 import { useAuth } from "../../context/AuthContext.jsx";
@@ -65,6 +66,7 @@ function formatDateBR(iso) {
 
 const GerirUsuarios = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [busca, setBusca] = useState("");
 
   // ✅ Workspace do NavBar
@@ -221,7 +223,7 @@ const GerirUsuarios = () => {
 
     if (!selectedCorpId || !manageableMap[selectedCorpId]) {
       setUsuarios([]);
-      setErrorMsg("Você não tem permissão para gerir usuários nesta corporação.");
+      setErrorMsg(t('gerirUsuariosPage.semPermissaoGerir'));
       return;
     }
 
@@ -233,7 +235,7 @@ const GerirUsuarios = () => {
 
       if (!res?.ok) {
         setUsuarios([]);
-        setErrorMsg(res?.message || "Não foi possível carregar os usuários desta corporação.");
+        setErrorMsg(res?.message || t('gerirUsuariosPage.erroCarregar'));
         return;
       }
 
@@ -253,8 +255,8 @@ const GerirUsuarios = () => {
     } catch (e) {
       setErrorMsg(
         e?.status === 403
-          ? "Você não tem permissão para listar membros desta corporação (apenas administradores)."
-          : e?.message || "Não foi possível carregar os usuários desta corporação."
+          ? t('gerirUsuariosPage.erroPermissao403')
+          : e?.message || t('gerirUsuariosPage.erroCarregar')
       );
       setUsuarios([]);
     } finally {
@@ -305,9 +307,9 @@ const GerirUsuarios = () => {
         auth: false,
         body: { email: selectedUser.email },
       });
-      setActionMsg("✅ Token de ativação reenviado com sucesso (verifique o e-mail do usuário).");
+      setActionMsg(t('gerirUsuariosPage.tokenReenviado'));
     } catch (e) {
-      setActionMsg(`❌ Falha ao reenviar token: ${e?.message || "erro"}`);
+      setActionMsg(t('gerirUsuariosPage.falhaReenviarToken').replace('{error}', e?.message || 'erro'));
     } finally {
       setActionLoading(false);
     }
@@ -318,7 +320,7 @@ const GerirUsuarios = () => {
 
     const token = activationToken.trim();
     if (!token) {
-      setActionMsg("⚠️ Informe o token de ativação.");
+      setActionMsg(t('gerirUsuariosPage.informeToken'));
       return;
     }
 
@@ -332,10 +334,10 @@ const GerirUsuarios = () => {
         body: { email: selectedUser.email, token },
       });
 
-      setActionMsg("✅ Usuário ativado com sucesso.");
+      setActionMsg(t('gerirUsuariosPage.usuarioAtivado'));
       await loadMembers();
     } catch (e) {
-      setActionMsg(`❌ Falha ao ativar: ${e?.message || "erro"}`);
+      setActionMsg(t('gerirUsuariosPage.falhaAtivar').replace('{error}', e?.message || 'erro'));
     } finally {
       setActionLoading(false);
     }
@@ -352,11 +354,9 @@ const GerirUsuarios = () => {
         auth: false,
         body: { email: selectedUser.email },
       });
-      setActionMsg(
-        "✅ Solicitação enviada. Se o usuário existir e estiver ativo, ele receberá o e-mail de redefinição."
-      );
+      setActionMsg(t('gerirUsuariosPage.redefinicaoEnviada'));
     } catch (e) {
-      setActionMsg(`❌ Falha ao solicitar redefinição: ${e?.message || "erro"}`);
+      setActionMsg(t('gerirUsuariosPage.falhaRedefinicao').replace('{error}', e?.message || 'erro'));
     } finally {
       setActionLoading(false);
     }
@@ -382,11 +382,11 @@ const GerirUsuarios = () => {
         }
       );
 
-      setActionMsg("✅ Usuário removido da corporação.");
+      setActionMsg(t('gerirUsuariosPage.usuarioRemovido'));
       await loadMembers();
       closeDrawer();
     } catch (e) {
-      setActionMsg(`❌ Falha ao remover: ${e?.message || "erro"}`);
+      setActionMsg(t('gerirUsuariosPage.falhaRemover').replace('{error}', e?.message || 'erro'));
     } finally {
       setActionLoading(false);
       setConfirmRemoveOpen(false);
@@ -404,21 +404,21 @@ const GerirUsuarios = () => {
     setAddState({ loading: true, error: "", success: "" });
 
     if (!full_name) {
-      setAddState({ loading: false, error: "Informe o nome completo.", success: "" });
+      setAddState({ loading: false, error: t('gerirUsuariosPage.informeNome'), success: "" });
       return;
     }
     if (!isValidEmail(email)) {
-      setAddState({ loading: false, error: "Informe um e-mail válido.", success: "" });
+      setAddState({ loading: false, error: t('gerirUsuariosPage.informeEmail'), success: "" });
       return;
     }
     if (role !== "user" && role !== "admin") {
-      setAddState({ loading: false, error: "Perfil inválido.", success: "" });
+      setAddState({ loading: false, error: t('gerirUsuariosPage.perfilInvalido'), success: "" });
       return;
     }
     if (password.length < 6) {
       setAddState({
         loading: false,
-        error: "A senha deve ter no mínimo 6 caracteres.",
+        error: t('gerirUsuariosPage.senhaMinima'),
         success: "",
       });
       return;
@@ -431,7 +431,7 @@ const GerirUsuarios = () => {
         body: { email, full_name, role, password },
       });
 
-      setAddState({ loading: false, error: "", success: "✅ Membro adicionado com sucesso!" });
+      setAddState({ loading: false, error: "", success: t('gerirUsuariosPage.membroAdicionado') });
       await loadMembers();
 
       setTimeout(() => {
@@ -440,7 +440,7 @@ const GerirUsuarios = () => {
     } catch (e) {
       setAddState({
         loading: false,
-        error: e?.message || "Não foi possível adicionar o membro.",
+        error: e?.message || t('gerirUsuariosPage.erroAdicionar'),
         success: "",
       });
     }
@@ -455,16 +455,16 @@ const GerirUsuarios = () => {
             style={{ marginBottom: "20px" }}
             onClick={() => navigate(-1)}
           >
-            ← Voltar
+            {t('gerirUsuariosPage.voltar')}
           </button>
           {/* HEADER */}
           <div className="page-header">
             <div className="header-left">
-              <h1 className="page-title">Gerir Usuários</h1>
-              <p className="page-subtitle">Gerencie usuários e permissões de acesso</p>
+              <h1 className="page-title">{t('gerirUsuariosPage.title')}</h1>
+              <p className="page-subtitle">{t('gerirUsuariosPage.subtitle')}</p>
 
               <div style={{ marginTop: 10, display: "flex", gap: 10, alignItems: "center" }}>
-                <span style={{ fontSize: 12, opacity: 0.8 }}>Corporação:</span>
+                <span style={{ fontSize: 12, opacity: 0.8 }}>{t('gerirUsuariosPage.corporacao')}</span>
 
                 <select
                   value={selectedCorpId}
@@ -480,9 +480,9 @@ const GerirUsuarios = () => {
                   }}
                 >
                   {loadingManageable ? (
-                    <option value="">Carregando permissões...</option>
+                    <option value="">{t('gerirUsuariosPage.carregandoPermissoes')}</option>
                   ) : manageableCorps.length === 0 ? (
-                    <option value="">Sem permissão em nenhuma corporação</option>
+                    <option value="">{t('gerirUsuariosPage.semPermissao')}</option>
                   ) : (
                     manageableCorps.map((c) => (
                       <option key={c.id} value={String(c.id)}>
@@ -499,10 +499,10 @@ const GerirUsuarios = () => {
                 <span className="status-dot ativo"></span>
                 <span>
                   {loadingMembers
-                    ? "Carregando..."
+                    ? t('gerirUsuariosPage.carregando')
                     : canManageThisCorp
-                      ? `Ativos: ${ativos}/${total}`
-                      : "Sem permissão"}
+                      ? t('gerirUsuariosPage.ativosCount').replace('{active}', ativos).replace('{total}', total)
+                      : t('gerirUsuariosPage.semPermissaoLabel')}
                 </span>
               </div>
 
@@ -511,12 +511,12 @@ const GerirUsuarios = () => {
                 disabled={!selectedCorpId || !canManageThisCorp}
                 onClick={openAddModal}
               >
-                + Adicionar Usuário
+                {t('gerirUsuariosPage.adicionarUsuario')}
               </button>
 
               <button className="btn-filtros" disabled={!canManageThisCorp}>
                 <span className="filtros-icon">☰</span>
-                Filtros
+                {t('gerirUsuariosPage.filtros')}
               </button>
             </div>
           </div>
@@ -541,13 +541,13 @@ const GerirUsuarios = () => {
             <div className="search-input-wrapper">
               <span className="search-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search">
-                  <path d="m21 21-4.34-4.34"/>
-                  <circle cx="11" cy="11" r="8"/>
+                  <path d="m21 21-4.34-4.34" />
+                  <circle cx="11" cy="11" r="8" />
                 </svg>
               </span>
               <input
                 type="text"
-                placeholder="Buscar"
+                placeholder={t('gerirUsuariosPage.buscar')}
                 className="search-input"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
@@ -561,12 +561,12 @@ const GerirUsuarios = () => {
             <table className="gerir-usuarios-table">
               <thead>
                 <tr>
-                  <th>Usuário</th>
-                  <th>Email</th>
-                  <th>Perfil</th>
-                  <th>Status</th>
-                  <th>Vínculo</th>
-                  <th>Último Acesso</th>
+                  <th>{t('gerirUsuariosPage.usuario')}</th>
+                  <th>{t('gerirUsuariosPage.email')}</th>
+                  <th>{t('gerirUsuariosPage.perfil')}</th>
+                  <th>{t('gerirUsuariosPage.status')}</th>
+                  <th>{t('gerirUsuariosPage.vinculo')}</th>
+                  <th>{t('gerirUsuariosPage.ultimoAcesso')}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -575,19 +575,19 @@ const GerirUsuarios = () => {
                 {loadingMembers ? (
                   <tr>
                     <td colSpan={7} style={{ padding: 16, opacity: 0.8 }}>
-                      Carregando usuários...
+                      {t('gerirUsuariosPage.carregandoUsuarios')}
                     </td>
                   </tr>
                 ) : !canManageThisCorp ? (
                   <tr>
                     <td colSpan={7} style={{ padding: 16, opacity: 0.8 }}>
-                      Você não tem permissão para visualizar os membros desta corporação.
+                      {t('gerirUsuariosPage.semPermissaoVer')}
                     </td>
                   </tr>
                 ) : usuariosFiltrados.length === 0 ? (
                   <tr>
                     <td colSpan={7} style={{ padding: 16, opacity: 0.8 }}>
-                      Nenhum usuário encontrado.
+                      {t('gerirUsuariosPage.nenhumUsuario')}
                     </td>
                   </tr>
                 ) : (
@@ -596,7 +596,7 @@ const GerirUsuarios = () => {
                       key={u.id}
                       onClick={() => openUserActions(u)}
                       style={{ cursor: "pointer" }}
-                      title="Clique para ações"
+                      title={t('gerirUsuariosPage.cliqueAcoes')}
                     >
                       <td className="usuario-cell">{u.nome}</td>
                       <td className="email-cell">{u.email}</td>
@@ -612,7 +612,7 @@ const GerirUsuarios = () => {
                           onClick={() => openUserActions(u)}
                           disabled={!canManageThisCorp}
                         >
-                          <span className="editar-icon">✏️</span> Ações
+                          <span className="editar-icon">✏️</span> {t('gerirUsuariosPage.acoes')}
                         </button>
                       </td>
                     </tr>
@@ -628,39 +628,39 @@ const GerirUsuarios = () => {
               <div className="gu-modal-card" onClick={(e) => e.stopPropagation()}>
                 <div className="gu-modal-head">
                   <div>
-                    <h3 className="gu-modal-title">Adicionar membro</h3>
-                    <p className="gu-modal-subtitle">Corporação #{selectedCorpId}</p>
+                    <h3 className="gu-modal-title">{t('gerirUsuariosPage.adicionarMembro')}</h3>
+                    <p className="gu-modal-subtitle">{t('gerirUsuariosPage.corpId').replace('{id}', selectedCorpId)}</p>
                   </div>
 
-                  <button className="gu-modal-close" onClick={closeAddModal} title="Fechar">
+                  <button className="gu-modal-close" onClick={closeAddModal} title={t('gerirUsuariosPage.fechar')}>
                     ✕
                   </button>
                 </div>
 
                 <div className="gu-modal-body">
                   <div className="gu-field">
-                    <label>Nome completo</label>
+                    <label>{t('gerirUsuariosPage.nomeCompleto')}</label>
                     <input
                       value={addForm.full_name}
                       onChange={(e) => setAddForm((s) => ({ ...s, full_name: e.target.value }))}
-                      placeholder="Nome completo"
+                      placeholder={t('gerirUsuariosPage.nomePlaceholder')}
                       disabled={addState.loading}
                     />
                   </div>
 
                   <div className="gu-field">
-                    <label>E-mail</label>
+                    <label>{t('gerirUsuariosPage.emailLabel')}</label>
                     <input
                       value={addForm.email}
                       onChange={(e) => setAddForm((s) => ({ ...s, email: e.target.value }))}
-                      placeholder="ex: usuario@email.com"
+                      placeholder={t('gerirUsuariosPage.emailPlaceholder')}
                       disabled={addState.loading}
                     />
                   </div>
 
                   <div className="gu-modal-grid two">
                     <div className="gu-field">
-                      <label>Perfil</label>
+                      <label>{t('gerirUsuariosPage.perfilLabel')}</label>
                       <select
                         value={addForm.role}
                         onChange={(e) => setAddForm((s) => ({ ...s, role: e.target.value }))}
@@ -672,12 +672,12 @@ const GerirUsuarios = () => {
                     </div>
 
                     <div className="gu-field">
-                      <label>Senha inicial</label>
+                      <label>{t('gerirUsuariosPage.senhaInicial')}</label>
                       <input
                         type="password"
                         value={addForm.password}
                         onChange={(e) => setAddForm((s) => ({ ...s, password: e.target.value }))}
-                        placeholder="mín. 6 caracteres"
+                        placeholder={t('gerirUsuariosPage.senhaPlaceholder')}
                         disabled={addState.loading}
                       />
                     </div>
@@ -694,11 +694,11 @@ const GerirUsuarios = () => {
 
                 <div className="gu-modal-footer">
                   <button className="gu-btn-ghost" onClick={closeAddModal} disabled={addState.loading}>
-                    Cancelar
+                    {t('gerirUsuariosPage.cancelar')}
                   </button>
 
                   <button className="btn-primary" onClick={onAddMember} disabled={addState.loading}>
-                    {addState.loading ? "Adicionando..." : "Adicionar"}
+                    {addState.loading ? t('gerirUsuariosPage.adicionando') : t('gerirUsuariosPage.adicionar')}
                   </button>
                 </div>
               </div>
@@ -740,7 +740,7 @@ const GerirUsuarios = () => {
                     <div style={{ fontSize: 18, fontWeight: 700 }}>{selectedUser.nome}</div>
                     <div style={{ opacity: 0.85, marginTop: 4 }}>{selectedUser.email}</div>
                     <div style={{ opacity: 0.75, marginTop: 6, fontSize: 12 }}>
-                      Perfil: <b>{selectedUser.perfil}</b> • Status: <b>{selectedUser.user_status}</b> • Vínculo:{" "}
+                      {t('gerirUsuariosPage.perfilInfo')} <b>{selectedUser.perfil}</b> • {t('gerirUsuariosPage.statusInfo')} <b>{selectedUser.user_status}</b> • {t('gerirUsuariosPage.vinculoInfo')}{" "}
                       <b>{selectedUser.member_status}</b>
                     </div>
                   </div>
@@ -755,7 +755,7 @@ const GerirUsuarios = () => {
                       cursor: "pointer",
                       opacity: 0.9,
                     }}
-                    title="Fechar"
+                    title={t('gerirUsuariosPage.fechar')}
                   >
                     ✕
                   </button>
@@ -765,13 +765,13 @@ const GerirUsuarios = () => {
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <button className="btn-primary" disabled={actionLoading} onClick={onSendResetPassword}>
-                    🔐 Enviar e-mail de redefinição de senha
+                    {t('gerirUsuariosPage.enviarRedefinicao')}
                   </button>
 
                   {selectedUser.user_status === "pending" ? (
                     <>
                       <button className="btn-primary" disabled={actionLoading} onClick={onResendActivation}>
-                        ✉️ Reenviar token de ativação
+                        {t('gerirUsuariosPage.reenviarToken')}
                       </button>
 
                       <div
@@ -782,11 +782,11 @@ const GerirUsuarios = () => {
                           background: "rgba(255,255,255,0.04)",
                         }}
                       >
-                        <div style={{ fontWeight: 700, marginBottom: 8 }}>Ativar usuário (informar token)</div>
+                        <div style={{ fontWeight: 700, marginBottom: 8 }}>{t('gerirUsuariosPage.ativarUsuario')}</div>
                         <input
                           value={activationToken}
                           onChange={(e) => setActivationToken(e.target.value)}
-                          placeholder="Token (ex: 123456)"
+                          placeholder={t('gerirUsuariosPage.tokenPlaceholder')}
                           style={{
                             width: "100%",
                             padding: "10px 12px",
@@ -804,7 +804,7 @@ const GerirUsuarios = () => {
                           disabled={actionLoading}
                           onClick={onActivateUser}
                         >
-                          ✅ Ativar agora
+                          {t('gerirUsuariosPage.ativar')}
                         </button>
                         <div style={{ fontSize: 12, opacity: 0.75, marginTop: 8 }}>
                           * O token expira em 7 dias. Use “Reenviar token” se necessário.
@@ -826,7 +826,7 @@ const GerirUsuarios = () => {
                       cursor: "pointer",
                     }}
                   >
-                    🗑️ Remover usuário da corporação
+                    {t('gerirUsuariosPage.removerCorporacao')}
                   </button>
                 </div>
 
@@ -854,14 +854,14 @@ const GerirUsuarios = () => {
         </div>
         <ConfirmDialog
           open={confirmRemoveOpen}
-          title="Remover usuário"
+          title={t('gerirUsuariosPage.confirmarRemocao')}
           message={
             selectedUser
-              ? `Tem certeza que deseja remover "${selectedUser.nome}" da corporação #${selectedCorpId}?`
-              : "Tem certeza que deseja remover este usuário?"
+              ? t('gerirUsuariosPage.confirmarRemocaoMsg').replace('{name}', selectedUser.nome).replace('{id}', selectedCorpId)
+              : t('gerirUsuariosPage.confirmarRemocaoMsg')
           }
-          confirmText="Remover"
-          cancelText="Cancelar"
+          confirmText={t('gerirUsuariosPage.remover')}
+          cancelText={t('gerirUsuariosPage.cancelar')}
           onConfirm={confirmRemoveFromCorporation}
           onCancel={() => setConfirmRemoveOpen(false)}
         />

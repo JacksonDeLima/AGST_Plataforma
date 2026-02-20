@@ -7,17 +7,17 @@ import {
   activateUserAccount,
   resendActivationLink,
 } from "../../services/authService";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 export default function Activation() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
-  // Pega email/token da URL, ex.: /activation?email=...&token=...
   const searchParams = new URLSearchParams(location.search);
   const emailFromUrl = searchParams.get("email");
   const tokenFromUrl = searchParams.get("token");
 
-  // E-mail vindo do cadastro (state) ou da URL
   const initialEmail = emailFromUrl || location.state?.email || "";
 
   const [email, setEmail] = useState(initialEmail);
@@ -28,7 +28,6 @@ export default function Activation() {
 
   const isAutoMode = Boolean(emailFromUrl && tokenFromUrl);
 
-  // Função que usa o serviço para ativar o usuário
   async function handleActivate({ email, token }) {
     setInfoMessage("");
     setErrors({});
@@ -39,21 +38,20 @@ export default function Activation() {
     setIsLoading(false);
 
     if (result.success) {
-      alert("Conta ativada com sucesso! Você já pode fazer login.");
+      alert(t('auth.activation.contaAtivada'));
       navigate("/");
     } else {
       setErrors({
-        submit: result.error || "Erro inesperado ao ativar usuário.",
+        submit: result.error || t('auth.activation.erroAtivacao'),
       });
     }
   }
 
-  // Ao entrar na tela com email+token na URL, ativa automaticamente
   useEffect(() => {
     if (emailFromUrl && tokenFromUrl && !hasTriedAutoActivate) {
       setHasTriedAutoActivate(true);
       setEmail(emailFromUrl);
-      setInfoMessage("Ativando sua conta, aguarde...");
+      setInfoMessage(t('auth.activation.ativando'));
 
       handleActivate({
         email: emailFromUrl,
@@ -62,7 +60,6 @@ export default function Activation() {
     }
   }, [emailFromUrl, tokenFromUrl, hasTriedAutoActivate]);
 
-  // Reenvio de link de ativação – só precisa de e-mail
   async function handleResendToken(e) {
     if (e) e.preventDefault();
 
@@ -70,12 +67,12 @@ export default function Activation() {
     setErrors({});
 
     if (!email.trim()) {
-      setErrors({ email: "Informe o e-mail para reenviar o link de ativação." });
+      setErrors({ email: t('auth.activation.emailObrigatorio') });
       return;
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      setErrors({ email: "E-mail inválido." });
+      setErrors({ email: t('auth.activation.emailInvalido') });
       return;
     }
 
@@ -91,7 +88,7 @@ export default function Activation() {
       setErrors({
         submit:
           result.error ||
-          "Erro inesperado ao reenviar link de ativação.",
+          t('auth.activation.erroReenvio'),
       });
     }
   }
@@ -99,40 +96,30 @@ export default function Activation() {
   return (
     <div className="register-container">
       <div className="register-card">
-        {/* Lado esquerdo - branding / infos */}
         <div className="register-brand">
           <div className="login-logo">
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
 
-          <h2 className="register-brand-title">Ative sua conta Brise Cloud</h2>
+          <h2 className="register-brand-title">{t('auth.activation.brandTitle')}</h2>
           <p className="register-brand-subtitle">
-            Confirme seu cadastro através do link enviado por e-mail e finalize
-            a ativação com segurança.
+            {t('auth.activation.brandSubtitle')}
           </p>
 
           <ul className="register-brand-list">
-            <li>• Ativação rápida via link</li>
-            <li>• Validação segura por e-mail</li>
-            <li>• Opção de reenviar o link se necessário</li>
+            <li>• {t('auth.activation.brandList1')}</li>
+            <li>• {t('auth.activation.brandList2')}</li>
+            <li>• {t('auth.activation.brandList3')}</li>
           </ul>
         </div>
 
-        {/* Lado direito - conteúdo / formulário */}
         <div className="register-box">
           <div className="register-header">
-            <h1>Ativar conta</h1>
+            <h1>{t('auth.activation.title')}</h1>
             {isAutoMode ? (
-              <p>
-                Estamos ativando sua conta a partir do link enviado por e-mail.
-                Isso pode levar alguns segundos.
-              </p>
+              <p>{t('auth.activation.autoDesc')}</p>
             ) : (
-              <p>
-                Enviamos um link de ativação para o seu e-mail. Ao clicar nele,
-                sua conta será ativada automaticamente. Caso não tenha recebido,
-                você pode reenviar o link abaixo.
-              </p>
+              <p>{t('auth.activation.manualDesc')}</p>
             )}
           </div>
 
@@ -156,14 +143,13 @@ export default function Activation() {
             </div>
           )}
 
-          {/* Quando NÃO veio com token na URL, mostra formulário de reenvio */}
           {!isAutoMode && (
             <form className="register-form" onSubmit={handleResendToken}>
               <div className="input-group">
-                <label>Email</label>
+                <label>{t('auth.activation.email')}</label>
                 <input
                   type="email"
-                  placeholder="seu@email.com"
+                  placeholder={t('auth.activation.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -179,20 +165,20 @@ export default function Activation() {
                 className="register-button"
                 disabled={isLoading}
               >
-                {isLoading ? "Reenviando..." : "Reenviar link de ativação"}
+                {isLoading ? t('auth.activation.reenviando') : t('auth.activation.reenviar')}
               </button>
             </form>
           )}
 
           <div className="register-login-link">
-            <p>Já ativou sua conta?</p>
+            <p>{t('auth.activation.jaAtivou')}</p>
             <button
               type="button"
               onClick={() => navigate("/")}
               className="link-button"
               disabled={isLoading}
             >
-              Fazer login
+              {t('auth.activation.fazerLogin')}
             </button>
           </div>
         </div>

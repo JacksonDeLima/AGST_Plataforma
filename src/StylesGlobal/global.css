@@ -1681,14 +1681,17 @@ body.ws-modal-open .app-main {
   font-size: 12px;
   font-weight: 500;
 }
+
 .status.online {
   background-color: #dcfce7;
   color: #166534;
 }
+
 .status.offline {
   background-color: #fee2e2;
   color: #991b1b;
 }
+
 .status.manutencao,
 .status.parcial {
   background-color: rgb(236, 236, 230);
@@ -1712,6 +1715,7 @@ body.ws-modal-open .app-main {
   box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3);
   transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
+
 .btn-controlar:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -1781,7 +1785,7 @@ body.ws-modal-open .app-main {
   background: var(--bg-card);
   border-radius: 14px;
   padding: 18px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
 }
 
 .stat-label {
@@ -1809,13 +1813,13 @@ body.ws-modal-open .app-main {
   background: var(--bg-card);
   border-radius: 14px;
   padding: 18px;
-  box-shadow: 0 2px 10px rgba(0,0,0,.06);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .06);
   transition: all 0.2s ease;
 }
 
 .ambiente-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .08);
 }
 
 .ambiente-header {
@@ -1848,7 +1852,7 @@ body.ws-modal-open .app-main {
 }
 
 .icon-btn:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .ambiente-info {
@@ -1877,7 +1881,7 @@ body.ws-modal-open .app-main {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.45);
+  background: rgba(0, 0, 0, .45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1889,7 +1893,7 @@ body.ws-modal-open .app-main {
   border-radius: 14px;
   width: 100%;
   max-width: 640px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
   display: flex;
   flex-direction: column;
 }
@@ -1947,7 +1951,7 @@ body.ws-modal-open .app-main {
 .input:focus {
   outline: none;
   border-color: #0ea5e9;
-  box-shadow: 0 0 0 3px rgba(14,165,233,.15);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, .15);
 }
 
 /* ===============================
@@ -1989,4 +1993,175 @@ body.ws-modal-open .app-main {
   color: var(--text-main);
 }
 
+/* ========== ADDITIONAL DARK MODE GAPS ========== */
 
+/* Modal backdrop and card */
+html[data-theme="dark"] .modal-backdrop {
+  background: rgba(0, 0, 0, 0.75) !important;
+}
+
+html[data-theme="dark"] .modal-card {
+  background: #1e293b !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="dark"] .modal-card h3 {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-help {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .modal-card input,
+html[data-theme="dark"] .modal-card select {
+  background-color: #334155 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-card input:focus,
+html[data-theme="dark"] .modal-card select:focus {
+  border-color: #38bdf8 !important;
+  background: #334155 !important;
+}
+
+html[data-theme="dark"] .modal-actions .link-button {
+  background: rgba(100, 116, 139, 0.2) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .modal-actions .link-button:hover {
+  background: rgba(100, 116, 139, 0.35) !important;
+}
+
+/* Password input */
+html[data-theme="dark"] .password-input {
+  background: #334155 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .password-input:focus-within {
+  border-color: #38bdf8 !important;
+  background: #334155 !important;
+}
+
+html[data-theme="dark"] .toggle-password {
+  color: #94a3b8 !important;
+}
+
+/* Auth success banner & dividers */
+html[data-theme="dark"] .auth-success-banner {
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-color: rgba(34, 197, 94, 0.35) !important;
+  color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .auth-divider,
+html[data-theme="dark"] .register-divider {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .auth-divider::before,
+html[data-theme="dark"] .auth-divider::after,
+html[data-theme="dark"] .register-divider::before,
+html[data-theme="dark"] .register-divider::after {
+  background: rgba(100, 116, 139, 0.4) !important;
+}
+
+/* GU modal alerts */
+html[data-theme="dark"] .gu-modal-alert {
+  background: rgba(100, 116, 139, 0.15) !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .gu-modal-alert.error {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  color: #f87171 !important;
+}
+
+html[data-theme="dark"] .gu-modal-alert.success {
+  background: rgba(34, 197, 94, 0.12) !important;
+  border-color: rgba(34, 197, 94, 0.35) !important;
+  color: #4ade80 !important;
+}
+
+/* Status badges (common) */
+html[data-theme="dark"] .status.online {
+  background: rgba(34, 197, 94, 0.15) !important;
+  color: #4ade80 !important;
+}
+
+html[data-theme="dark"] .status.offline {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+}
+
+html[data-theme="dark"] .status.manutencao,
+html[data-theme="dark"] .status.parcial {
+  background: rgba(234, 179, 8, 0.15) !important;
+  color: #fde047 !important;
+}
+
+/* Checkbox-label in auth */
+html[data-theme="dark"] .checkbox-label {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .checkbox-label a {
+  color: #38bdf8 !important;
+}
+
+/* Corporations page */
+html[data-theme="dark"] .corporations-page {
+  background: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .corp-info {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .corp-info b {
+  color: #f1f5f9 !important;
+}
+
+/* Search box inputs (Equipamentos) */
+html[data-theme="dark"] .search-box input {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .search-box input::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .search-box input:focus {
+  border-color: #38bdf8 !important;
+}
+
+/* Form-label dark fix */
+html[data-theme="dark"] .form-label {
+  color: #f1f5f9 !important;
+}
+
+/* Empty state */
+html[data-theme="dark"] .empty-state {
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #94a3b8 !important;
+}
+
+/* Icon btn */
+html[data-theme="dark"] .icon-btn {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .icon-btn:hover {
+  background: rgba(51, 65, 85, 0.5) !important;
+  color: #f1f5f9 !important;
+}

@@ -9,6 +9,7 @@ import {
   getCurrentUserIdFromToken,
 } from "../../services/corporationsService";
 import NavBar from "../../components/NavBar";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 const LS_ACTIVE_CORP = "agst_active_corporation_id";
 
@@ -33,6 +34,7 @@ function formatCNPJ(value = "") {
 
 export default function CorporationsPage() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -40,11 +42,9 @@ export default function CorporationsPage() {
 
   const [corporations, setCorporations] = useState([]);
 
-  // modal criar
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ name: "", tax_id: "" });
 
-  // modal excluir
   const [showDelete, setShowDelete] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState("");
@@ -58,7 +58,7 @@ export default function CorporationsPage() {
 
     const res = await listCorporations();
     if (!res.ok) {
-      setError(res.message || "Erro ao carregar corporações.");
+      setError(res.message || t('corporations.excluirModal.erroExcluir'));
       setCorporations([]);
       setLoading(false);
       return;
@@ -98,13 +98,13 @@ export default function CorporationsPage() {
     const taxDigits = onlyDigits(form.tax_id);
 
     if (!name) {
-      setError("Informe o nome fantasia.");
+      setError(t('corporations.criarModal.erroNome'));
       setBusy(false);
       return;
     }
 
     if (taxDigits.length !== 14) {
-      setError("CNPJ deve conter 14 dígitos.");
+      setError(t('corporations.criarModal.erroCnpj'));
       setBusy(false);
       return;
     }
@@ -113,7 +113,7 @@ export default function CorporationsPage() {
     setBusy(false);
 
     if (!res.ok) {
-      setError(res.message || "Erro ao criar corporação.");
+      setError(res.message || t('corporations.criarModal.erroCriar'));
       return;
     }
 
@@ -148,11 +148,10 @@ export default function CorporationsPage() {
     setBusy(false);
 
     if (!res.ok) {
-      setError(res.message || "Erro ao excluir corporação.");
+      setError(res.message || t('corporations.excluirModal.erroExcluir'));
       return;
     }
 
-    // se apagou a ativa, limpa
     const active = localStorage.getItem(LS_ACTIVE_CORP);
     if (String(active) === String(deleteTarget.id)) {
       localStorage.removeItem(LS_ACTIVE_CORP);
@@ -174,19 +173,19 @@ export default function CorporationsPage() {
         <div className="corporations-page" style={{ padding: 0 }}>
           <div className="page-header">
             <div>
-              <div className="page-title">Corporações</div>
+              <div className="page-title">{t('corporations.title')}</div>
               <div className="page-subtitle">
-                Selecione uma corporação para ver detalhes e membros.
+                {t('corporations.subtitle')}
               </div>
             </div>
 
             <div className="corp-actions">
               <button className="btn-editar" type="button" onClick={load} disabled={loading || busy}>
-                Atualizar
+                {t('corporations.atualizar')}
               </button>
 
               <button className="btn-editar" type="button" onClick={() => setShowCreate(true)}>
-                + Criar corporação
+                {t('corporations.criarCorporacao')}
               </button>
             </div>
           </div>
@@ -195,13 +194,13 @@ export default function CorporationsPage() {
 
           <div className="table-container">
             {loading ? (
-              <div style={{ color: "var(--text-soft)" }}>Carregando...</div>
+              <div style={{ color: "var(--text-soft)" }}>{t('corporations.carregando')}</div>
             ) : corporations.length === 0 ? (
               <div style={{ color: "var(--text-soft)" }}>
-                Nenhuma corporação vinculada.
+                {t('corporations.nenhumaCorporacao')}
                 <div style={{ marginTop: 12 }}>
                   <button className="btn-editar" type="button" onClick={() => setShowCreate(true)}>
-                    Criar minha primeira corporação
+                    {t('corporations.criarPrimeira')}
                   </button>
                 </div>
               </div>
@@ -209,11 +208,11 @@ export default function CorporationsPage() {
               <table className="gerir-usuarios-table">
                 <thead>
                   <tr>
-                    <th>Nome</th>
-                    <th>CNPJ</th>
-                    <th>Status</th>
-                    <th>Owner ID</th>
-                    <th style={{ width: 220 }}>Ações</th>
+                    <th>{t('corporations.nome')}</th>
+                    <th>{t('corporations.cnpj')}</th>
+                    <th>{t('corporations.status')}</th>
+                    <th>{t('corporations.ownerId')}</th>
+                    <th style={{ width: 220 }}>{t('corporations.acoes')}</th>
                   </tr>
                 </thead>
 
@@ -232,7 +231,7 @@ export default function CorporationsPage() {
                             type="button"
                             className="link-button"
                             onClick={() => selectAndGo(c.id)}
-                            title="Abrir corporação"
+                            title={t('corporations.abrir')}
                           >
                             {c.name}
                           </button>
@@ -242,7 +241,7 @@ export default function CorporationsPage() {
                         <td>{c.owner_id ?? "-"}</td>
                         <td style={{ display: "flex", gap: 8 }}>
                           <button className="btn-editar" type="button" onClick={() => selectAndGo(c.id)}>
-                            Abrir
+                            {t('corporations.abrir')}
                           </button>
 
                           {isOwner && (
@@ -251,9 +250,9 @@ export default function CorporationsPage() {
                               type="button"
                               onClick={() => openDeleteModal(c)}
                               disabled={busy}
-                              title="Excluir corporação (somente owner)"
+                              title={t('corporations.excluir')}
                             >
-                              Excluir
+                              {t('corporations.excluir')}
                             </button>
                           )}
                         </td>
@@ -269,29 +268,29 @@ export default function CorporationsPage() {
           {showCreate && (
             <div className="modal-backdrop" onClick={() => !busy && setShowCreate(false)}>
               <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-                <h3>Criar corporação</h3>
+                <h3>{t('corporations.criarModal.title')}</h3>
                 <p className="modal-help">
-                  Ao criar, você vira <b>owner</b> automaticamente (API define owner_id).
+                  {t('corporations.criarModal.help')}
                 </p>
 
                 <form onSubmit={onCreate} style={{ display: "grid", gap: 12 }}>
                   <div className="input-group">
-                    <label>Nome fantasia</label>
+                    <label>{t('corporations.criarModal.nomeFantasia')}</label>
                     <input
                       value={form.name}
                       onChange={(e) => setForm((s) => ({ ...s, name: e.target.value }))}
-                      placeholder="Ex: Tech Solutions Ltda."
+                      placeholder={t('corporations.criarModal.nomePlaceholder')}
                       autoFocus
                       required
                     />
                   </div>
 
                   <div className="input-group">
-                    <label>CNPJ</label>
+                    <label>{t('corporations.criarModal.cnpjLabel')}</label>
                     <input
                       value={formatCNPJ(form.tax_id)}
                       onChange={(e) => setForm((s) => ({ ...s, tax_id: e.target.value }))}
-                      placeholder="12.345.678/0001-90"
+                      placeholder={t('corporations.criarModal.cnpjPlaceholder')}
                       inputMode="numeric"
                       required
                     />
@@ -299,11 +298,11 @@ export default function CorporationsPage() {
 
                   <div className="modal-actions">
                     <button type="button" className="link-button" onClick={() => setShowCreate(false)} disabled={busy}>
-                      Cancelar
+                      {t('corporations.criarModal.cancelar')}
                     </button>
 
                     <button type="submit" className="btn-primary" disabled={busy}>
-                      {busy ? "Criando..." : "Criar"}
+                      {busy ? t('corporations.criarModal.criando') : t('corporations.criarModal.criar')}
                     </button>
                   </div>
                 </form>
@@ -315,18 +314,18 @@ export default function CorporationsPage() {
           {showDelete && deleteTarget && (
             <div className="modal-backdrop" onClick={() => !busy && setShowDelete(false)}>
               <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-                <h3 style={{ color: "var(--danger)" }}>Excluir corporação</h3>
+                <h3 style={{ color: "var(--danger)" }}>{t('corporations.excluirModal.title')}</h3>
                 <p className="modal-help">
-                  Essa ação é <b>irreversível</b>. Para confirmar, digite o nome exato:
+                  {t('corporations.excluirModal.irreversivel')}
                   <br />
                   <b>{deleteTarget.name}</b>
                 </p>
 
                 <form onSubmit={onDelete} style={{ display: "grid", gap: 12 }}>
                   <div className="input-group">
-                    <label>Confirmação</label>
+                    <label>{t('corporations.excluirModal.confirmacao')}</label>
                     <input
-                      placeholder="Digite o nome para confirmar"
+                      placeholder={t('corporations.excluirModal.placeholder')}
                       value={deleteConfirm}
                       onChange={(e) => setDeleteConfirm(e.target.value)}
                     />
@@ -334,7 +333,7 @@ export default function CorporationsPage() {
 
                   <div className="modal-actions">
                     <button type="button" className="link-button" onClick={() => setShowDelete(false)} disabled={busy}>
-                      Cancelar
+                      {t('corporations.excluirModal.cancelar')}
                     </button>
 
                     <button
@@ -342,7 +341,7 @@ export default function CorporationsPage() {
                       className="btn-danger"
                       disabled={busy || deleteConfirm !== (deleteTarget.name || "")}
                     >
-                      {busy ? "Excluindo..." : "Excluir definitivamente"}
+                      {busy ? t('corporations.excluirModal.excluindo') : t('corporations.excluirModal.excluirDef')}
                     </button>
                   </div>
                 </form>

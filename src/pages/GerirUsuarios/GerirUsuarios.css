@@ -280,6 +280,7 @@
 }
 
 @media (max-width: 480px) {
+
   .gerir-usuarios-table th,
   .gerir-usuarios-table td {
     padding: 12px;
@@ -295,4 +296,98 @@
     font-size: 12px;
     padding: 6px 12px;
   }
+}
+
+/* ========== DARK MODE ========== */
+
+html[data-theme="dark"] .gerir-usuarios-page {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .page-title {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .page-subtitle {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .ativos-count {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="dark"] .btn-filtros {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .btn-filtros:hover {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  border-color: #0ea5e9 !important;
+}
+
+html[data-theme="dark"] .search-input {
+  background-color: #334155 !important;
+  border-color: rgba(100, 116, 139, 0.4) !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .search-input::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .search-input:focus {
+  border-color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .table-container {
+  background-color: #1e293b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme="dark"] .gerir-usuarios-table thead {
+  background-color: #0f172a !important;
+  border-bottom-color: rgba(100, 116, 139, 0.4) !important;
+}
+
+html[data-theme="dark"] .gerir-usuarios-table th {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .gerir-usuarios-table tbody tr {
+  border-bottom-color: rgba(100, 116, 139, 0.25) !important;
+}
+
+html[data-theme="dark"] .gerir-usuarios-table tbody tr:hover {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+}
+
+html[data-theme="dark"] .gerir-usuarios-table td {
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .usuario-cell {
+  color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .email-cell {
+  color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .perfil-badge {
+  background-color: rgba(14, 165, 233, 0.15) !important;
+  color: #38bdf8 !important;
+}
+
+html[data-theme="dark"] .btn-editar {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .btn-editar:hover {
+  background-color: rgba(51, 65, 85, 0.5) !important;
+  color: #f1f5f9 !important;
 }

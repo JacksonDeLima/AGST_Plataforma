@@ -20,6 +20,7 @@ import {
 import { useAmbiente } from "../../context/AmbienteContext";
 import { useAuth } from "../../context/AuthContext";
 import { useToast } from "../../context/ToastContext";
+import { useLanguage } from "../../context/LanguageContext";
 import ConfirmDialog from "../../components/ConfirmDialog";
 
 import { AUTOMACAO_TEMPLATES } from "../../constants/automacaoTemplates";
@@ -27,7 +28,7 @@ import { AUTOMACAO_TEMPLATES } from "../../constants/automacaoTemplates";
 /* =========================
    CONSTANTES
 ========================= */
-const DIAS_SEMANA = ["SEG", "TER", "QUA", "QUI", "SEX", "SAB", "DOM"];
+const DIAS_SEMANA_KEYS = ["seg", "ter", "qua", "qui", "sex", "sab", "dom"];
 
 const EQUIPAMENTOS_DISPONIVEIS = [
   "Ar Condicionado 01",
@@ -35,16 +36,7 @@ const EQUIPAMENTOS_DISPONIVEIS = [
   "Ar Condicionado 03",
 ];
 
-const DESCRICOES_PERFIL = {
-  "Economia Noturna":
-    "Reduz o consumo desligando equipamentos automaticamente durante a noite.",
-  "Economia por Inatividade":
-    "Desliga os equipamentos quando não há pessoas no ambiente.",
-  "Horário Comercial":
-    "Mantém os equipamentos ativos apenas durante o horário de funcionamento.",
-  "Automação Personalizada":
-    "Regra criada manualmente conforme a necessidade do ambiente.",
-};
+// DESCRICOES_PERFIL moved inside component to use t()
 
 const estadoInicialAutomacao = {
   templateId: null,
@@ -88,12 +80,7 @@ const gerarRegraAutomacao = (dados) => {
   }
 };
 
-const calcularImpactoAutomacao = (equipamentos = []) => {
-  if (equipamentos.length >= 5) return "Alto impacto";
-  if (equipamentos.length >= 3) return "Impacto médio";
-  if (equipamentos.length > 0) return "Baixo impacto";
-  return "Nenhum equipamento selecionado";
-};
+// calcularImpactoAutomacao moved inside component to use t()
 const atualizarRegra = (dados) => {
   return {
     ...dados,
@@ -107,6 +94,23 @@ const Automacoes = () => {
   const { ambienteId: ambienteAtivoId } = useAmbiente();
   const { corporationId } = useAuth();
   const { addNotification } = useToast();
+  const { t } = useLanguage();
+
+  const DIAS_SEMANA = DIAS_SEMANA_KEYS.map(k => t(`automacoesPage.diasSemana.${k}`));
+
+  const DESCRICOES_PERFIL = {
+    "Economia Noturna": t('automacoesPage.economiaNoturnaDesc'),
+    "Economia por Inatividade": t('automacoesPage.economiaInatividadeDesc'),
+    "Horário Comercial": t('automacoesPage.horarioComercialDesc'),
+    "Automação Personalizada": t('automacoesPage.automacaoPersonalizadaDesc'),
+  };
+
+  const calcularImpactoAutomacao = (equipamentos = []) => {
+    if (equipamentos.length >= 5) return t('automacoesPage.altoImpacto');
+    if (equipamentos.length >= 3) return t('automacoesPage.impactoMedio');
+    if (equipamentos.length > 0) return t('automacoesPage.baixoImpacto');
+    return t('automacoesPage.nenhumEquipamento');
+  };
 
   const params = new URLSearchParams(location.search);
   const ambienteIdUrl = params.get("ambienteId");
@@ -229,7 +233,7 @@ const Automacoes = () => {
 
     addNotification({
       type: "info",
-      message: `Automação "${gerarNomeAutomacao(confirmTarget)}" excluída.`,
+      message: t('automacoesPage.automacaoExcluida').replace('{name}', gerarNomeAutomacao(confirmTarget)),
     });
 
     setAutomacoes((prev) =>
@@ -260,9 +264,8 @@ const Automacoes = () => {
 
     addNotification({
       type: "info",
-      message: `Automação "${gerarNomeAutomacao(automacao)}" ${
-        novoStatus === "ATIVA" ? "ativada" : "pausada"
-      }.`,
+      message: `${t('automacoesPage.automacaoAtualizada').split('"')[0]}"${gerarNomeAutomacao(automacao)}" ${novoStatus === "ATIVA" ? t('automacoesPage.automacaoAtivada') : t('automacoesPage.automacaoPausada')
+        }.`,
     });
   };
 
@@ -327,12 +330,12 @@ const Automacoes = () => {
     const tempoInatividade = null; // Campo futuro
 
     if (!nomeAutomacao || nomeAutomacao.trim() === "") {
-      alert("Informe um nome para a automação.");
+      alert(t('automacoesPage.informeNome'));
       return false;
     }
 
     if (!acaoSelecionada) {
-      alert("Selecione uma ação para a automação.");
+      alert(t('automacoesPage.selecioneAcao'));
       return false;
     }
 
@@ -340,7 +343,7 @@ const Automacoes = () => {
       horarioInicio || diasSelecionados?.length > 0 || tempoInatividade;
 
     if (!temCondicao) {
-      alert("Defina pelo menos uma condição para a automação.");
+      alert(t('automacoesPage.definaCondicao'));
       return false;
     }
 
@@ -350,45 +353,41 @@ const Automacoes = () => {
   function getStatusAutomacao(automacao, ambienteAtivo, automacaoExecutando) {
     if (ambientePausado) {
       return {
-        titulo: "Pausada",
-        descricao: "Automações pausadas manualmente",
+        titulo: t('automacoesPage.pausado'),
+        descricao: t('automacoesPage.automacoesManualmentePausadas'),
         tipo: "pausada",
       };
     }
 
-    // Ambiente em manutenção
     if (ambienteAtivo.status === "MANUTENCAO") {
       return {
-        titulo: "Bloqueada",
-        descricao: "Ambiente em manutenção",
+        titulo: t('automacoesPage.bloqueada'),
+        descricao: t('automacoesPage.ambienteEmManutencao'),
         tipo: "bloqueada",
       };
     }
 
-    // Ambiente offline
     if (ambienteAtivo.status === "OFFLINE") {
       return {
-        titulo: "Pausada",
-        descricao: "Ambiente offline",
+        titulo: t('automacoesPage.pausadaStatus'),
+        descricao: t('automacoesPage.ambienteOffline'),
         tipo: "pausada",
       };
     }
 
-    // Automação que está mandando agora
     if (automacao.id === automacaoExecutando?.id) {
       return {
-        titulo: "Executando agora",
+        titulo: t('automacoesPage.executandoAgora'),
         descricao: "",
         tipo: "executando",
       };
     }
 
-    // Automação ativa, mas perdeu prioridade
     return {
-      titulo: "Ativa, mas não executando",
+      titulo: t('automacoesPage.ativaNaoExecutando'),
       descricao: automacaoExecutando
-        ? `Sobreposta por: ${automacaoExecutando.nome}`
-        : "Aguardando condição de maior prioridade",
+        ? t('automacoesPage.sobrepostaPor').replace('{name}', automacaoExecutando.nome)
+        : t('automacoesPage.aguardandoCondicao'),
       tipo: "sobreposta",
     };
   }
@@ -404,7 +403,7 @@ const Automacoes = () => {
       !novaAutomacao.regra ||
       !novaAutomacao.equipamentos.length
     ) {
-      setErroForm("Preencha todos os campos obrigatórios.");
+      setErroForm(t('automacoesPage.preenchaCampos'));
       return;
     }
 
@@ -426,7 +425,7 @@ const Automacoes = () => {
 
       addNotification({
         type: "success",
-        message: `Automação "${gerarNomeAutomacao(novaAutomacao)}" atualizada.`,
+        message: t('automacoesPage.automacaoAtualizada').replace('{name}', gerarNomeAutomacao(novaAutomacao)),
       });
     } else {
       const criada = await criarAutomacao(corporationId, ambienteIdFinal, {
@@ -440,7 +439,7 @@ const Automacoes = () => {
 
       addNotification({
         type: "success",
-        message: `Automação "${gerarNomeAutomacao(novaAutomacao)}" criada.`,
+        message: t('automacoesPage.automacaoCriada').replace('{name}', gerarNomeAutomacao(novaAutomacao)),
       });
     }
 
@@ -459,8 +458,8 @@ const Automacoes = () => {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
-          <h2>Selecione uma corporação</h2>
-          <p>Escolha uma corporação ativa para visualizar as automações.</p>
+          <h2>{t('automacoesPage.selecioneCorporacao')}</h2>
+          <p>{t('automacoesPage.escolhaCorporacao')}</p>
         </div>
       </div>
     );
@@ -470,20 +469,20 @@ const Automacoes = () => {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
-          <h2>Selecione um ambiente</h2>
-          <p>Escolha um ambiente para visualizar e criar automações.</p>
+          <h2>{t('automacoesPage.selecioneAmbiente')}</h2>
+          <p>{t('automacoesPage.escolhaAmbiente')}</p>
 
           <div className="ambiente-picker">
-            <label className="form-label">Ambientes criados</label>
+            <label className="form-label">{t('automacoesPage.ambientesCriados')}</label>
 
             {loadingAmbientesDisponiveis && (
-              <p className="texto-suave">Carregando ambientes...</p>
+              <p className="texto-suave">{t('automacoesPage.carregandoAmbientes')}</p>
             )}
 
             {!loadingAmbientesDisponiveis &&
               ambientesDisponiveis.length === 0 && (
                 <p className="texto-suave">
-                  Nenhum ambiente encontrado para esta corporação.
+                  {t('automacoesPage.nenhumAmbiente')}
                 </p>
               )}
 
@@ -494,7 +493,7 @@ const Automacoes = () => {
                     value={ambienteSelecionadoId}
                     onChange={(e) => setAmbienteSelecionadoId(e.target.value)}
                   >
-                    <option value="">Selecione um ambiente</option>
+                    <option value="">{t('automacoesPage.selecioneUmAmbiente')}</option>
                     {ambientesDisponiveis.map((ambiente) => (
                       <option key={ambiente.id} value={ambiente.id}>
                         {ambiente.nome}
@@ -506,7 +505,7 @@ const Automacoes = () => {
                     disabled={!ambienteSelecionadoId}
                     onClick={abrirAmbienteSelecionado}
                   >
-                    Acessar ambiente
+                    {t('automacoesPage.acessarAmbiente')}
                   </button>
                 </div>
               )}
@@ -514,9 +513,9 @@ const Automacoes = () => {
         </div>
 
         <div className="templates-preview">
-          <h3>Modelos de automação</h3>
+          <h3>{t('automacoesPage.modelosAutomacao')}</h3>
           <p className="texto-suave">
-            Exemplos para configurar rapidamente suas automações.
+            {t('automacoesPage.modelosDesc')}
           </p>
 
           <div className="template-grid">
@@ -528,10 +527,9 @@ const Automacoes = () => {
             ))}
 
             <div className="template-card template-preview">
-              <h4>Personalizada (Manual)</h4>
+              <h4>{t('automacoesPage.personalizadaManual')}</h4>
               <p>
-                Crie uma automação totalmente personalizada, definindo
-                horários, dias e configurações manualmente.
+                {t('automacoesPage.personalizadaDesc')}
               </p>
             </div>
           </div>
@@ -544,8 +542,8 @@ const Automacoes = () => {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
-          <h3>Carregando automações...</h3>
-          <p>Aguarde alguns instantes.</p>
+          <h3>{t('automacoesPage.carregandoAutomacoes')}</h3>
+          <p>{t('automacoesPage.aguarde')}</p>
         </div>
       </div>
     );
@@ -560,8 +558,8 @@ const Automacoes = () => {
     return (
       <div className="automacoes-page">
         <div className="empty-state">
-          <h2>Ambiente não encontrado</h2>
-          <p>Esse ambiente não existe ou foi removido.</p>
+          <h2>{t('automacoesPage.ambienteNaoEncontrado')}</h2>
+          <p>{t('automacoesPage.ambienteRemovido')}</p>
         </div>
       </div>
     );
@@ -573,11 +571,11 @@ const Automacoes = () => {
         style={{ marginBottom: "20px" }}
         onClick={() => navigate(-1)}
       >
-        ← Voltar
+        {t('automacoesPage.voltar')}
       </button>
       <header className="page-header">
         <div>
-          <h1>Automações</h1>
+          <h1>{t('automacoesPage.title')}</h1>
           <div className="ambiente-info-topo">
             <h2 className="ambiente-nome-topo">{ambienteAtivo.nome}</h2>
 
@@ -589,15 +587,15 @@ const Automacoes = () => {
               </span>
 
               {ambienteAtivo.pausado && (
-                <span className="status-badge status-pausado">Pausado</span>
+                <span className="status-badge status-pausado">{t('automacoesPage.pausado')}</span>
               )}
             </div>
           </div>
-          <p>Gerencie regras automáticas dos equipamentos</p>
+          <p>{t('automacoesPage.subtitle')}</p>
         </div>
 
         <button className="btn-primary" onClick={abrirModalCriar}>
-          Criar Automação
+          {t('automacoesPage.criarAutomacao')}
         </button>
       </header>
 
@@ -608,40 +606,40 @@ const Automacoes = () => {
             value={filtroStatus}
             onChange={(e) => setFiltroStatus(e.target.value)}
           >
-            <option value="TODAS">Status: Todas</option>
-            <option value="ATIVA">Status: Ativas</option>
-            <option value="PAUSADA">Status: Pausadas</option>
+            <option value="TODAS">{t('automacoesPage.statusTodas')}</option>
+            <option value="ATIVA">{t('automacoesPage.statusAtivas')}</option>
+            <option value="PAUSADA">{t('automacoesPage.statusPausadas')}</option>
           </select>
 
           <select
             value={filtroPerfil}
             onChange={(e) => setFiltroPerfil(e.target.value)}
           >
-            <option value="TODOS">Perfil: Todos</option>
-            <option value="Economia Noturna">Economia Noturna</option>
+            <option value="TODOS">{t('automacoesPage.perfilTodos')}</option>
+            <option value="Economia Noturna">{t('automacoesPage.economiaNoturna')}</option>
             <option value="Economia por Inatividade">
-              Economia por Inatividade
+              {t('automacoesPage.economiaInatividade')}
             </option>
-            <option value="Horário Comercial">Horário Comercial</option>
+            <option value="Horário Comercial">{t('automacoesPage.horarioComercial')}</option>
             <option value="Automação Personalizada">
-              Automação Personalizada
+              {t('automacoesPage.automacaoPersonalizada')}
             </option>
-            <option value="PERSONALIZADA">Personalizada (Manual)</option>
+            <option value="PERSONALIZADA">{t('automacoesPage.personalizadaManual')}</option>
           </select>
         </div>
       </div>
 
       {(ambienteAtivo.status === "OFFLINE" ||
         ambienteAtivo.status === "MANUTENCAO") && (
-        <div className="alerta-ambiente">
-          <strong>Automações indisponíveis</strong>
-          <p>
-            {ambienteAtivo.status === "OFFLINE"
-              ? "O ambiente está offline e não pode executar automações."
-              : "O ambiente está em manutenção e as automações estão bloqueadas."}
-          </p>
-        </div>
-      )}
+          <div className="alerta-ambiente">
+            <strong>{t('automacoesPage.automacoesIndisponiveis')}</strong>
+            <p>
+              {ambienteAtivo.status === "OFFLINE"
+                ? t('automacoesPage.ambienteOfflineMsg')
+                : t('automacoesPage.ambienteManutencaoMsg')}
+            </p>
+          </div>
+        )}
 
       {/* LISTA */}
       <div className="automacoes-list">
@@ -661,15 +659,15 @@ const Automacoes = () => {
 
           return true;
         }).length === 0 && (
-          <div className="empty-state">
-            <h3>Nenhuma automação encontrada</h3>
-            <p>
-              {filtroStatus !== "TODAS" || filtroPerfil !== "TODOS"
-                ? "Tente ajustar os filtros ou criar uma nova automação."
-                : "Crie sua primeira automação para este ambiente."}
-            </p>
-          </div>
-        )}
+            <div className="empty-state">
+              <h3>{t('automacoesPage.nenhumaAutomacao')}</h3>
+              <p>
+                {filtroStatus !== "TODAS" || filtroPerfil !== "TODOS"
+                  ? t('automacoesPage.ajusteFiltros')
+                  : t('automacoesPage.criePrimeira')}
+              </p>
+            </div>
+          )}
 
         {automacoes
           .filter((a) => {
@@ -695,7 +693,7 @@ const Automacoes = () => {
             const perfilClass = perfilNome.toLowerCase().replace(/\s+/g, "-");
             const descricaoPerfil =
               DESCRICOES_PERFIL[perfilNome] ||
-              "Automação configurada manualmente.";
+              t('automacoesPage.automacaoConfigurada');
 
             const economia = estimarEconomiaAutomacao(a);
 
@@ -717,11 +715,10 @@ const Automacoes = () => {
                     </span>
 
                     <span
-                      className={`status-text ${
-                        a.status === "ATIVA" ? "ativa" : "pausada"
-                      }`}
+                      className={`status-text ${a.status === "ATIVA" ? "ativa" : "pausada"
+                        }`}
                     >
-                      {a.status === "ATIVA" ? "Ativa" : "Pausada"}
+                      {a.status === "ATIVA" ? t('automacoesPage.ativa') : t('automacoesPage.pausada')}
                     </span>
                   </div>
 
@@ -754,7 +751,7 @@ const Automacoes = () => {
 
                 {economia?.kwh > 0 && (
                   <div className="automacao-economia">
-                    Economia estimada:
+                    {t('automacoesPage.economiaEstimada')}
                     <strong>
                       {" "}
                       {economia.kwh} kWh / mês · R$ {economia.valor}
@@ -767,26 +764,26 @@ const Automacoes = () => {
                     className="btn-secondary"
                     onClick={() => navigate(`/automacoes/${a.id}`)}
                   >
-                    Detalhes
+                    {t('automacoesPage.detalhes')}
                   </button>
                   <button
                     className="btn-secondary"
                     onClick={() => abrirModalEditar(a)}
                   >
-                    Editar
+                    {t('automacoesPage.editarBtn')}
                   </button>
 
                   <button
                     className="btn-secondary"
                     onClick={() => abrirModalDuplicar(a)}
                   >
-                    Duplicar
+                    {t('automacoesPage.duplicar')}
                   </button>
                   <button
                     className="btn-danger"
                     onClick={() => excluirAutomacao(a)}
                   >
-                    Excluir
+                    {t('automacoesPage.excluirBtn')}
                   </button>
                 </div>
               </div>
@@ -802,7 +799,7 @@ const Automacoes = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
-              <h2>Criar Automação</h2>
+              <h2>{t('automacoesPage.criarAutomacao')}</h2>
               <p>Passo {passo + 1} de 5</p>
             </div>
 
@@ -814,11 +811,10 @@ const Automacoes = () => {
                     {AUTOMACAO_TEMPLATES.map((tpl) => (
                       <div
                         key={tpl.id}
-                        className={`template-card ${
-                          novaAutomacao.templateId === tpl.id
+                        className={`template-card ${novaAutomacao.templateId === tpl.id
                             ? "selecionado"
                             : ""
-                        }`}
+                          }`}
                         onClick={() =>
                           setNovaAutomacao({
                             ...estadoInicialAutomacao,
@@ -837,11 +833,10 @@ const Automacoes = () => {
                     ))}
 
                     <div
-                      className={`template-card ${
-                        novaAutomacao.tipo === "PERSONALIZADA"
+                      className={`template-card ${novaAutomacao.tipo === "PERSONALIZADA"
                           ? "selecionado"
                           : ""
-                      }`}
+                        }`}
                       onClick={() =>
                         setNovaAutomacao({
                           ...estadoInicialAutomacao,
@@ -850,10 +845,9 @@ const Automacoes = () => {
                         })
                       }
                     >
-                      <h4>Personalizada (Manual)</h4>
+                      <h4>{t('automacoesPage.personalizadaManual')}</h4>
                       <p>
-                        Crie uma automação totalmente personalizada, definindo
-                        horários, dias e configurações manualmente.
+                        {t('automacoesPage.personalizadaDesc')}
                       </p>
                     </div>
                   </div>
@@ -939,8 +933,8 @@ const Automacoes = () => {
                             const equipamentos =
                               novaAutomacao.equipamentos.includes(eq)
                                 ? novaAutomacao.equipamentos.filter(
-                                    (e) => e !== eq,
-                                  )
+                                  (e) => e !== eq,
+                                )
                                 : [...novaAutomacao.equipamentos, eq];
 
                             setNovaAutomacao({
@@ -1012,16 +1006,16 @@ const Automacoes = () => {
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Excluir automação"
+        title={t('common.excluir')}
         message={
           confirmTarget
-            ? `Tem certeza que deseja excluir a automação \"${gerarNomeAutomacao(
-                confirmTarget,
-              )}\"?`
-            : "Tem certeza que deseja excluir esta automação?"
+            ? `${t('automacoesPage.automacaoExcluida').split('"')[0]}"${gerarNomeAutomacao(
+              confirmTarget,
+            )}"?`
+            : t('automacoesPage.automacaoExcluida')
         }
-        confirmText="Excluir"
-        cancelText="Cancelar"
+        confirmText={t('common.excluir')}
+        cancelText={t('common.cancelar')}
         onConfirm={confirmarExclusaoAutomacao}
         onCancel={() => {
           setConfirmOpen(false);

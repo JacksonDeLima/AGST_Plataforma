@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import Logo from "../../assets/logo.svg";
 import { useAuth } from "../../context/AuthContext.jsx";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 import {
   resolveAuthMode,
@@ -19,6 +20,7 @@ export default function Login() {
   const navigate = useNavigate();
   const mode = useMemo(() => resolveAuthMode(), []);
   const { loginWithPassword } = useAuth();
+  const { t } = useLanguage();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -47,7 +49,7 @@ export default function Login() {
       } catch (e) {
         console.error("❌ [Login] Erro ao iniciar OAuth:", e);
         if (alive)
-          setErrorMsg("Falha ao iniciar sessão OAuth. Tente novamente.");
+          setErrorMsg(t('auth.login.erroOauth'));
       } finally {
         if (alive) setBooting(false);
       }
@@ -60,9 +62,9 @@ export default function Login() {
 
   function validate() {
     const errors = {};
-    if (!email.trim()) errors.email = "E-mail é obrigatório";
-    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "E-mail inválido";
-    if (!password) errors.password = "Senha é obrigatória";
+    if (!email.trim()) errors.email = t('auth.login.emailObrigatorio');
+    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = t('auth.login.emailInvalido');
+    if (!password) errors.password = t('auth.login.senhaObrigatoria');
     return errors;
   }
 
@@ -79,7 +81,6 @@ export default function Login() {
     setIsLoading(true);
     setFieldErrors({});
 
-    // ✅ Agora autentica pelo AuthContext (não pelo authService)
     const result = await loginWithPassword(email, password);
 
     setIsLoading(false);
@@ -88,7 +89,7 @@ export default function Login() {
       setErrorMsg(
         result.error?.data?.error ||
         result.error?.message ||
-        "Erro ao autenticar."
+        t('auth.login.erroAuth')
       );
       return;
     }
@@ -107,18 +108,18 @@ export default function Login() {
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
 
-          <h2 className="auth-brand-title">Bem-vindo ao Brise Cloud</h2>
+          <h2 className="auth-brand-title">{t('auth.login.welcome')}</h2>
 
           <p className="auth-brand-subtitle">
             {mode === "oauth"
-              ? "Faça login com sua conta para acessar seus ambientes e dispositivos."
-              : "Acesse sua conta com e-mail e senha para continuar."}
+              ? t('auth.login.subtitleOauth')
+              : t('auth.login.subtitlePassword')}
           </p>
 
           <ul className="auth-brand-list">
-            <li>• Acesse seus ambientes com segurança</li>
-            <li>• Visualize e gerencie seus dispositivos</li>
-            <li>• Tenha seus dados sincronizados na nuvem</li>
+            <li>• {t('auth.login.brandList1')}</li>
+            <li>• {t('auth.login.brandList2')}</li>
+            <li>• {t('auth.login.brandList3')}</li>
           </ul>
 
           {DEBUG_AUTH && (
@@ -131,17 +132,17 @@ export default function Login() {
         {/* Lado direito - formulário */}
         <div className="auth-box">
           <div className="auth-header">
-            <h1>Entrar</h1>
+            <h1>{t('auth.login.title')}</h1>
             <p>
               {mode === "oauth"
-                ? "Preparando seu acesso... Se necessário, você será redirecionado para fazer login."
-                : "Informe seu e-mail e senha para acessar sua conta."}
+                ? t('auth.login.descOauth')
+                : t('auth.login.descPassword')}
             </p>
           </div>
 
           {booting && (
             <div className="auth-info-banner">
-              Preparando seu acesso, aguarde...
+              {t('auth.login.booting')}
             </div>
           )}
 
@@ -154,17 +155,17 @@ export default function Login() {
               onClick={redirectToAuthorize}
               disabled={disabled}
             >
-              Continuar
+              {t('auth.login.continuar')}
             </button>
           ) : (
             <>
               <form onSubmit={handleSubmit} className="auth-form">
                 <div className="input-group">
-                  <label htmlFor="email">E-mail</label>
+                  <label htmlFor="email">{t('auth.login.email')}</label>
                   <input
                     id="email"
                     type="email"
-                    placeholder="seuemail@empresa.com"
+                    placeholder={t('auth.login.emailPlaceholder')}
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -182,13 +183,13 @@ export default function Login() {
 
                 <div className="input-group">
                   <div className="auth-label-row">
-                    <label htmlFor="password">Senha</label>
+                    <label htmlFor="password">{t('auth.login.senha')}</label>
                   </div>
 
                   <input
                     id="password"
                     type="password"
-                    placeholder="Digite sua senha"
+                    placeholder={t('auth.login.senhaPlaceholder')}
                     value={password}
                     onChange={(e) => {
                       setPassword(e.target.value);
@@ -209,10 +210,10 @@ export default function Login() {
                   {isLoading ? (
                     <>
                       <span className="spinner" />
-                      Entrando...
+                      {t('auth.login.entrando')}
                     </>
                   ) : (
-                    "Entrar"
+                    t('auth.login.entrar')
                   )}
                 </button>
               </form>
@@ -220,26 +221,26 @@ export default function Login() {
           )}
 
           <div className="auth-login-link">
-            <span>Não tem uma conta?</span>
+            <span>{t('auth.login.semConta')}</span>
             <button
               type="button"
               className="link-button"
               onClick={() => navigate("/criarConta")}
               disabled={disabled}
             >
-              Criar conta
+              {t('auth.login.criarConta')}
             </button>
           </div>
 
           <div className="auth-login-link">
-            <span>Esqueceu a senha?</span>
+            <span>{t('auth.login.esqueceuSenha')}</span>
             <button
               type="button"
               className="link-button"
               onClick={() => navigate("/EsqueciSenha")}
               disabled={disabled}
             >
-              Recuperar senha
+              {t('auth.login.recuperarSenha')}
             </button>
           </div>
         </div>

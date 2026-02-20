@@ -51,7 +51,7 @@ const Ambientes = () => {
         setAmbientes(Array.isArray(lista) ? lista : []);
       })
       .catch(() => {
-        setError("Erro inesperado ao carregar ambientes");
+        setError(t('ambientesPage.erroCarregar'));
         setAmbientes([]);
       })
       .finally(() => {
@@ -163,19 +163,19 @@ const Ambientes = () => {
 
   const handleSalvarAmbiente = async () => {
     if (!novoAmbiente.nome) {
-      setErroModal("Informe o nome do ambiente.");
+      setErroModal(t('ambientesPage.erroNome'));
       showToast({
         type: "error",
-        message: "Informe o nome do ambiente.",
+        message: t('ambientesPage.erroNome'),
       });
       return;
     }
 
     if (novoAmbiente.equipamentos.length === 0) {
-      setErroModal("Selecione ao menos um equipamento.");
+      setErroModal(t('ambientesPage.erroEquipamento'));
       showToast({
         type: "error",
-        message: "Selecione ao menos um equipamento.",
+        message: t('ambientesPage.erroEquipamento'),
       });
       return;
     }
@@ -202,7 +202,7 @@ const Ambientes = () => {
 
         showToast({
           type: "success",
-          message: "Ambiente criado com sucesso",
+          message: t('ambientesPage.erroCriado'),
         });
       }
 
@@ -224,7 +224,7 @@ const Ambientes = () => {
 
         showToast({
           type: "success",
-          message: "Ambiente atualizado com sucesso",
+          message: t('ambientesPage.erroAtualizado'),
         });
       }
 
@@ -232,7 +232,7 @@ const Ambientes = () => {
     } catch (err) {
       showToast({
         type: "error",
-        message: "Erro inesperado ao salvar ambiente",
+        message: t('ambientesPage.erroSalvar'),
       });
     }
   };
@@ -257,12 +257,12 @@ const Ambientes = () => {
 
       showToast({
         type: "success",
-        message: "Ambiente excluído com sucesso",
+        message: t('ambientesPage.excluido'),
       });
     } catch (err) {
       showToast({
         type: "error",
-        message: "Erro ao excluir ambiente",
+        message: t('ambientesPage.erroExcluir'),
       });
     } finally {
       setConfirmOpen(false);
@@ -276,7 +276,7 @@ const Ambientes = () => {
     setActiveAmbiente(ambiente.id);
     addNotification({
       type: "info",
-      message: `Ambiente "${ambiente.nome}" enviado para automações.`,
+      message: t('ambientesPage.enviadoAutomacoes').replace('{name}', ambiente.nome),
     });
     navigate("/automacoes");
   };
@@ -288,7 +288,7 @@ const Ambientes = () => {
     );
     addNotification({
       type: "info",
-      message: `Ambiente "${ambiente.nome}" ${pausado ? "pausado" : "ativado"}.`,
+      message: pausado ? t('ambientesPage.pausadoMsg').replace('{name}', ambiente.nome) : t('ambientesPage.ativadoMsg').replace('{name}', ambiente.nome),
     });
   };
 
@@ -301,21 +301,21 @@ const Ambientes = () => {
       return (
         <>
           <Wrench size={14} />
-          Manutenção • Em atendimento
+          {t('ambientesPage.manutencaoAtendimento')}
         </>
       );
     }
 
     if (status === "OFFLINE") {
-      return "🔴 Offline • Nenhum ligado";
+      return `🔴 ${t('ambientesPage.offlineNenhum')}`;
     }
 
     if (status === "PARCIAL") {
-      return `🟡 Parcial • ${ligados} de ${total} ligados`;
+      return `🟡 ${t('ambientesPage.parcialLigados').replace('{on}', ligados).replace('{total}', total)}`;
     }
 
     if (status === "ONLINE") {
-      return "🟢 Online • Todos ligados";
+      return `🟢 ${t('ambientesPage.onlineTodos')}`;
     }
 
     return status;
@@ -333,16 +333,16 @@ const Ambientes = () => {
     const diferencaMs = agora - atualizacao;
     const diferencaMin = Math.floor(diferencaMs / 60000);
 
-    if (diferencaMin < 1) return "Atualizado agora";
-    if (diferencaMin === 1) return "Atualizado há 1 minuto";
-    if (diferencaMin < 60) return `Atualizado há ${diferencaMin} min`;
+    if (diferencaMin < 1) return t('ambientesPage.atualizadoAgora');
+    if (diferencaMin === 1) return t('ambientesPage.atualizado1Min');
+    if (diferencaMin < 60) return t('ambientesPage.atualizadoMin').replace('{n}', diferencaMin);
 
     const diferencaHoras = Math.floor(diferencaMin / 60);
-    if (diferencaHoras === 1) return "Atualizado há 1 hora";
-    if (diferencaHoras < 24) return `Atualizado há ${diferencaHoras} horas`;
+    if (diferencaHoras === 1) return t('ambientesPage.atualizado1Hora');
+    if (diferencaHoras < 24) return t('ambientesPage.atualizadoHoras').replace('{n}', diferencaHoras);
 
     const diferencaDias = Math.floor(diferencaHoras / 24);
-    return `Atualizado há ${diferencaDias} dias`;
+    return t('ambientesPage.atualizadoDias').replace('{n}', diferencaDias);
   }
 
   function mostrarTemperatura(ambiente) {
@@ -352,7 +352,7 @@ const Ambientes = () => {
     }
 
     if (status === "MANUTENCAO") {
-      return `${ambiente.temperatura}°C (última)`;
+      return `${ambiente.temperatura}°C ${t('ambientesPage.ultimaLeitura')}`;
     }
 
     return `${ambiente.temperatura}°C`;
@@ -365,11 +365,11 @@ const Ambientes = () => {
     }
 
     if (status === "MANUTENCAO") {
-      return "Bloqueado";
+      return t('ambientesPage.bloqueado');
     }
 
     if (ambiente.potencia === 0) {
-      return "0 kW (desligado)";
+      return `0 kW ${t('ambientesPage.desligado')}`;
     }
 
     return `${ambiente.potencia} kW`;
@@ -382,15 +382,15 @@ const Ambientes = () => {
       <main className="main-content">
         <header className="page-header">
           <div>
-            <h1>Ambientes</h1>
-            <p>Gerencie os ambientes e seus equipamentos</p>
+            <h1>{t('ambientesPage.title')}</h1>
+            <p>{t('ambientesPage.subtitle')}</p>
           </div>
 
           <div className="header-actions">
             <div className="search-ambientes">
               <input
                 type="text"
-                placeholder="Buscar ambientes existentes"
+                placeholder={t('ambientesPage.buscarPlaceholder')}
                 value={buscaAmbiente}
                 onChange={(e) => setBuscaAmbiente(e.target.value)}
               />
@@ -401,11 +401,11 @@ const Ambientes = () => {
               onChange={(e) => setStatusFiltro(e.target.value)}
               className="btn-secondary"
             >
-              <option value="TODOS">Todos</option>
-              <option value="ONLINE">Online</option>
-              <option value="PARCIAL">Parcial</option>
-              <option value="OFFLINE">Offline</option>
-              <option value="MANUTENCAO">Manutenção</option>
+              <option value="TODOS">{t('ambientesPage.todos')}</option>
+              <option value="ONLINE">{t('ambientesPage.online')}</option>
+              <option value="PARCIAL">{t('ambientesPage.parcial')}</option>
+              <option value="OFFLINE">{t('ambientesPage.offline')}</option>
+              <option value="MANUTENCAO">{t('ambientesPage.manutencao')}</option>
             </select>
 
             <button
@@ -418,13 +418,13 @@ const Ambientes = () => {
         </header>
 
         <div className="ambientes-grid">
-          {loading && <p>Carregando ambientes...</p>}
+          {loading && <p>{t('ambientesPage.carregando')}</p>}
 
           {!loading && error && <p className="error">{error}</p>}
           {!loading && !error && ambientes.length === 0 && (
             <div className="empty-state">
-              <p>Nenhum ambiente cadastrado ainda.</p>
-              <p>Cadastre um ambiente para começar o monitoramento.</p>
+              <p>{t('ambientesPage.nenhumCadastrado')}</p>
+              <p>{t('ambientesPage.cadastreParaComecar')}</p>
             </div>
           )}
 
@@ -433,8 +433,8 @@ const Ambientes = () => {
             ambientes.length > 0 &&
             ambientesFiltrados.length === 0 && (
               <div className="empty-state">
-                <p>Nenhum ambiente encontrado para este filtro.</p>
-                <p>Tente selecionar outro status.</p>
+                <p>{t('ambientesPage.nenhumFiltro')}</p>
+                <p>{t('ambientesPage.tenteFiltro')}</p>
               </div>
             )}
 
@@ -451,8 +451,8 @@ const Ambientes = () => {
                       <p className="ambiente-equipamentos">
                         {ambiente.equipamentos.length}{" "}
                         {ambiente.equipamentos.length === 1
-                          ? "equipamento"
-                          : "equipamentos"}
+                          ? t('ambientesPage.equipamento')
+                          : t('ambientesPage.equipamentos')}
                       </p>
                     )}
 
@@ -460,10 +460,10 @@ const Ambientes = () => {
                       <span
                         className={`status-badge status-${ambiente.status?.toLowerCase()}`}
                       >
-                        {ambiente.status === "ONLINE" && "🟢 Online"}
-                        {ambiente.status === "PARCIAL" && "🟡 Parcial"}
-                        {ambiente.status === "OFFLINE" && "🔴 Offline"}
-                        {ambiente.status === "MANUTENCAO" && "🛠 Manutenção"}
+                        {ambiente.status === "ONLINE" && `🟢 ${t('ambientesPage.online')}`}
+                        {ambiente.status === "PARCIAL" && `🟡 ${t('ambientesPage.parcial')}`}
+                        {ambiente.status === "OFFLINE" && `🔴 ${t('ambientesPage.offline')}`}
+                        {ambiente.status === "MANUTENCAO" && `🛠 ${t('ambientesPage.manutencao')}`}
                       </span>
                     </div>
 
@@ -482,16 +482,16 @@ const Ambientes = () => {
 
                       <span className="ambiente-pausa-texto">
                         {ambiente.status?.toUpperCase() === "MANUTENCAO"
-                          ? "Ambiente em manutenção"
+                          ? t('ambientesPage.ambienteManutencao')
                           : ambiente.pausado
-                            ? "Ambiente pausado"
-                            : "Ambiente ativo"}
+                            ? t('ambientesPage.ambientePausado')
+                            : t('ambientesPage.ambienteAtivo')}
                       </span>
                     </div>
 
                     {ambiente.pausado && (
                       <p className="ambiente-pausado-info">
-                        ⏸ Automações deste ambiente estão pausadas
+                        {t('ambientesPage.automacoesPausadas')}
                       </p>
                     )}
                   </div>
@@ -509,7 +509,7 @@ const Ambientes = () => {
                         )
                       }
                     >
-                    ⋮
+                      ⋮
                     </button>
 
                     {ambiente.menuAberto && (
@@ -522,7 +522,7 @@ const Ambientes = () => {
                             );
                           }}
                         >
-                          ✏️ Editar
+                          {t('ambientesPage.editar')}
                         </button>
 
                         <button
@@ -534,7 +534,7 @@ const Ambientes = () => {
                             );
                           }}
                         >
-                          🗑️ Excluir
+                          {t('ambientesPage.excluirBtn')}
                         </button>
                       </div>
                     )}
@@ -545,12 +545,12 @@ const Ambientes = () => {
 
                 <div className="ambiente-info">
                   <div className="info-row">
-                    <span>Temperatura média</span>
+                    <span>{t('ambientesPage.temperatureMedia')}</span>
                     <strong>{mostrarTemperatura(ambiente)}</strong>
                   </div>
 
                   <div className="info-row">
-                    <span>Potência</span>
+                    <span>{t('ambientesPage.potencia')}</span>
                     <strong>{mostrarPotencia(ambiente)}</strong>
                   </div>
                 </div>
@@ -567,13 +567,13 @@ const Ambientes = () => {
                   onClick={() => handleControlar(ambiente)}
                   title={
                     ambiente.status?.toUpperCase() === "OFFLINE"
-                      ? "Ambiente sem comunicação"
+                      ? t('ambientesPage.semComunicacao')
                       : ambiente.status?.toUpperCase() === "MANUTENCAO"
-                        ? "Ambiente em manutenção"
+                        ? t('ambientesPage.emManutencao')
                         : ""
                   }
                 >
-                  Automatizar 🔧
+                  {t('ambientesPage.automatizar')}
                 </button>
               </div>
             ))}
@@ -587,12 +587,12 @@ const Ambientes = () => {
             >
               <div className="modal-header">
                 <h2>
-                  {modoModal === "CRIAR" ? "Novo Ambiente" : "Editar Ambiente"}
+                  {modoModal === "CRIAR" ? t('ambientesPage.novoAmbiente') : t('ambientesPage.editarAmbiente')}
                 </h2>
               </div>
 
               <div className="modal-body">
-                <label className="form-label">Nome do Ambiente</label>
+                <label className="form-label">{t('ambientesPage.nomeAmbiente')}</label>
                 <input
                   className="input"
                   value={novoAmbiente.nome}
@@ -601,7 +601,7 @@ const Ambientes = () => {
                   }
                 />
 
-                <label className="form-label">Tipo do Ambiente</label>
+                <label className="form-label">{t('ambientesPage.tipoAmbiente')}</label>
                 <select
                   className="input"
                   value={novoAmbiente.tipo}
@@ -609,21 +609,20 @@ const Ambientes = () => {
                     setNovoAmbiente({ ...novoAmbiente, tipo: e.target.value })
                   }
                 >
-                  <option value="Sala">Sala</option>
-                  <option value="Escritório">Escritório</option>
-                  <option value="Laboratório">Laboratório</option>
-                  <option value="Outro">Outro</option>
+                  <option value="Sala">{t('ambientesPage.sala')}</option>
+                  <option value="Escritório">{t('ambientesPage.escritorio')}</option>
+                  <option value="Laboratório">{t('ambientesPage.laboratorio')}</option>
+                  <option value="Outro">{t('ambientesPage.outro')}</option>
                 </select>
 
-                <label className="form-label">Status do Ambiente</label>
+                <label className="form-label">{t('ambientesPage.statusAmbiente')}</label>
                 <div className="status-selector">
                   {["ONLINE", "OFFLINE", "MANUTENCAO", "PARCIAL"].map((s) => (
                     <button
                       key={s}
                       type="button"
-                      className={`status-option ${
-                        novoAmbiente.status === s ? "selected" : ""
-                      }`}
+                      className={`status-option ${novoAmbiente.status === s ? "selected" : ""
+                        }`}
                       onClick={() =>
                         setNovoAmbiente({
                           ...novoAmbiente,
@@ -631,15 +630,15 @@ const Ambientes = () => {
                         })
                       }
                     >
-                      {s === "ONLINE" && "🟢 Online"}
-                      {s === "OFFLINE" && "🔴 Offline"}
-                      {s === "MANUTENCAO" && "🟡 Manutenção"}
-                      {s === "PARCIAL" && "🟠 Parcial"}
+                      {s === "ONLINE" && `🟢 ${t('ambientesPage.online')}`}
+                      {s === "OFFLINE" && `🔴 ${t('ambientesPage.offline')}`}
+                      {s === "MANUTENCAO" && `🟡 ${t('ambientesPage.manutencao')}`}
+                      {s === "PARCIAL" && `🟠 ${t('ambientesPage.parcial')}`}
                     </button>
                   ))}
                 </div>
 
-                <h4 className="modal-section-title">Equipamentos</h4>
+                <h4 className="modal-section-title">{t('ambientesPage.equipamentosLabel')}</h4>
                 <div className="equipamentos-grid">
                   {equipamentosDisponiveis.map((eq) => (
                     <label key={eq.id} className="checkbox-item">
@@ -658,12 +657,12 @@ const Ambientes = () => {
 
               <div className="modal-footer modal-footer-sa">
                 <button className="btn-secondary" onClick={handleFecharModal}>
-                  Cancelar
+                  {t('common.cancelar')}
                 </button>
                 <button className="btn-primary" onClick={handleSalvarAmbiente}>
                   {modoModal === "CRIAR"
-                    ? "Criar Ambiente"
-                    : "Salvar alterações"}
+                    ? t('ambientesPage.criarAmbiente')
+                    : t('ambientesPage.salvarAlteracoes')}
                 </button>
               </div>
             </div>
@@ -672,14 +671,14 @@ const Ambientes = () => {
 
         <ConfirmDialog
           open={confirmOpen}
-          title="Excluir ambiente"
+          title={t('ambientesPage.excluirAmbiente')}
           message={
             confirmTarget
-              ? `Tem certeza que deseja excluir o ambiente "${confirmTarget.nome}"?`
-              : "Tem certeza que deseja excluir este ambiente?"
+              ? t('ambientesPage.confirmarExcluir').replace('{name}', confirmTarget.nome)
+              : t('ambientesPage.confirmarExcluirGenerico')
           }
-          confirmText="Excluir"
-          cancelText="Cancelar"
+          confirmText={t('common.excluir')}
+          cancelText={t('common.cancelar')}
           onConfirm={confirmarExclusaoAmbiente}
           onCancel={() => {
             setConfirmOpen(false);

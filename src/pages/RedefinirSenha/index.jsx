@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Logo from "../../assets/logo.svg";
 import { resetPassword, resolveAuthMode } from "../../services/authService";
+import { useLanguage } from "../../context/LanguageContext.jsx";
 
 const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
@@ -11,6 +12,7 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const mode = useMemo(() => resolveAuthMode(), []);
   const [params] = useSearchParams();
+  const { t } = useLanguage();
 
   const [email, setEmail] = useState(params.get("email") || "");
   const [recoveryToken, setRecoveryToken] = useState(
@@ -27,17 +29,16 @@ export default function ResetPassword() {
 
   function validate() {
     const errors = {};
-    if (!email.trim()) errors.email = "Email é obrigatório";
-    if (!recoveryToken.trim()) errors.recoveryToken = "Token é obrigatório";
+    if (!email.trim()) errors.email = t('auth.resetPassword.emailObrigatorio');
+    if (!recoveryToken.trim()) errors.recoveryToken = t('auth.resetPassword.tokenObrigatorio');
 
-    if (!newPassword) errors.newPassword = "Nova senha é obrigatória";
+    if (!newPassword) errors.newPassword = t('auth.resetPassword.novaSenhaObrigatoria');
     else if (!PASSWORD_REGEX.test(newPassword)) {
-      errors.newPassword =
-        "Senha fraca. Use 8+ caracteres, maiúscula, minúscula, número e símbolo.";
+      errors.newPassword = t('auth.resetPassword.senhaFraca');
     }
 
-    if (!confirm) errors.confirm = "Confirme a nova senha";
-    else if (confirm !== newPassword) errors.confirm = "As senhas não coincidem";
+    if (!confirm) errors.confirm = t('auth.resetPassword.confirmarObrigatorio');
+    else if (confirm !== newPassword) errors.confirm = t('auth.resetPassword.senhasNaoCoincidem');
 
     return errors;
   }
@@ -65,11 +66,11 @@ export default function ResetPassword() {
     setIsLoading(false);
 
     if (!res.success) {
-      setErrorMsg(res.error || "Não foi possível redefinir a senha.");
+      setErrorMsg(res.error || t('auth.resetPassword.erroRedefinir'));
       return;
     }
 
-    setSuccessMsg("Senha redefinida com sucesso! Você já pode entrar.");
+    setSuccessMsg(t('auth.resetPassword.sucesso'));
     setTimeout(() => navigate("/login"), 800);
   }
 
@@ -80,21 +81,21 @@ export default function ResetPassword() {
           <div className="login-logo">
             <img src={Logo} alt="Logo Brise Cloud" />
           </div>
-          <h2 className="auth-brand-title">Redefinir senha</h2>
+          <h2 className="auth-brand-title">{t('auth.resetPassword.brandTitle')}</h2>
           <p className="auth-brand-subtitle">
-            Crie uma nova senha para sua conta.
+            {t('auth.resetPassword.brandSubtitle')}
           </p>
           <ul className="auth-brand-list">
             <li>
-              • Modo atual: <b>{mode}</b>
+              • {t('auth.resetPassword.modoAtual')}: <b>{mode}</b>
             </li>
           </ul>
         </div>
 
         <div className="auth-box">
           <div className="auth-header">
-            <h1>Nova senha</h1>
-            <p>Use o e-mail e token do link recebido.</p>
+            <h1>{t('auth.resetPassword.title')}</h1>
+            <p>{t('auth.resetPassword.subtitle')}</p>
           </div>
 
           {errorMsg && <div className="auth-error-banner">{errorMsg}</div>}
@@ -102,7 +103,7 @@ export default function ResetPassword() {
 
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="input-group">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">{t('auth.resetPassword.email')}</label>
               <input
                 id="email"
                 type="email"
@@ -117,7 +118,7 @@ export default function ResetPassword() {
             </div>
 
             <div className="input-group">
-              <label htmlFor="token">Token</label>
+              <label htmlFor="token">{t('auth.resetPassword.token')}</label>
               <input
                 id="token"
                 type="text"
@@ -132,11 +133,11 @@ export default function ResetPassword() {
             </div>
 
             <div className="input-group">
-              <label htmlFor="newPassword">Nova senha</label>
+              <label htmlFor="newPassword">{t('auth.resetPassword.novaSenha')}</label>
               <input
                 id="newPassword"
                 type="password"
-                placeholder="Digite a nova senha"
+                placeholder={t('auth.resetPassword.novaSenhaPlaceholder')}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 disabled={isLoading}
@@ -148,11 +149,11 @@ export default function ResetPassword() {
             </div>
 
             <div className="input-group">
-              <label htmlFor="confirm">Confirmar nova senha</label>
+              <label htmlFor="confirm">{t('auth.resetPassword.confirmarNovaSenha')}</label>
               <input
                 id="confirm"
                 type="password"
-                placeholder="Repita a nova senha"
+                placeholder={t('auth.resetPassword.confirmarPlaceholder')}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 disabled={isLoading}
@@ -167,10 +168,10 @@ export default function ResetPassword() {
               {isLoading ? (
                 <>
                   <span className="spinner" />
-                  Salvando...
+                  {t('auth.resetPassword.salvando')}
                 </>
               ) : (
-                "Redefinir senha"
+                t('auth.resetPassword.redefinir')
               )}
             </button>
           </form>
@@ -182,7 +183,7 @@ export default function ResetPassword() {
               onClick={() => navigate("/login")}
               disabled={isLoading}
             >
-              Voltar ao login
+              {t('auth.resetPassword.voltarLogin')}
             </button>
           </div>
         </div>
